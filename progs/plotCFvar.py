@@ -84,7 +84,7 @@ if numplots > 1:
             bigarea = PyGMT.AreaXY(plot,size=opts.papersize)
 
         if opts.nfiles>1:
-            if parser.profile!=None:
+            if opts.options.profname!=None:
                 infile = opts.cfprofile(i)
             else:
                 infile = opts.cffile(i)
@@ -108,6 +108,8 @@ if numplots > 1:
             area.contour(thk,[0.1],'-W2/0/0/0',time)
         except:
             pass
+        if parser.profile!=None:
+            area.profile(args='-W5/0/0/0')
         area.axis='wesn'
         area.coordsystem()
         area.printinfo(time)

@@ -1,3 +1,7 @@
+2005-03-04 Magnus Hagdorn
+ * plotCFvar.py: fixed bug with checking profile options
+ * glide_launch.py moved to glimmer
+
 2005-02-15 Magnus Hagdorn
  * CF_options.py: fix bug where interval is not set for profiles
  * plotCFvars.sh: fixed bug with checking profile options
