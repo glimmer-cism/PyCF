@@ -23,6 +23,7 @@ __all__=['CFloadfile','CFvariable']
 import Numeric, Scientific.IO.NetCDF,os
 from PyGMT.PyGMTgrid import Grid
 from CF_proj import *
+from CF_colourmap import *
 
 class CFloadfile(object):
     """Loading a CF netCDF file."""
@@ -153,7 +154,9 @@ class CFvariable(object):
 
         self.CFfile = CFfile
         self.file = CFfile.file
+        self.name = var
         self.var = self.file.variables[var]
+        self.__colourmap = CFcolourmap(self)
 
     def __get_units(self):
         try:
@@ -169,6 +172,13 @@ class CFvariable(object):
             return ''
     long_name = property(__get_long_name)
 
+    def __get_standard_name(self):
+        try:
+            return self.var.standard_name
+        except:
+            return ''
+    standard_name = property(__get_standard_name)
+
     def __get_xdim(self):
         return self.file.variables[self.var.dimensions[-1]]
     xdim = property(__get_xdim)
@@ -176,6 +186,13 @@ class CFvariable(object):
     def __get_ydim(self):
         return self.file.variables[self.var.dimensions[-2]]
     ydim = property(__get_ydim)
+
+    def __get_colourmap(self):
+        return self.__colourmap
+    def __set_colourmap(self,name):
+        self.__colourmap = CFcolourmap(self,filename=name)
+    colourmap = property(__get_colourmap,__set_colourmap)
+
     
     def get2Dfield(self,time,level=0):
         """Get a 2D field.

@@ -1,4 +1,7 @@
 2004-06-14 Magnus Hagdorn
+ * added colour maps
+	
+2004-06-14 Magnus Hagdorn
  * CF_loadfile.py: added variable class
  * CF_area.py: first test of plotting images and contour lines
 	

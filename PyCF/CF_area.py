@@ -79,7 +79,7 @@ class CFArea(PyGMT.AreaXY):
         level: horizontal slice
         """
         
-        PyGMT.AreaXY.image(self,var.getGMTgrid(time,level=level),'/home/magi/ism/tools/gmt/topo.cpt')
+        PyGMT.AreaXY.image(self,var.getGMTgrid(time,level=level),var.colourmap.cptfile)
 
     def contour(self,var,contours,args,time,level=0):
         """Plot a contour map.
@@ -94,7 +94,6 @@ class CFArea(PyGMT.AreaXY):
 
 if __name__ == '__main__':
     import sys
-
     
     infile = CFloadfile(sys.argv[1])
     var = CFvariable(infile,'topg')
