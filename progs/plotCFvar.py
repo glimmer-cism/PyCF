@@ -71,6 +71,8 @@ if numplots > 1:
         x = i%numx
         y = int((i-p*(numx*numy))/numx)
         area = PyCF.CFArea(bigarea,infile,pos=[x*sizex,opts.papersize[1]-(y+1)*sizey],size=sizex-deltax)
+        if opts.options.land:
+            area.land(time)
         area.image(var,time,clip = opts.options.clip)
         area.coastline()
         area.axis='wesn'
@@ -79,6 +81,8 @@ if numplots > 1:
 else:
     plot = opts.plot()
     area = PyCF.CFArea(plot,infile,size=sizex-deltax)
+    if opts.options.land:
+        area.land(time)
     area.image(var,time,clip = opts.options.clip)
     area.coastline()
     area.coordsystem()

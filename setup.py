@@ -37,7 +37,8 @@ data_files = [('share/PyCF/',['data/ice.cpt',
                               'data/velo.cpt']),
               ('bin',['progs/add_projinfo.py',
                       'progs/create_topo.py',
-                      'progs/plotCFvar.py']),]
+                      'progs/plotCFvar.py',
+                      'progs/plotEISvar.py'])]
 
 setup (name = "PyCF",
        version = "0.0",

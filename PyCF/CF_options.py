@@ -57,11 +57,21 @@ class CFOptParser(optparse.OptionParser):
         group.add_option("--urg",dest='urg',metavar="X Y",type="float",nargs=2,help="upper right corner in geographic coordinate system")
         self.add_option_group(group)
 
+    def eisforcing(self):
+        """Options for handling EIS forcing time series."""
+
+        group = optparse.OptionGroup(self,"EIS forcing","Files containing time series used for forcing EIS.")
+        group.add_option("--ela",dest='elafile',metavar="FILE",type="string",help="Name of file containing ELA forcing")
+        group.add_option("--temp",dest='tempfile',metavar="FILE",type="string",help="Name of file containing temperature forcing")
+        group.add_option("--slc",dest='slcfile',metavar="FILE",type="string",help="Name of file containing SLC forcing")
+        self.add_option_group(group)
+        
     def variable(self):
         """Variable option."""
 
         self.add_option("-v","--variable",metavar='NAME',action='append',type="string",dest='vars',help="variable to be processed (this option can be used more than once)")
         self.add_option("-c","--clip",metavar='VAR',type="choice",dest='clip',choices=['thk','topg','usurf'],help="display variable only where ['thk','topg','usurf']>0.")
+        self.add_option("--land",action="store_true", dest="land",default=False,help="Indicate area above SL")
 
     def time(self):
         """Time option."""

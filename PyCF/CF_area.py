@@ -100,6 +100,17 @@ class CFArea(PyGMT.AreaXY):
 
         PyGMT.AreaXY.contour(self,var.getGMTgrid(time,level=level),contours,args)
 
+    def land(self,time,grey='240'):
+        """Plot area above sea level.
+
+        time: time slice
+        grey: grey value."""
+
+        cvar = CFvariable(self.file,'topg')
+        self.clip(cvar.getGMTgrid(time),0.1)
+        self.line('-W -L -G%s'%grey,[self.ll[0],self.ur[0],self.ur[0],self.ll[0]],[self.ll[1],self.ll[1],self.ur[1],self.ur[1]])
+        self.unclip()
+
 if __name__ == '__main__':
     from CF_options import *
 
@@ -113,9 +124,10 @@ if __name__ == '__main__':
     infile = opts.cffile()
     var = opts.vars(infile)
     ts = opts.times(infile)
-    
     plot = opts.plot()
     area = CFArea(plot,infile)
+    if opts.options.land:
+        area.land(ts)
     area.image(var,ts,clip = opts.options.clip)
     area.coastline()
     area.coordsystem()

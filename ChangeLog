@@ -1,3 +1,9 @@
+2004-07-01 Magnus Hagdorn
+ * plotEISvar.py: added new program to plot EIS forcing and variable
+ * added plotting of land above SL (CF_area.py, CF_options.py, plotCFvar.py)
+ * CF_IOmisc.py: timeseries I/O
+ * CF_timeseries.py: timeseries
+
 2004-06-21 Magnus Hagdorn
  * add append option to CF_createfile.py
 
