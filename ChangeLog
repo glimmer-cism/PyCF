@@ -1,3 +1,8 @@
+2004-06-15 Magnus Hagdorn
+ * install data files and programs (setup.py)
+ * added colourmaps
+ * CF_createfile.py: look for ncdf_vars.def in GLIMMER_PREFIX
+
 2004-06-14 Magnus Hagdorn
  * added shared command line option parser
 

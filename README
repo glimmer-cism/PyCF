@@ -12,7 +12,9 @@ You will need the following packages
 
 If your proj4 library is not in a standard location than you need to set
 the environment variable PROJ_PREFIX to point to the location where proj4
-is installed.
+is installed. You should install PyCF into the GLIMMER_PREFIX, i.e.
+./setup.py install --home=$GLIMMER_PREFIX
+since some modules query GLIMMER_PREFIX to find data files.
 
 Programs
 * create_topo.py - create input topo file

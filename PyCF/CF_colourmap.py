@@ -22,10 +22,16 @@ __all__=['CFcolourmap']
 
 import os, PyGMT,Numeric
 
+try:
+    cname=os.environ['GLIMMER_PREFIX']
+except:
+    raise RuntimeError, 'Set GLIMMER_PREFIX to where glimmer is installed.'
+cname = os.path.join(cname,'share','PyCF')
+if not os.path.exists(cname):
+            raise RuntimeError, 'Error, cannot find %s,\nPyCF is not installed properly.'%cname
+
 class CFcolourmap(object):
     """Colourmaps."""
-
-    CPTDIR = '/home/mhagdorn/ism/tools/gmt/'
 
     STDN_MAP = { 'bedrock_altitude' : 'topo.cpt',
                  'land_ice_thickness' : 'ice.cpt',
@@ -74,9 +80,9 @@ class CFcolourmap(object):
         else:
             self.__cptfile = None
             if self.name in self.VARN_MAP:
-                self.__cptfile = os.path.join(self.CPTDIR,self.VARN_MAP[self.name])
+                self.__cptfile = os.path.join(cname,self.VARN_MAP[self.name])
             elif var.standard_name in self.STDN_MAP:
-                self.__cptfile = os.path.join(self.CPTDIR,self.STDN_MAP[var.standard_name])
+                self.__cptfile = os.path.join(cname,self.STDN_MAP[var.standard_name])
             else:
                 self.__cptfile = '.__auto.cpt'
                 

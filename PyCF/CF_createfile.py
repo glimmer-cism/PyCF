@@ -93,10 +93,10 @@ class CFcreatefile(object):
         fname: name of CF file."""
         # get variable definitions
         try:
-            vname=os.environ['GLIMMER_HOME']
+            vname=os.environ['GLIMMER_PREFIX']
         except KeyError:
             vname = os.path.expanduser(os.path.join('~','glimmer'))
-        vname = os.path.join(vname,'src','fortran','ncdf_vars.def')
+        vname = os.path.join(vname,'share','glimmer','ncdf_vars.def')
         if not os.path.exists(vname):
             raise RuntimeError, 'Cannot find ncdf_vars.def\nPlease set GLIMMER_HOME to where glimmer is installed'
         self.vars = CFVariableDef(vname)

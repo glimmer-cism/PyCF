@@ -30,6 +30,13 @@ ext_modules = [
               library_dirs=[proj_lib],
               libraries = ['proj']),
     ]
+data_files = [('share/PyCF/',['data/ice.cpt',
+                              'data/mb.cpt',
+                              'data/temp.cpt',
+                              'data/topo.cpt',
+                              'data/velo.cpt']),
+              ('bin',['progs/add_projinfo.py',
+                      'progs/create_topo.py']),]
 
 setup (name = "PyCF",
        version = "0.0",
@@ -38,6 +45,7 @@ setup (name = "PyCF",
        author_email = "Magnus.Hagdorn@ed.ac.uk",
        packages = ['PyCF'],
        ext_modules = ext_modules,
+       data_files=data_files,
        )
 
 
