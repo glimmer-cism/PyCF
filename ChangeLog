@@ -1,3 +1,6 @@
+2005-04-01 Magnus Hagdorn
+ * CF_createfile.py: added 'VARSET' to list of non-variables for test.nc file
+
 2005-03-29 Magnus Hagdorn
  * plotCFvar.py: plot velo fields for number of files
 

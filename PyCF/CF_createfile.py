@@ -155,7 +155,7 @@ if __name__ == '__main__':
     var[:]=Numeric.arange(numy).astype(Numeric.Float32)
     
     for v in cffile.vars:
-        if 'spot' not in v and v not in ['level','x0','y0','x1','y1']:
+        if 'spot' not in v and v not in ['VARSET','level','x0','y0','x1','y1']:
             var = cffile.createVariable(v)
 
     cffile.close()
