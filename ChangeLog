@@ -1,4 +1,10 @@
 2004-06-13 Magnus Hagdorn
+ * CF_proj.py: made scale_factor_at_projection_origin optional and added a 
+   function for projecting points
+ * CF_loadfile.py: Class for loading a CF file
+ * CF_area.py: Class for visualising CF data sets
+	
+2004-06-13 Magnus Hagdorn
  * move projection help messages to CF_proj.py (create_topo.py)
  * add_projinfo.py: program used to add mapping info to netCDF files
 	

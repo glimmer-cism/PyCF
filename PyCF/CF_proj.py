@@ -20,7 +20,8 @@
 
 __all__=['CFProj','CFProj_aea','CFProj_lcc','getCFProj','copyCFMap','CFProj_parse_GMTproj','CFProj_printGMThelp']
 
-import proj, Numeric
+import Numeric
+from PyCF import proj
 
 class DummyProj:
     """Emptiy class for storing CF projection."""
@@ -48,6 +49,16 @@ class CFProj:
         for p in self.params.keys():
             params.append('%s=%s'%(p,self.params[p]))
         return params
+
+    def proj4(self,point,inv=False):
+        """Do projection.
+
+        point: 2D point
+        inv:   if True do the inverse projection."""
+
+        projpt = proj.project(self.proj4_params(),Numeric.array([[point[0]],[point[1]]],Numeric.Float32),inv=inv)
+
+        return [projpt[0,0], projpt[1,0]]
 
     def setOrigin(self,lon0,lat0):
         """Set origin of projected grid.
@@ -84,7 +95,10 @@ class CFProj_stere(CFProj):
         else: # others
             self.params['lat_0'] = var.latitude_of_projection_origin[0]
             self.params['lon_0'] = var.longitude_of_central_meridian[0]
-        self.params['k_0'] = var.scale_factor_at_projection_origin[0]
+        try:
+            self.params['k_0'] = var.scale_factor_at_projection_origin[0]
+        except AttributeError:
+            self.params['k_0'] = 1.0
         self.gmt_type = 's'
 
     def getGMTprojection(self):
