@@ -42,7 +42,7 @@ class CFProfileArea(PyGMT.AutoXY):
         self.file = profile.cffile
         self.axis='WeSn'
         self.xlabel = 'distance along profile [km]'
-        if profile.is3d and level == None:
+        if profile.is3d and level == None and not profile.average:
             self.ylabel = 'elevation [m]'
 
             data = profile.getProfile2D(time)

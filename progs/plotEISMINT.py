@@ -25,7 +25,7 @@ Width=18.
 ProfileHeight=2.5
 SpotHeight=3.5
 
-import PyGMT,PyCF,sys
+import PyGMT,PyCF,sys, Numeric
 
 parser = PyCF.CFOptParser()
 parser.profile(vars=False)
@@ -65,7 +65,7 @@ if hasattr(infile,'comment'):
 # plot ice surface and basal temperatures
 deltay = 0.7
 mapheight = Width/3.-deltay
-ypos = ypos - mapheight - 1.
+ypos = ypos - mapheight - .5
 thk = infile.getvar('thk')
 area = PyCF.CFArea(bigarea,infile,pos=[0.,ypos],size=mapheight)
 area.axis='WeSN'
@@ -73,7 +73,7 @@ area.image(thk,time,clip = 'thk')
 area.coordsystem()
 area.profile(args='-W5/0/0/0')
 for i in range(0,len(spots)):
-    area.plotsymbol([spots_loc[i][0]],[spots_loc[i][1]],size='0.3',symbol='a',args='-G0')
+    area.plotsymbol([spots_loc[i][0]],[spots_loc[i][1]],size='0.3',symbol='a',args='-G%s'%PyCF.CFcolours[i])
     area.text(spots_loc[i],'%s'%Labels[i],'12 0 0 MC',comargs='-D0/0.4')
 area.stamp(thk.long_name)
 
@@ -85,7 +85,7 @@ area.image(btmp,time,clip = 'thk',level=-1)
 area.coordsystem()
 area.profile(args='-W5/0/0/0')
 for i in range(0,len(spots)):
-    area.plotsymbol([spots_loc[i][0]],[spots_loc[i][1]],size='0.3',symbol='a',args='-G0')
+    area.plotsymbol([spots_loc[i][0]],[spots_loc[i][1]],size='0.3',symbol='a',args='-G%s'%PyCF.CFcolours[i])
     area.text(spots_loc[i],'%s'%Labels[i],'12 0 0 MC',comargs='-D0/0.4')
 area.stamp(btmp.long_name)
 
@@ -99,33 +99,27 @@ PyGMT.colourkey(area,thk.colourmap.cptfile,title=thk.long_name,pos=[0,3],size=[m
 PyGMT.colourkey(area,btmp.colourmap.cptfile,title=btmp.long_name,pos=[0,1],size=[mapheight+0.5,0.4])
 
 # plot profiles
-ypos = ypos-ProfileHeight-1.
 thk_prof = infile.getprofile('thk')
+horiz_prof = infile.getprofile('uvel_avg')
 btmp_prof = infile.getprofile('temp')
 btmp_prof.pmt=opts.options.pmt
-thk_data = thk_prof.getProfile(time)
 
-
-area = PyCF.CFProfileArea(bigarea,btmp_prof,time,size=[Width-1.,ProfileHeight],pos=[1.,ypos])
-area.axis='Wesn'
-area.xlabel=''
-area.finalise(expandy=True)
-area.coordsystem()
-
-ypos = ypos-ProfileHeight-0.3
-area = PyCF.CFProfileArea(bigarea,btmp_prof,time,level=-1,size=[Width-1.,ProfileHeight],pos=[1.,ypos])
-area.axis='WeSn'
+ypos = ypos-3*ProfileHeight-2.
+area = PyCF.CFProfileMArea(bigarea,pos=[2.,ypos],size=[Width-3.,ProfileHeight])
+area.newprof(horiz_prof,time)
+area.newprof(btmp_prof,time,level=-1)
+area.newprof(btmp_prof,time)
 area.finalise(expandy=True)
 area.coordsystem()
 
 # plot temperature profiles
-profx = 3*Width/8.-deltay
+profx = (Width-1)/3.-deltay
 ypos = ypos - SpotHeight - 2.
 area = PyGMT.AutoXY(bigarea,size=[profx,SpotHeight],pos=[1.,ypos])
 area.axis='WeSn'
 for i in range(0,len(spots)):
     data = btmp.getSpotIJ(spots[i],time,level=None)
-    area.line('-W1/%s'%PyCF.CFcolours[i],data,infile.file.variables['level'][:])
+    area.line('-W1/%s'%PyCF.CFcolours[i],data,(1-infile.file.variables['level'][:]))
 area.xlabel = '%s [%s]'%(btmp.long_name,btmp.units)
 area.ylabel = 'normalised height'
 area.finalise(expandx=True)
@@ -133,33 +127,45 @@ area.coordsystem()
 
 wvel = infile.getvar('wvel')
 area = PyGMT.AutoXY(bigarea,size=[profx,SpotHeight],pos=[profx+1.5,ypos])
-area.axis='wESn'
+area.axis='weSn'
 for i in range(0,len(spots)):
     data = wvel.getSpotIJ(spots[i],time,level=None)
-    area.line('-W1/%s'%PyCF.CFcolours[i],data,infile.file.variables['level'][:])
+    area.line('-W1/%s'%PyCF.CFcolours[i],data,(1-infile.file.variables['level'][:]))
 area.xlabel = '%s [%s]'%(wvel.long_name,wvel.units)
 area.finalise(expandx=True)
 area.coordsystem()
 
-# plot keys
-area = PyGMT.KeyArea(bigarea,pos=[2*profx+3.,ypos],size=[profx,SpotHeight])
-area.num = [1,5]
+uvel = infile.getvar('uvel')
+area = PyGMT.AutoXY(bigarea,size=[profx,SpotHeight],pos=[2*profx+2.,ypos])
+area.axis='wESn'
 for i in range(0,len(spots)):
-    area.plot_line('%s [%d,%d]'%(Labels[i],spots[i][0],spots[i][1]),'1/%s'%PyCF.CFcolours[i])
+    d1 = uvel.getSpotIJ(spots[i],time,level=None)
+    d2 = uvel.getSpotIJ([spots[i][0]-1,spots[i][1]],time,level=None)
+    data = (Numeric.array(d1)+Numeric.array(d2))/2.
+    area.line('-W1/%s'%PyCF.CFcolours[i],data,(1-infile.file.variables['level'][:]))
+area.xlabel = '%s [%s]'%(uvel.long_name,uvel.units)
+area.finalise(expandx=True)
+area.coordsystem()
+
+# plot keys
+#area = PyGMT.KeyArea(bigarea,pos=[2*profx+3.,ypos],size=[profx,SpotHeight])
+#area.num = [1,5]
+#for i in range(0,len(spots)):
+#    area.plot_line('%s [%d,%d]'%(Labels[i],spots[i][0],spots[i][1]),'1/%s'%PyCF.CFcolours[i])
 
 # plot ice volume and area
 # changed to plot ice thickness and basal temp at divide
-ypos = ypos-2*ProfileHeight-2.8
+ypos = ypos-ProfileHeight-2.4
 #ice_area = infile.getIceArea()
 #ice_vol = infile.getIceVolume()
 area = PyCF.CFAreaTS(bigarea,size=[Width-1.,ProfileHeight],pos=[1.,ypos])
 
-ia = area.newts()
-ia.xlabel = 'time [ka]'
-ia.ylabel = '%s [%s]'%(btmp.long_name,btmp.units)
-for i in range(0,len(spots)):
-    div_btemp = btmp.getSpotIJ(spots[i],level=-1)
-    ia.line('-W1/%s'%PyCF.CFcolours[i],infile.time(None),div_btemp)
+#ia = area.newts()
+#ia.xlabel = 'time [ka]'
+#ia.ylabel = '%s [%s]'%(btmp.long_name,btmp.units)
+#for i in range(0,len(spots)):
+#    div_btemp = btmp.getSpotIJ(spots[i],level=-1)
+#    ia.line('-W1/%s'%PyCF.CFcolours[i],infile.time(None),div_btemp)
 #ia.ylabel = 'ice area'
 #ia.line('-W1/0/0/0',infile.time(None),ice_area)
 

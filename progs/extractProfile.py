@@ -38,7 +38,10 @@ data.append(infile.xvalues)
 vars.append('# dist')
 for i in range(0,opts.nvars):
     profile = opts.profs(infile,i)
-    vars.append(profile.name)
+    if profile.average:
+        vars.append('%s_avg'%profile.name)
+    else:
+        vars.append(profile.name)
     data.append(profile.getProfile(time,level=opts.options.level))
 
 # writing data to file

@@ -1,4 +1,9 @@
 2004-11-23 Magnus Hagdorn
+ * extractProfile.py: correct labeling for averaged quantities
+ * plotEISMINT.py: much improved EISMINT plotter
+ * CF_profilearea.py: slight bug with averaged quantities and is3d
+
+2004-11-23 Magnus Hagdorn
  * CF_loadfile.py: appending _avg to a variable takes the vertical average of it
 
 2004-11-18 Magnus Hagdorn
