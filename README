@@ -1,0 +1,18 @@
+PyCF is a collection of python modules and programs which can be used to
+manipulate glimmer CF data.
+
+Installation
+You will need the following packages
+* GMT       http://gmt.soest.hawaii.edu/
+* proj4     http://proj.maptools.org/
+* Numeric   http://www.pfdubois.com/numpy/
+* Scientific Python 
+            http://starship.python.net/~hinsen/ScientificPython/
+* PyGMT     https://forge.nesc.ac.uk/projects/pygmt/
+
+If your proj4 library is not in a standard location than you need to set
+the environment variable PROJ_PREFIX to point to the location where proj4
+is installed.
+
+Programs
+* create_topo.py - create input topo file

@@ -1,2 +1,10 @@
+2004-06-13 Magnus Hagdorn
+ * added some contents to README
+ * added class for creating new netCDF files using the specs from the glimmer 
+   src (CF_createfile.py, __init__.py)
+ * added Lambert Azimuthal Equal Area projection (CF_proj.py)
+ * create_topo.py: using new netCDF file creating infrastructure, using
+   GMT grids for input data
+	
 2004-06-10 Magnus Hagdorn
  * started PyCF, python progs/modules for handling CF/Glimmer netCDF files

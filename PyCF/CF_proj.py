@@ -64,22 +64,38 @@ class CFProj:
         wesn = proj.project(self.proj4_params(),Numeric.array([[ll[0],ur[0]],[ll[1],ur[1]]],Numeric.Float32),inv=True)
         return '%f/%f/%f/%fr'%(wesn[0,0],wesn[1,0],wesn[0,1],wesn[1,1])
 
-class CFProj_aea(CFProj):
+class CFProj_laea(CFProj):
+    """Lambert Azimuthal Equal Area"""
+    def __init__(self,var):
+        """Initialise.
+        
+        var: CF grid mapping variable."""
+        CFProj.__init__(self,var)
+        self.params['proj'] = 'laea'
+        self.params['lat_0'] = var.latitude_of_projection_origin[0]
+        self.params['lon_0'] = var.longitude_of_central_meridian[0]
+        self.gmt_type = 'a'
+
+    def getGMTprojection(self):
+        """Get GMT projection string."""
+
+        return '%s%f/%f'%(self.gmt_type,
+                                self.params['lon_0'],self.params['lat_0'])
+
+class CFProj_aea(CFProj_laea):
     """Albers Equal-Area Conic."""
 
     def __init__(self,var):
         """Initialise.
         
         var: CF grid mapping variable."""
-        CFProj.__init__(self,var)
-        self.params['proj'] = 'aea'
+        CFProj_laea.__init__(self,var)
         self.params['lat_1'] = var.standard_parallel[0]
         if len(var.standard_parallel) == 2:
             self.params['lat_2'] = var.standard_parallel[1]
         if len(var.standard_parallel) < 1 or len(var.standard_parallel) > 2:
             raise RuntimeError, 'Wrong size of standard_parallel attribute'
-        self.params['lat_0'] = var.latitude_of_projection_origin[0]
-        self.params['lon_0'] = var.longitude_of_central_meridian[0]
+        self.params['proj'] = 'aea'
         self.gmt_type = 'b'
 
     def getGMTprojection(self):
@@ -105,7 +121,9 @@ def getCFProj(var):
     
     var: CF grid mapping variable."""
     
-    CFProj_MAP = {'albers_conical_equal_area' : CFProj_aea, 'lambert_conformal_conic' : CFProj_lcc}
+    CFProj_MAP = {'lambert_azimuthal_equal_area' : CFProj_laea,
+                  'albers_conical_equal_area' : CFProj_aea,
+                  'lambert_conformal_conic' : CFProj_lcc}
 
     if var.grid_mapping_name not in CFProj_MAP:
         raise KeyError, 'Error, no idea how to handle projection: %s'%var.grid_mapping_name
