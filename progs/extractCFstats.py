@@ -79,7 +79,11 @@ if __name__ == '__main__':
         if stats_comp != None:
             out[0] = out[0]+'\t rel to %s'%comp_title
             for i in range(0,len(stats)):
-                out[i+1] = out[i+1]+'\t %f%%'%(100.*(stats[i]-stats_comp[i])/(abs(stats_comp[i])))
+                if i==4:
+                    out[i+1] = out[i+1]+'\t %f'%(stats[i]-stats_comp[i])
+                else:
+                    out[i+1] = out[i+1]+'\t %f%%'%(100.*(stats[i]-stats_comp[i])/(abs(stats_comp[i])))
+                
         for l in out:
             print l
         print ''
