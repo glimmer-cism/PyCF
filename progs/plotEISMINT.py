@@ -29,6 +29,7 @@ import PyGMT,PyCF,sys
 
 parser = PyCF.CFOptParser()
 parser.profile(vars=False)
+parser.add_option("--pmt",action="store_true", dest="pmt",default=False,help='Correct temperature for temperature dependance on pressure')
 parser.time()
 parser.plot()
 opts = PyCF.CFOptions(parser,2)
@@ -77,7 +78,7 @@ for i in range(0,len(spots)):
 area.stamp(thk.long_name)
 
 btmp = infile.getvar('temp')
-btmp.pmt = True
+btmp.pmt = opts.options.pmt
 area = PyCF.CFArea(bigarea,infile,pos=[mapheight+deltay,ypos],size=mapheight)
 area.axis='wESN'
 area.image(btmp,time,clip = 'thk',level=-1)
@@ -101,7 +102,7 @@ PyGMT.colourkey(area,btmp.colourmap.cptfile,title=btmp.long_name,pos=[0,1],size=
 ypos = ypos-ProfileHeight-1.
 thk_prof = infile.getprofile('thk')
 btmp_prof = infile.getprofile('temp')
-btmp_prof.pmt=True
+btmp_prof.pmt=opts.options.pmt
 thk_data = thk_prof.getProfile(time)
 
 
@@ -147,20 +148,29 @@ for i in range(0,len(spots)):
     area.plot_line('%s [%d,%d]'%(Labels[i],spots[i][0],spots[i][1]),'1/%s'%PyCF.CFcolours[i])
 
 # plot ice volume and area
+# changed to plot ice thickness and basal temp at divide
 ypos = ypos-2*ProfileHeight-2.8
-ice_area = infile.getIceArea()
-ice_vol = infile.getIceVolume()
+#ice_area = infile.getIceArea()
+#ice_vol = infile.getIceVolume()
 area = PyCF.CFAreaTS(bigarea,size=[Width-1.,ProfileHeight],pos=[1.,ypos])
-
-iv = area.newts()
-iv.xlabel = 'time [ka]'
-iv.ylabel = 'ice volume'
-iv.line('-W1/0/0/0',infile.time(None),ice_vol)
 
 ia = area.newts()
 ia.xlabel = 'time [ka]'
-ia.ylabel = 'ice area'
-ia.line('-W1/0/0/0',infile.time(None),ice_area)
+ia.ylabel = '%s [%s]'%(btmp.long_name,btmp.units)
+for i in range(0,len(spots)):
+    div_btemp = btmp.getSpotIJ(spots[i],level=-1)
+    ia.line('-W1/%s'%PyCF.CFcolours[i],infile.time(None),div_btemp)
+#ia.ylabel = 'ice area'
+#ia.line('-W1/0/0/0',infile.time(None),ice_area)
+
+iv = area.newts()
+iv.xlabel = 'time [ka]'
+iv.ylabel = '%s [%s]'%(thk.long_name,thk.units)
+for i in range(0,len(spots)):
+    div_thick = thk.getSpotIJ(spots[i])
+    iv.line('-W1/%s'%PyCF.CFcolours[i],infile.time(None),div_thick)
+#iv.ylabel = 'ice volume'
+#iv.line('-W1/0/0/0',infile.time(None),ice_vol)
 
 area.finalise(expandy=True)
 area.coordsystem()

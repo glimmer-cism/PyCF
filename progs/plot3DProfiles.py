@@ -35,12 +35,13 @@ plot.defaults['LABEL_FONT_SIZE']='12p'
 plot.defaults['ANOT_FONT_SIZE']='10p'
 bigarea = PyGMT.AreaXY(plot,size=opts.papersize)
 
-area = PyCF.CFProfileMArea(bigarea,pos=[0,1.5],size=[opts.options.width,opts.options.width/4.])
+area = PyCF.CFProfileMArea(bigarea,pos=[0,1.5],size=[opts.options.width,opts.options.width/5.])
 for i in range(0,opts.nfiles):
     infile = opts.cfprofile(i)
     profile = opts.profs(infile)
     time = opts.times(infile,0)
     prof_area = area.newprof(profile,time)
+    prof_area.ur=[prof_area.ur[0],4000.]
     prof_area.printinfo(time)
 
 area.finalise(expandy=True)

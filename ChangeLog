@@ -1,3 +1,7 @@
+2004-11-04 Magnus Hagdorn
+ * plot3DProfiles.py: plot more profiles per page
+ * minor changes of plotEISMINT.py
+
 2004-11-01 Magnus Hagdorn
  * CF_options.py: added number of input files
  * CF_profilearea.py: added text stamp to profile area
