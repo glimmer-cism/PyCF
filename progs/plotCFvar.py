@@ -52,7 +52,7 @@ if count > 1:
     sys.stderr.write('Error, can only have either more than one time slice or more than one variable or more than one file!\n')
     sys.exit(1)
 
-if parser.profile!=None:
+if opts.options.profname!=None:
     infile = opts.cfprofile()
 else:
     infile = opts.cffile()

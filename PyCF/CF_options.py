@@ -102,6 +102,7 @@ class CFOptParser(optparse.OptionParser):
 
         self.add_option("-p","--profile",metavar='PROFILE',type='string',dest='profname',help="name of file containing profile control points")
         self.add_option("--not_projected",action="store_false",default=True,dest="prof_is_projected",help="Set this flag if the profile data is not projected.")        
+        self.add_option("--interval",type="float",metavar='INTERVAL',default=10000.,help="set interval to INTERVAL (default = 10000.m)")
 
     def profile(self,vars=True):
         """Profile options.

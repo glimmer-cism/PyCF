@@ -1,3 +1,8 @@
+2005-02-15 Magnus Hagdorn
+ * CF_options.py: fix bug where interval is not set for profiles
+ * plotCFvars.sh: fixed bug with checking profile options
+ * plotStreams.py: new prog for plotting funky stream locations
+
 2005-02-11 Magnus Hagdorn
  * CF_file.py: add method to get number of time slices
  * CF_profile.py: add profile time series
