@@ -1,3 +1,6 @@
+2004-11-23 Magnus Hagdorn
+ * CF_loadfile.py: appending _avg to a variable takes the vertical average of it
+
 2004-11-18 Magnus Hagdorn
  * CF_loadfile.py: fix bug in temperature correction
  * CF_options.py: apply colourmaps to profiles as well

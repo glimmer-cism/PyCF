@@ -221,11 +221,16 @@ class CFvariable(object):
 
         self.cffile = cffile
         self.file = cffile.file
-        self.name = var
-        if var=='is':
+        if var[-4:] == '_avg':
+            self.name = var[:-4]
+            self.average = True
+        else:
+            self.name = var
+            self.average = False
+        if self.name=='is':
             if 'topg' not in self.file.variables.keys() or 'thk' not in self.file.variables.keys():
                 raise KeyError, 'Variable not in file'
-        elif var not in self.file.variables.keys():
+        elif self.name not in self.file.variables.keys():
             raise KeyError, 'Variable not in file'
         self.__colourmap = CFcolourmap(self)
         self.pmt = False
@@ -244,12 +249,16 @@ class CFvariable(object):
     def __get_long_name(self):
         try:
             if self.name in temperatures and self.pmt and 'thk' in self.file.variables.keys():
-                return 'homologous %s'%self.file.variables[self.name].long_name
+                name = 'homologous %s'%self.file.variables[self.name].long_name
             elif self.name == 'is':
-                return 'ice surface elevation'
-            return self.file.variables[self.name].long_name
+                name =  'ice surface elevation'
+            else:
+                name = self.file.variables[self.name].long_name
         except:
-            return ''
+            name = ''
+        if self.average:
+            name = 'vertically averaged %s'%name
+        return name
     long_name = property(__get_long_name)
 
     def __get_standard_name(self):
@@ -293,9 +302,32 @@ class CFvariable(object):
         else:
             return self.file.variables[self.name]
     var = property(__get_var)
-                                                                                       
-    
+
     def get2Dfield(self,time,level=0):
+        """Get a 2D field.
+
+        time: time slice
+        level: horizontal slice."""
+
+        if self.average:
+            if not self.is3d:
+                raise RuntimeError, 'Variable %s is not 3D.'%self.name
+            # integrate
+            grid = Numeric.zeros((len(self.xdim),len(self.ydim)),Numeric.Float32)
+
+            sigma = self.file.variables['level']
+            sliceup = self.__get2Dfield(time,level=-1)
+            for k in range(len(sigma)-2,-1,-1):
+                slice = self.__get2Dfield(time,level=k)
+                grid = grid+(sliceup+slice)*(sigma[k+1]-sigma[k])
+                sliceup = self.__get2Dfield(time,level=k)
+            grid = 0.5*grid
+        else:
+            grid = self.__get2Dfield(time,level=level)
+
+        return grid
+    
+    def __get2Dfield(self,time,level=0):
         """Get a 2D field.
 
         time: time slice
