@@ -1,3 +1,11 @@
+2005-02-11 Magnus Hagdorn
+ * CF_file.py: add method to get number of time slices
+ * CF_profile.py: add profile time series
+ * extractCFstats.py: add switch for EISMINT runs
+ * extractTS.py: new prog for extracting a timeseries
+ * plotCFvar.py: add option to plot location of a profile
+ * plotProfileTS.py: new prog for plotting time-dist diagrams
+
 2005-02-03 Magnus Hagdorn
  * CF_area.py: fixed a bug
  * CF_createfile.py: removed spot, now can load var definitions from multiple files

@@ -20,7 +20,7 @@
 
 __all__=['CFloadprofile','CFprofile']
 
-import Numeric
+import Numeric, PyGMT
 from CF_loadfile import *
 from CF_utils import CFinterpolate_xy
 from PyGMT import Grid
@@ -210,3 +210,26 @@ class CFprofile(CFvariable):
                     grid.data[j,start:end] = interpolated
             self.__data2d[time] = grid
         return self.__data2d[time]
+
+    def getProfileTS(self,time=None,level=0):
+        """Get a time-distance data.
+
+        
+        time: if None, return data for all time slices
+              if list/etc of size two, interpret as array selection
+              if single value, get only this time slice
+        level: horizontal slice."""
+
+        (tarray,t) = CFchecklist(time,self.file.variables['time'])
+
+        if tarray:
+            data = []
+            for i in range(t[0],t[1]+1):
+                data.append(self.getProfile(i,level=level))
+            grid = PyGMT.Grid()
+            grid.x_minmax = [0,self.cffile.xvalues[-1]]
+            grid.y_minmax = [self.cffile.time(t[0]),self.cffile.time(t[1])]
+            grid.data = Numeric.transpose(Numeric.array(data))
+            return grid
+        else:
+            return self.getProfile(t,level=level)

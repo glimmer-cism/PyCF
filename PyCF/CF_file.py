@@ -186,6 +186,11 @@ class CFfile(object):
         return (self.file.variables['y1'][1]-self.file.variables['y1'][0])
     deltay = property(__get_deltay)
 
+    # get number of time slices
+    def __get_numt(self):
+        return len(self.file.variables['time'])
+    numt = property(__get_numt)
+
     # get min/max longitude and latitude
     def __minmax_geo(self):
         if self.projection != 'lin':

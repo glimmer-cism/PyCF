@@ -97,6 +97,12 @@ class CFOptParser(optparse.OptionParser):
         self.__var()
         self.add_option("-i","--ij",dest='ij',metavar="I J",type="int",nargs=2,action='append',help="node to be plotted (this option can be used more than once)")
 
+    def profile_file(self):
+        """Options for profile files."""
+
+        self.add_option("-p","--profile",metavar='PROFILE',type='string',dest='profname',help="name of file containing profile control points")
+        self.add_option("--not_projected",action="store_false",default=True,dest="prof_is_projected",help="Set this flag if the profile data is not projected.")        
+
     def profile(self,vars=True):
         """Profile options.
 
@@ -104,9 +110,7 @@ class CFOptParser(optparse.OptionParser):
 
         if vars:
             self.__var()
-        self.add_option("-p","--profile",metavar='PROFILE',type='string',dest='profname',help="name of file containing profile control points")
-        self.add_option("--interval",type="float",metavar='INTERVAL',default=10000.,help="set interval to INTERVAL (default = 10000.m)")
-        self.add_option("--not_projected",action="store_false",default=True,dest="prof_is_projected",help="Set this flag if the profile data is not projected.")
+        self.profile_file()
         try:
             self.add_option("--colourmap",type="string",dest="colourmap",help="name of GMT cpt file to be used (autogenerate one when set to None)")
         except:

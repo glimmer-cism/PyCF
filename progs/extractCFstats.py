@@ -27,12 +27,13 @@ if __name__ == '__main__':
     parser = PyCF.CFOptParser(usage = """usage: %prog [options] infile1 [infile2 ... infileN] [compfile]
     prints statistics of ice sheet and (if given) compares them with statistics of compfile""")
     parser.time()
+    parser.add_option("-e","--eismint",default=False,action="store_true",help="extract additional stats used by EISMINT experiments")
     opts = PyCF.CFOptions(parser,-1)
 
     if len(opts.args) > 1:
         cffile = opts.cffile(-1)
         time = opts.times(cffile)
-        stats_comp = PyCF.CFgetstats(cffile,time,True)
+        stats_comp = PyCF.CFgetstats(cffile,time,opts.options.eismint)
         comp_title = cffile.title
     else:
         stats_comp = None
@@ -44,7 +45,7 @@ if __name__ == '__main__':
     for i in range(0,numfiles):
         cffile = opts.cffile(i)
         time = opts.times(cffile)
-        stats = PyCF.CFgetstats(cffile,time,True)
+        stats = PyCF.CFgetstats(cffile,time,opts.options.eismint)
         out = []
         out.append("\t\t\t%s"%cffile.title)
         for i in range(0,len(stats)):

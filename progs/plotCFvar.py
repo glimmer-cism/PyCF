@@ -25,6 +25,7 @@ import PyGMT,PyCF,sys
 # creating option parser
 parser = PyCF.CFOptParser()
 parser.variable()
+parser.profile_file()
 parser.time()
 parser.region()
 parser.plot()
@@ -51,7 +52,10 @@ if count > 1:
     sys.stderr.write('Error, can only have either more than one time slice or more than one variable or more than one file!\n')
     sys.exit(1)
 
-infile = opts.cffile()
+if parser.profile!=None:
+    infile = opts.cfprofile()
+else:
+    infile = opts.cffile()
 var  = opts.vars(infile)
 time = opts.times(infile)
 # get number of plots
@@ -80,7 +84,10 @@ if numplots > 1:
             bigarea = PyGMT.AreaXY(plot,size=opts.papersize)
 
         if opts.nfiles>1:
-            infile = opts.cffile(i)
+            if parser.profile!=None:
+                infile = opts.cfprofile(i)
+            else:
+                infile = opts.cffile(i)
         if opts.nvars>1:
             var  = opts.vars(infile,i)
         else:
@@ -120,6 +127,8 @@ else:
         pass
     if var.name == 'is' or var.name == 'thk':
         area.contour(var,[500,1000,2500,3000],'-W1/255/255/255',time)
+    if parser.profile!=None:
+        area.profile(args='-W5/0/0/0')
     area.coordsystem()
     area.printinfo(time)
     if opts.options.dolegend:
