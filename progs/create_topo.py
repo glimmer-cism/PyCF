@@ -114,7 +114,7 @@ if __name__ == '__main__':
     proj4 = PyCF.getCFProj(proj)
     proj4.setOrigin(origin[0],origin[1])
     proj.false_easting = proj4.params['x_0']
-    proj.false_westing = proj4.params['y_0']
+    proj.false_northing = proj4.params['y_0']
     
     # projecting topography
     proj_gmt='-J%s/1:1 -R%s -A -D%f/%f'%(

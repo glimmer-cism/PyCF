@@ -72,7 +72,7 @@ if __name__ == '__main__':
     proj4 = PyCF.getCFProj(proj)
     proj4.setOrigin(origin[0],origin[1])
     proj.false_easting = proj4.params['x_0']
-    proj.false_westing = proj4.params['y_0']
+    proj.false_northing = proj4.params['y_0']
     
     cffile = Scientific.IO.NetCDF.NetCDFFile(inname,'r+')
 

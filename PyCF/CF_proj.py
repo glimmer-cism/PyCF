@@ -39,7 +39,7 @@ class CFProj:
         except:
             self.params['x_0'] = 0.
         try:
-            self.params['y_0'] = var.false_westing[0]
+            self.params['y_0'] = var.false_northing[0]
         except:
             self.params['y_0'] = 0.
         self.gmt_type = ''
@@ -192,8 +192,8 @@ def copyCFMap(orig,copy):
         copy.latitude_of_projection_origin = orig.latitude_of_projection_origin
     if 'false_easting' in dir(orig):
         copy.false_easting = orig.false_easting
-    if 'false_westing' in dir(orig):
-        copy.false_westing = orig.false_westing
+    if 'false_northing' in dir(orig):
+        copy.false_northing = orig.false_northing
     if 'straight_vertical_longitude_from_pole' in dir(orig):
         copy.straight_vertical_longitude_from_pole = orig.straight_vertical_longitude_from_pole
     if '' in dir(orig):
