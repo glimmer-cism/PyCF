@@ -39,6 +39,8 @@ data_files = [('share/PyCF/',['data/ice.cpt',
                       'progs/create_topo.py',
                       'progs/plotCFvar.py',
                       'progs/plotEISvar.py',
+                      'progs/plotEISMINT.py',
+                      'progs/glide_launch.py',
                       'progs/plotSpot.py',
                       'progs/plotProfile.py'])]
 
