@@ -16,9 +16,45 @@
 
 """Useful utility functions."""
 
-__all__ = ['CFinterpolate_xy','CFinterpolate_linear']
+__all__ = ['CFinterpolate_xy','CFinterpolate_linear','CFstat_names','CFgetstats','CFdatadir']
 
-import math, Numeric
+import math, Numeric,os
+
+# setting up PyCF data path
+try:
+    CFdatadir=os.environ['GLIMMER_PREFIX']
+except:
+    raise RuntimeError, 'Set GLIMMER_PREFIX to where glimmer is installed.'
+CFdatadir = os.path.join(CFdatadir,'share','PyCF')
+if not os.path.exists(CFdatadir):
+            raise RuntimeError, 'Error, cannot find %s,\nPyCF is not installed properly.'%CFdatadir
+
+CFstat_names = ["Volume [10^6km^3]:","Area [10^6km^2]:","Melt Frac:\t","Divide thick [m]:","Divide btemp [degC]:"]
+
+def CFgetstats(cffile,time, eismint=False):
+    """Get ice statistics.
+
+    cffile: CF file object
+    time: time slice to be processed
+    eismint: set to True if it's an EISMINT 2 test (default: False)
+
+    returns a Numeric array: [volume, area, melt fraction]
+    if it's an eismint 2 file, then the array contains additionally [...,divide thickness,divide basal temp]"""
+
+    if eismint:
+        stats = Numeric.zeros([5],Numeric.Float)
+    else:
+        stats = Numeric.zeros([3],Numeric.Float)
+    stats[0] = cffile.getIceVolume(time=time,scale=1.e-15)
+    stats[1] = cffile.getIceArea(time=time,scale=1.e-12)
+    stats[2] = cffile.getFracMelt(time=time)
+    if eismint:
+        divide   = [len(cffile.file.variables['x1'][:])/2,len(cffile.file.variables['y1'][:])/2]
+        thick = cffile.getvar('thk')
+        stats[3] = thick.getSpotIJ(divide,time=time)
+        temp = cffile.getvar('temp')
+        stats[4] = temp.getSpotIJ(divide,time=time,level=-1)
+    return stats
 
 def CFinterpolate_xy(profile,interval):
     "linearly interpolate profile, return interpolated array and number of points outside region"

@@ -1,3 +1,10 @@
+2004-11-29 Magnus Hagdorn
+ * CF_colourmap.py: moved data directory stuff to CF_utils.py
+ * CF_utils.py: added data directory stuff, added EISMINT2 stats extraction
+ * extractCFstats.py: moved EISMINT2 stats extraction to CF_utils.py
+ * plotEISMINT2stats.py: new prog for plotting EISMINT2 statistics
+ * eismint2.data: stats from EISMINT2 paper
+
 2004-11-26 Magnus Hagdorn
  * extractCFstats.py: fixed bug
 

@@ -21,14 +21,7 @@
 __all__=['CFcolourmap','CFcolours']
 
 import os, PyGMT,Numeric
-
-try:
-    cname=os.environ['GLIMMER_PREFIX']
-except:
-    raise RuntimeError, 'Set GLIMMER_PREFIX to where glimmer is installed.'
-cname = os.path.join(cname,'share','PyCF')
-if not os.path.exists(cname):
-            raise RuntimeError, 'Error, cannot find %s,\nPyCF is not installed properly.'%cname
+from CF_utils import CFdatadir
 
 CFcolours = ['255/0/0','0/255/0','0/0/255','0/255/255','255/0/255','255/255/0','127/0/0','0/127/0','0/0/127','0/127/127','127/0/127','127/127/0']
 
@@ -85,9 +78,9 @@ class CFcolourmap(object):
         else:
             self.__cptfile = None
             if self.name in self.VARN_MAP:
-                self.__cptfile = os.path.join(cname,self.VARN_MAP[self.name])
+                self.__cptfile = os.path.join(CFdatadir,self.VARN_MAP[self.name])
             elif var.standard_name in self.STDN_MAP:
-                self.__cptfile = os.path.join(cname,self.STDN_MAP[var.standard_name])
+                self.__cptfile = os.path.join(CFdatadir,self.STDN_MAP[var.standard_name])
             else:
                 self.__cptfile = '.__auto.cpt'
                 
