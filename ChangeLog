@@ -1,3 +1,8 @@
+2004-09-29 Magnus Hagdorn
+ * CF_profile.py: remove triangulate from imports
+ * plotEISMINT.py: tidy up help messages (we don't need to ask for variables)
+ * ran_topo.py: added very basic random (white noise) topo generator
+
 2004-09-28 Magnus Hagdorn
  * CF_loadfile.py: made CFchecklist public, fixed ice vol/area calculations to ignore missing data
  * CF_options.py: can select a profile without selecting variable

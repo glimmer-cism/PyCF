@@ -23,7 +23,7 @@ __all__=['CFloadprofile','CFprofile']
 import Numeric
 from CF_loadfile import *
 from CF_utils import CFinterpolate_xy
-from PyGMT import triangulate, Grid
+from PyGMT import Grid
 from CF_utils import CFinterpolate_linear
 
 class CFloadprofile(CFloadfile):

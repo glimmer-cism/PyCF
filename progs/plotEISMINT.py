@@ -28,7 +28,7 @@ SpotHeight=3.5
 import PyGMT,PyCF,sys
 
 parser = PyCF.CFOptParser()
-parser.profile()
+parser.profile(vars=False)
 parser.time()
 parser.plot()
 opts = PyCF.CFOptions(parser,2)
