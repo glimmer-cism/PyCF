@@ -174,8 +174,8 @@ class CFdiff_base(PyGMT.AutoXY):
         grid.data = Numeric.where(hist_grid>0.,hist_grid,-10)
 
         # creating a colourmap
-        min_h = min(Numeric.ravel(hist_grid))
-        max_h = max(Numeric.ravel(hist_grid))
+        min_h = PyGMT.round_down(min(Numeric.ravel(hist_grid)))
+        max_h = PyGMT.round_up(max(Numeric.ravel(hist_grid)))
         PyGMT.command('makecpt','-Crainbow -Z -T%f/%f/%f > .__auto.cpt'%(min_h,max_h,(max_h-min_h)/10.))
         f = open('.__auto.cpt','a')
         f.write('B       255     255     255')

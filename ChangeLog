@@ -1,3 +1,6 @@
+2005-03-12 Magnus Hagdorn
+ * CF_diff.py, plotCFdiff.py: minor improvements
+
 2005-03-09 Magnus Hagdorn
  * plotProfileTS.py: add ice extend to plot
  * CF_diff.py: plotting area for displaying difference between two CF files as a time

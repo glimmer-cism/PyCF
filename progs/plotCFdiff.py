@@ -45,6 +45,8 @@ def compare(inname1,inname2,outname,timeint):
                 area.plothist(v)
             else:
                 area.plothist(v,clip='thk')
+    if 'bmlt' in cf1.file.variables.keys() and 'bmlt' in cf2.file.variables.keys():
+        area.plotmelt()
     area.plotarea()
     area.plotvol()
     area.finalise(expandy=True)
