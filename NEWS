@@ -1,0 +1,6 @@
+Changes in Version 0.1
+======================
+* we actually have a version
+* sorted out distribution of files in progs and data directories
+* disabled caching for now, we were to greedy
+* lots of bug fixes

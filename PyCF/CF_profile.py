@@ -156,13 +156,15 @@ class CFprofile(CFvariable):
         time: time slice
         level: horizontal slice."""
 
-        if time not in self.__data:
-            self.__data[time] = {}
-        if level not in self.__data[time]:
-            var = self.getGMTgrid(time,level=level)
-            self.__data[time][level] = var.grdtrack(self.cffile.interpolated[0,:],self.cffile.interpolated[1,:])
+        #if time not in self.__data:
+        #    self.__data[time] = {}
+        #if level not in self.__data[time]:
+        #    var = self.getGMTgrid(time,level=level)
+        #    self.__data[time][level] = var.grdtrack(self.cffile.interpolated[0,:],self.cffile.interpolated[1,:])
 
-        return self.__data[time][level]
+        #return self.__data[time][level]
+        var = self.getGMTgrid(time,level=level)
+        return var.grdtrack(self.cffile.interpolated[0,:],self.cffile.interpolated[1,:])
 
     def getProfile2D(self,time):
         """Get a 2D profile.
@@ -208,8 +210,9 @@ class CFprofile(CFvariable):
                                                         data[:,j],
                                                         pos)
                     grid.data[j,start:end] = interpolated
-            self.__data2d[time] = grid
-        return self.__data2d[time]
+            #self.__data2d[time] = grid
+            return grid
+        #return self.__data2d[time]
 
     def getProfileTS(self,time=None,level=0):
         """Get a time-distance data.

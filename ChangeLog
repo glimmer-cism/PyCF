@@ -1,3 +1,11 @@
+2005-03-07 Magnus Hagdorn
+ * bumped version to 0.1
+ * CF_profile.py: disabled caching for now (we run out of memory for large files)
+ * plotCFstats.py: close file after we've used it
+ * plotProfileTS.py: add simpe profiles at beginning and end of period
+ * plotStreams.py: centre period on time slice
+ * sort out distribution of files in progs and data
+
 2005-03-04 Magnus Hagdorn
  * plotCFvar.py: fixed bug with checking profile options
  * glide_launch.py moved to glimmer

@@ -22,10 +22,13 @@
 
 import PyGMT,PyCF,Numeric,sys
 
+SIZE_Y = 4.
+
 # creating option parser
 parser = PyCF.CFOptParser()
 parser.width=15.
 parser.variable()
+parser.add_option("--profvar",metavar='NAME',type="string",dest='profvar',help="plot variable NAME at beginning and end of time interval")
 parser.profile_file()
 parser.timeint()
 parser.plot()
@@ -43,32 +46,48 @@ if opts.options.level == None:
 else:
     level = opts.options.level
 
-profile = opts.profs(infile)
-data = profile.getProfileTS(time=[t0,t1],level=level)
-
 plot = opts.plot()
 plot.defaults['LABEL_FONT_SIZE']='12p'
 plot.defaults['ANOT_FONT_SIZE']='10p'
 
-area = PyGMT.AreaXY(plot,size=opts.papersize)
-area.setregion([0,infile.time(t0)],[infile.xvalues[-1],infile.time(t1)])
-area.axis='WeSn'
-area.xlabel = 'distance along profile'
-area.ylabel = 'time'
+bigarea = PyGMT.AreaXY(plot,size=opts.papersize)
+
+if opts.options.profvar != None:
+    areats = PyGMT.AreaXY(bigarea,size=[opts.papersize[0],opts.papersize[1]-2*SIZE_Y],pos=[0.,SIZE_Y])
+    areats.axis='Wesn'
+
+    profile = infile.getprofile(opts.options.profvar)
+    area1 = PyCF.CFProfileArea(bigarea,profile,t0,size=[opts.papersize[0],SIZE_Y-.5])
+    area1.finalise()
+    area1.coordsystem()
+    area2 = PyCF.CFProfileArea(bigarea,profile,t1,pos=[0.,opts.papersize[1]-SIZE_Y+0.5],size=[opts.papersize[0],SIZE_Y-0.5])
+    area2.axis='Wesn'
+    area2.finalise()
+    area2.coordsystem()
+else:
+    areats = PyGMT.AreaXY(bigarea,size=opts.papersize)
+    areats.axis='WeSn'
+    areats.xlabel = 'distance along profile'
+
+areats.setregion([0,infile.time(t0)],[infile.xvalues[-1],infile.time(t1)])
+areats.ylabel = 'time'
+
+profile = opts.profs(infile)
+data = profile.getProfileTS(time=[t0,t1],level=level)
+
+
 
 clipped = False
 clip = opts.options.clip
 if clip in ['topg','thk','usurf'] :
     cvar = infile.getprofile(clip)
     cdata = cvar.getProfileTS(time=[t0,t1])
-    area.clip(cdata,0.1)
+    areats.clip(cdata,0.1)
     clipped = True
-area.image(data,profile.colourmap.cptfile)
+areats.image(data,profile.colourmap.cptfile)
 if clipped:
-    area.unclip()
+    areats.unclip()
 
-
-
-area.coordsystem()
+areats.coordsystem()
 
 plot.close()

@@ -1,0 +1,3 @@
+include COPYING ChangeLog NEWS
+include data/*.cpt data/*.data
+include progs/*.py

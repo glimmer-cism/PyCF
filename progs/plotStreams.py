@@ -39,7 +39,8 @@ else:
 
 deltat = opts.options.deltat*infile.timescale
 time = opts.times(infile)
-timeplus = infile.timeslice(infile.time(time)-deltat)
+time_start = infile.timeslice(infile.time(time)-0.5*deltat)
+time_end = infile.timeslice(infile.time(time)+0.5*deltat)
 
 ubas = infile.getvar('ubas')
 vbas = infile.getvar('vbas')
@@ -47,7 +48,7 @@ vbas = infile.getvar('vbas')
 data = Numeric.zeros((len(ubas.xdim), len(ubas.ydim)),Numeric.Float32)
 
 # loop over time slices
-for t in range(timeplus,time+1):
+for t in range(time_start,time_end+1):
     ugrid = ubas.get2Dfield(t)
     vgrid = vbas.get2Dfield(t)
 

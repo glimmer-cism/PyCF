@@ -92,6 +92,8 @@ for fnum in range(0,len(opts.args)-1):
         eis.line('-W1/%s'%PyCF.CFcolours[fnum],cffile.time(None),thk.getSpotIJ(divide,time=None))
         eis.line('-W1/%s'%PyCF.CFcolours[fnum],cffile.time(None),thk.getSpotIJ(midpoint,time=None))
 
+    cffile.close()
+
 if do_extent and opts.options.dataname != None:
     efile = open(opts.options.dataname)
     etime = []
