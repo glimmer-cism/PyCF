@@ -23,6 +23,7 @@
 __all__ = ['CFArea']
 
 import PyGMT,Numeric
+from CF_loadfile import CFvariable
 
 class CFArea(PyGMT.AreaXY):
     """CF grid plotting area."""
@@ -70,15 +71,23 @@ class CFArea(PyGMT.AreaXY):
 
         self.stamp('%s   %.2fka'%(self.file.title,self.file.time(time)))
         
-    def image(self,var,time,level=0):
+    def image(self,var,time,level=0,clip=None):
         """Plot a colour map.
 
         var: CFvariable
         time: time slice
         level: horizontal slice
+        clip: only display data where clip>0.
         """
         
+        clipped = False
+        if clip in ['topg','thk','usurf'] :
+            cvar = CFvariable(var.CFfile,clip)
+            self.clip(cvar.getGMTgrid(time),0.1)
+            clipped = True
         PyGMT.AreaXY.image(self,var.getGMTgrid(time,level=level),var.colourmap.cptfile)
+        if clipped:
+            self.unclip()
 
     def contour(self,var,contours,args,time,level=0):
         """Plot a contour map.
@@ -107,7 +116,7 @@ if __name__ == '__main__':
     
     plot = opts.plot()
     area = CFArea(plot,infile)
-    area.image(var,ts)
+    area.image(var,ts,clip = opts.options.clip)
     area.coastline()
     area.coordsystem()
     area.printinfo(ts)

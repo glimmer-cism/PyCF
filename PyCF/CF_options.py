@@ -60,6 +60,7 @@ class CFOptParser(optparse.OptionParser):
         """Variable option."""
 
         self.add_option("-v","--variable",metavar='NAME',action='append',type="string",dest='vars',help="variable to be processed (this option can be used more than once)")
+        self.add_option("-c","--clip",metavar='VAR',type="choice",dest='clip',choices=['thk','topg','usurf'],help="display variable only where ['thk','topg','usurf']>0.")
 
     def time(self):
         """Time option."""

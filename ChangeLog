@@ -1,4 +1,7 @@
 2004-06-15 Magnus Hagdorn
+ * added clipping
+
+2004-06-15 Magnus Hagdorn
  * install data files and programs (setup.py)
  * added colourmaps
  * CF_createfile.py: look for ncdf_vars.def in GLIMMER_PREFIX
