@@ -21,6 +21,7 @@
 __all__=['CFVariableDef','CFcreatefile']
 
 import Numeric, Scientific.IO.NetCDF,ConfigParser,os,re,string
+from CF_file import *
 
 class CFVariableDef(dict):
     """Dictionary containing variable definitions."""
@@ -84,13 +85,16 @@ class CFVariableDef(dict):
         vk.sort()
         return dk+vk
 
-class CFcreatefile(object):
+class CFcreatefile(CFfile):
     """Creating a CF netCDF file."""
 
     def __init__(self,fname):
         """Initialise.
 
         fname: name of CF file."""
+
+        CFfile.__init__(self,fname)
+        
         # get variable definitions
         try:
             vname=os.environ['GLIMMER_PREFIX']
@@ -101,51 +105,9 @@ class CFcreatefile(object):
             raise RuntimeError, 'Cannot find ncdf_vars.def\nPlease set GLIMMER_HOME to where glimmer is installed'
         self.vars = CFVariableDef(vname)
             
-        self.file = Scientific.IO.NetCDF.NetCDFFile(fname,'w')
+        self.file = Scientific.IO.NetCDF.NetCDFFile(self.fname,'w')
         self.file.Conventions = "CF-1.0"
         
-    # title
-    def __set_title(self,title):
-        setattr(self.file,'title',title)
-    def __get_title(self):
-        return getattr(self.file,'title')
-    title = property(__get_title,__set_title)
-
-    # institution
-    def __set_institution(self,institution):
-        setattr(self.file,'institution',institution)
-    def __get_institution(self):
-        return getattr(self.file,'institution')
-    institution = property(__get_institution,__set_institution)
-
-    # source
-    def __set_source(self,source):
-        setattr(self.file,'source',source)
-    def __get_source(self):
-        return getattr(self.file,'source')
-    source = property(__get_source,__set_source)
-
-    # references
-    def __set_references(self,references):
-        setattr(self.file,'references',references)
-    def __get_references(self):
-        return getattr(self.file,'references')
-    references = property(__get_references,__set_references)
-
-    # comment
-    def __set_comment(self,comment):
-        setattr(self.file,'comment',comment)
-    def __get_comment(self):
-        return getattr(self.file,'comment')
-    comment = property(__get_comment,__set_comment)
-
-    # history
-    def __set_history(self,history):
-        setattr(self.file,'history',history)
-    def __get_history(self):
-        return getattr(self.file,'history')
-    history = property(__get_history,__set_history)
-
     def createDimension(self,name, length):
         """Create a dimension.
 
@@ -154,10 +116,6 @@ class CFcreatefile(object):
         the unlimited dimension. Note that there can be only one
         unlimited dimension in a file."""
         self.file.createDimension(name,length)
-
-    def close(self):
-        """Close CF file."""
-        self.file.close()
 
     def createVariable(self,name):
         """Create a CF variable.
@@ -171,4 +129,6 @@ class CFcreatefile(object):
         for a in ['long_name','standard_name','units']:
             if a in v:
                 setattr(var,a,v[a])
+        if self.mapvarname != '' and 'x' in v['dimensions'] and 'y' in v['dimensions']:
+            var.grid_mapping = self.mapvarname
         return var

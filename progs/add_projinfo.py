@@ -84,7 +84,7 @@ if __name__ == '__main__':
     PyCF.copyCFMap(proj,varmap)
 
     for var in cffile.variables.keys():
-        if 'x1' in cffile.variables[var].dimensions and 'y1' in cffile.variables[var].dimensions:
+        if 'x' in cffile.variables[var].dimensions and 'y' in cffile.variables[var].dimensions:
             cffile.variables[var].grid_mapping = 'mapping'
 
     cffile.close()

@@ -1,3 +1,13 @@
+2004-06-17 Magnus Hagdorn
+ * projmodule.c: massive change. The extension module provides a 
+   projection type, with lots of methods to do proj4 projections
+ * CF_proj.py: use new proj module
+ * CFcreatefile and CFloadfile both inherit from the new CFfile class,
+   they all provide the same meta data. (CF_file.py, CF_createfile.py, CF_loadfile.py)
+ * create_topo.py: use new CFcreatefile class
+ * add_projinfo.py: add grid_mapping attribute to all variables containing x and y in the
+   dimension string
+
 2004-06-15 Magnus Hagdorn
  * added clipping
 

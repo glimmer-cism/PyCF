@@ -115,7 +115,6 @@ if __name__ == '__main__':
     proj4.setOrigin(origin[0],origin[1])
     proj.false_easting = proj4.params['x_0']
     proj.false_northing = proj4.params['y_0']
-    
     # projecting topography
     proj_gmt='-J%s/1:1 -R%s -A -D%f/%f'%(
         proj4.getGMTprojection(),
@@ -130,7 +129,7 @@ if __name__ == '__main__':
     os.remove('.__temp')
 
     (numx,numy) = projtopo.data.shape    
-
+    
     # creating output netCDF file
     cffile = PyCF.CFcreatefile(outname)
     # global attributes
@@ -163,17 +162,13 @@ if __name__ == '__main__':
     vartime=cffile.createVariable('time')
     vartime[0] = 0
 
-    varmap=cffile.file.createVariable('mapping','c',())
-    PyCF.copyCFMap(proj,varmap)
+    cffile.projection=proj
 
     varlat=cffile.createVariable('lat')
-    varlat.grid_mapping = 'mapping'
 
     varlong=cffile.createVariable('lon')
-    varlong.grid_mapping = 'mapping'
 
     vartopg=cffile.createVariable('topg')
-    vartopg.grid_mapping = 'mapping'
 
     # get long/lat
     longs = varlong[0,:,:]
@@ -182,16 +177,15 @@ if __name__ == '__main__':
         longs[i,:] = varx[:]
     for i in range(0,numx):
         lats[:,i] = vary[:]
+
+    projection = PyCF.Proj(proj4.proj4_params())
     lats.shape = (numx*numy,)
     longs.shape = (numx*numy,)
-    coords = Numeric.array([longs,lats])
-    coords = PyCF.project(proj4.proj4_params(),coords,inv=True)
-    longs = coords[0,:]
-    lats = coords[1,:]
+    (longs,lats) = projection.gridinv((longs,lats))
     lats.shape = (numy,numx)
-    longs.shape = (numy,numx)    
-    varlong[0,:,:] = longs[:,:]
-    varlat[0,:,:] = lats[:,:]
+    longs.shape = (numy,numx)
+    varlong[0,:,:] = longs[:,:].astype(Numeric.Float32)
+    varlat[0,:,:] = lats[:,:].astype(Numeric.Float32)
 
     vartopg[0,:,:] =  Numeric.transpose(projtopo.data[:,:]).astype(Numeric.Float32)
 

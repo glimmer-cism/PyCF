@@ -24,8 +24,9 @@ import Numeric, Scientific.IO.NetCDF,os
 from PyGMT.PyGMTgrid import Grid
 from CF_proj import *
 from CF_colourmap import *
+from CF_file import *
 
-class CFloadfile(object):
+class CFloadfile(CFfile):
     """Loading a CF netCDF file."""
 
     def __init__(self,fname):
@@ -33,66 +34,16 @@ class CFloadfile(object):
 
         fname: name of CF file."""
 
-        self.file = Scientific.IO.NetCDF.NetCDFFile(fname,'r')
-        self.title = os.path.basename(fname)
+        CFfile.__init__(self,fname)
+
+        self.file = Scientific.IO.NetCDF.NetCDFFile(self.fname,'r')
         self.timescale = 0.001
-
-        self.projection = self.__get_projection()
-        self.__ll_xy_changed = False
-        self.__ll_xy = [self.file.variables['x1'][0],self.file.variables['y1'][0]]
-        self.__ll_geo = self.projection.proj4(self.__ll_xy,inv=True)
-        self.__ur_xy_changed = False
-        self.__ur_xy = [self.file.variables['x1'][-1],self.file.variables['y1'][-1]]
-        self.__ur_geo = self.projection.proj4(self.__ur_xy,inv=True)
-        
-    # lower left corner in projected coordinates
-    def __get_ll_xy(self):
-        return self.__ll_xy
-    def __set_ll_xy(self,val):
-        if self.inside(val):
-            self.__ll_xy = val
-            self.__ll_xy_changed = True
-        else:
-            raise RuntimeError, 'Point outside grid'
-    ll_xy = property(__get_ll_xy,__set_ll_xy)
-    # and geographic coordinates
-    def __get_ll_geo(self):
-        if self.__ll_xy_changed:
-            self.__ll_geo = self.projection.proj4(self.__ll_xy,inv=True)
-        return self.__ll_geo
-    def __set_ll_geo(self,val):
-        self.__set_ll_xy(self.projection.proj4(val))
-        self.__ll_xy_changed = False
-        self.__ll_geo = val
-    ll_geo = property(__get_ll_geo,__set_ll_geo)
-
-    #  upper right corner in projected coordinates
-    def __get_ur_xy(self):
-        return self.__ur_xy
-    def __set_ur_xy(self,val):
-        if self.inside(val):
-            self.__ur_xy = val
-            self.__ur_xy_changed = True
-        else:
-            raise RuntimeError, 'Point outside grid'
-    ur_xy = property(__get_ur_xy,__set_ur_xy)
-    # and geographic coordinates
-    def __get_ur_geo(self):
-        if self.__ur_xy_changed:
-            self.__ur_geo = self.projection.proj4(self.__ur_xy,inv=True)
-        return self.__ur_geo
-    def __set_ur_geo(self,val):
-        self.__set_ur_xy(self.projection.proj4(val))
-        self.__ur_xy_changed = False
-        self.__ur_geo = val
-    ur_geo = property(__get_ur_geo,__set_ur_geo)
-    
-    # get projection info
-    def __get_projection(self):
+        # get mapping variable name
         for var in self.file.variables.keys():
             if hasattr(self.file.variables[var],'grid_mapping_name'):
-                return getCFProj(self.file.variables[var])
-        return None
+                self.mapvarname = var
+                break
+        self.reset_bb()
 
     def time(self,t):
         """Return selected time value."""

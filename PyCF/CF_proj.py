@@ -43,6 +43,13 @@ class CFProj:
         except:
             self.params['y_0'] = 0.
         self.gmt_type = ''
+        self.__Proj4 = None 
+
+    def __get_Proj4(self):
+        if self.__Proj4 == None:
+            self.__Proj4 = proj.Proj(self.proj4_params())
+        return self.__Proj4
+    Proj4 = property(__get_Proj4)
 
     def proj4_params(self):
         params = []
@@ -56,9 +63,10 @@ class CFProj:
         point: 2D point
         inv:   if True do the inverse projection."""
 
-        projpt = proj.project(self.proj4_params(),Numeric.array([[point[0]],[point[1]]],Numeric.Float32),inv=inv)
-
-        return [projpt[0,0], projpt[1,0]]
+        if inv:
+            return self.Proj4.inv(point)
+        else:
+            return self.Proj4.fwd(point)
 
     def setOrigin(self,lon0,lat0):
         """Set origin of projected grid.
@@ -66,9 +74,10 @@ class CFProj:
         lon0: Logitude of origin
         lat0: Latitude of origin."""
 
-        orig = proj.project(self.proj4_params(),Numeric.array([[lon0],[lat0]],Numeric.Float32))
-        self.params['x_0'] = -orig[0,0]
-        self.params['y_0'] = -orig[1,0]
+        orig = self.proj4([lon0,lat0])
+        self.params['x_0'] = -orig[0]
+        self.params['y_0'] = -orig[1]
+        self.__Proj4 = proj.Proj(self.proj4_params())
 
     def getGMTregion(self,ll,ur):
         """Get GMT region string.
@@ -76,8 +85,9 @@ class CFProj:
         ll: coordinates of lower left corner in projected grid
         ur: coordinates of upper right corner in projected grid."""
 
-        wesn = proj.project(self.proj4_params(),Numeric.array([[ll[0],ur[0]],[ll[1],ur[1]]],Numeric.Float32),inv=True)
-        return '%f/%f/%f/%fr'%(wesn[0,0],wesn[1,0],wesn[0,1],wesn[1,1])
+        ws = self.Proj4.inv(ll)
+        en = self.Proj4.inv(ur)
+        return '%f/%f/%f/%fr'%(ws[0],ws[1],en[0],en[1])
 
 class CFProj_stere(CFProj):
     """Stereographic Projections."""

@@ -1,51 +1,68 @@
-/* projmodule.c
-   Magnus Hagdorn, March 2002
+/*   python module using libproj to do cartographic projections */
 
-   python module using libproj to do cartographic projections */
+/*
+ Copyright 2004, Magnus Hagdorn
+ 
+ This file is part of PyCF.
+ 
+ PyCF is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ 
+ PyCF is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with PyCF; if not, write to the Free Software
+ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
 #include <Python.h>
 #include <Numeric/arrayobject.h>
 #include <projects.h>
 #include <stdio.h>
 
-static PyObject * proj_project(PyObject * self, PyObject * args, PyObject * keywds)
+typedef struct {
+    PyObject_HEAD
+    PJ *projection;
+}Proj;
+
+static void Proj_dealloc(Proj* self)
 {
-  PyArrayObject *geo_loc;
-  PyArrayObject *locations;
-  PyListObject  *proj_params;
-  PyObject *o;
+  pj_free(self->projection);
+  self->ob_type->tp_free((PyObject*)self);
+}
 
-  int inv = 0;
-  char **params;
-  int num_loc, num_params;
-  int dimensions[2];
-  int i;
-
-  /* projection stuff */
-  PJ *ref;
-  projUV data;
-
-  static char *kwlist[] = {"params","loc","inv",NULL};
-
-  /* parsing arguments */
-  if (!PyArg_ParseTupleAndKeywords(args, keywds, "O!O!|i",kwlist, &PyList_Type, &proj_params,&PyArray_Type, &geo_loc, &inv))
-    return NULL;
-  /* checking dimensions and type of array */
-  if (geo_loc->nd != 2 || geo_loc->descr->type_num != PyArray_FLOAT)
+static PyObject * Proj_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+  Proj *self;
+  
+  self = (Proj *)type->tp_alloc(type, 0);
+  if (self != NULL) 
     {
-      PyErr_SetString(PyExc_ValueError,"array must be 2D and of type float");
-      return NULL;
+      self->projection = NULL;
     }
   
-  /* creating output array */
-  dimensions[0] = geo_loc->dimensions[0];
-  dimensions[1] = geo_loc->dimensions[1];
-  locations = (PyArrayObject *) PyArray_FromDims(2, dimensions, PyArray_FLOAT);
+  return (PyObject *)self;
+}
 
+static int Proj_init(Proj *self, PyObject *args, PyObject *kwds)
+{
+  PyListObject  *proj_params;
+  PyObject *o;
+  static char *kwlist[] = {"params"};
 
-  /* getting number of locations */
-  num_loc = geo_loc->dimensions[1];
+  char **params;
+  int num_params;
+  int i;
 
+  /* parsing arguments */
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!",kwlist, &PyList_Type, &proj_params))
+    return -1;
+  
   /* setting up projection */
   num_params = PyList_Size((PyObject *) proj_params);
   params = (char **) malloc(num_params*sizeof(char *));
@@ -58,64 +75,282 @@ static PyObject * proj_project(PyObject * self, PyObject * args, PyObject * keyw
 	{
 	  PyErr_SetString(PyExc_ValueError,"Projection parameter list contains non-string types");
 	  free(params);
-	  return NULL;
+	  return -1;
 	}
     }
 
   /* setup projection */
-  if (! (ref=pj_init(num_params,params)))
+  if (! (self->projection=pj_init(num_params,params)))
     {
       PyErr_SetString(PyExc_RuntimeError,pj_strerrno(pj_errno));
       free(params);
-      return NULL;
+      return -1;
     }
 
-  /* do the projection */
-  if (inv==1)
-    {
-      /* inverse projection */
-      for (i=0;i<num_loc;i++)
-	{
-	  data.u = *(float *) (geo_loc->data+i*geo_loc->strides[1]);
-	  data.v = *(float *) (geo_loc->data+i*geo_loc->strides[1] + locations->strides[0]);
-	  
-	  data = pj_inv(data,ref);
-	  
-	  *(float *) (locations->data+i*locations->strides[1]) = (float) data.u * RAD_TO_DEG;
-	  *(float *) (locations->data+i*locations->strides[1] + locations->strides[0]) = (float) data.v * RAD_TO_DEG;
-	}
-    }
-  else
-    {
-      /* forward projection */
-      for (i=0;i<num_loc;i++)
-	{
-	  data.u = *(float *) (geo_loc->data+i*geo_loc->strides[1]) * DEG_TO_RAD;
-	  data.v = *(float *) (geo_loc->data+i*geo_loc->strides[1] + locations->strides[0]) * DEG_TO_RAD;
-	  
-	  data = pj_fwd(data,ref);
-	  
-	  *(float *) (locations->data+i*locations->strides[1]) = (float) data.u;
-	  *(float *) (locations->data+i*locations->strides[1] + locations->strides[0]) = (float) data.v;
-	}
-    }
-  
-
-  /* the end */
-  
-  free(params);
-  return PyArray_Return(locations);
+  return 0;
 }
 
-static PyMethodDef ProjMethods[] = {
-  {"project",  (PyCFunction)proj_project, METH_VARARGS|METH_KEYWORDS, "Do Projection..."},
-        {NULL, NULL, 0, NULL}        /* Sentinel */
+static PyObject *Proj_fwd(Proj* self, PyObject * args)
+{
+  PyListObject  *input;
+  PyObject *o;
+  int n;
+  projUV data;
+  
+  /* parsing arguments */
+  if (!PyArg_ParseTuple(args, "O!", &PyList_Type, &input))
+    return NULL;
+  n = PyList_Size((PyObject *) input);
+  if (n!=2)
+    {
+      PyErr_SetString(PyExc_ValueError,"Input must be list of two values");
+      return NULL;
+    }
+  if ((o = PyNumber_Float(PyList_GetItem((PyObject *) input, 0)))==NULL)
+    {
+      PyErr_SetString(PyExc_ValueError,"Must be a number.");
+      return NULL;
+    }
+  data.u = PyFloat_AsDouble((PyObject *) o) * DEG_TO_RAD;
+
+  if ((o = PyNumber_Float(PyList_GetItem((PyObject *) input, 1)))==NULL)
+    {
+      PyErr_SetString(PyExc_ValueError,"Must be a number.");
+      return NULL;
+    }
+  data.v = PyFloat_AsDouble((PyObject *) o) * DEG_TO_RAD;
+  
+  data = pj_fwd(data,self->projection);
+  if (data.u==HUGE_VAL && data.v==HUGE_VAL)
+    {
+      PyErr_SetString(PyExc_RuntimeError,pj_strerrno(pj_errno));
+      return NULL;
+    }
+  
+  return Py_BuildValue("[dd]",data.u,data.v);
+}
+
+static PyObject *Proj_inv(Proj* self, PyObject * args)
+{
+  PyListObject  *input;
+  PyObject *o;
+  int n;
+  projUV data;
+  
+  /* parsing arguments */
+  if (!PyArg_ParseTuple(args, "O!", &PyList_Type, &input))
+    return NULL;
+  n = PyList_Size((PyObject *) input);
+  if (n!=2)
+    {
+      PyErr_SetString(PyExc_ValueError,"Input must be list of two values");
+      return NULL;
+    }
+  if ((o = PyNumber_Float(PyList_GetItem((PyObject *) input, 0)))==NULL)
+    {
+      PyErr_SetString(PyExc_ValueError,"Must be a number.");
+      return NULL;
+    }
+  data.u = PyFloat_AsDouble((PyObject *) o);
+
+  if ((o = PyNumber_Float(PyList_GetItem((PyObject *) input, 1)))==NULL)
+    {
+      PyErr_SetString(PyExc_ValueError,"Must be a number.");
+      return NULL;
+    }
+  data.v = PyFloat_AsDouble((PyObject *) o);
+  
+  data = pj_inv(data,self->projection);
+
+  if (data.u==HUGE_VAL && data.v==HUGE_VAL)
+    {
+      PyErr_SetString(PyExc_RuntimeError,pj_strerrno(pj_errno));
+      return NULL;
+    }
+  
+  return Py_BuildValue("[dd]",data.u*RAD_TO_DEG,data.v*RAD_TO_DEG);
+}
+
+static PyObject *Proj_gridfwd(Proj* self, PyObject * args)
+{
+  PyTupleObject  *input;
+  PyArrayObject *PyX, *PyY;  
+  PyObject *o;  
+  int n,nx,ny,i;
+  projUV data;
+
+  /* parsing arguments */
+  if (!PyArg_ParseTuple(args, "O!", &PyTuple_Type, &input))
+    return NULL;
+  /* get tupe size */
+  n = PyTuple_Size((PyObject *) input);
+  if (n!=2)
+    {
+      PyErr_SetString(PyExc_ValueError,"Input must be tuple with two values");
+      return NULL;
+    }
+  /* convert tuple to two arrays */
+  o = PyTuple_GetItem((PyObject *) input, 0);
+  if ((PyX = (PyArrayObject *) PyArray_CopyFromObject(o, PyArray_DOUBLE, 1, 0)) == NULL)
+    return NULL;
+  nx = PyArray_Size((PyObject *) PyX);
+  o = PyTuple_GetItem((PyObject *) input, 1);
+  if ((PyY = (PyArrayObject *) PyArray_CopyFromObject(o, PyArray_DOUBLE, 1, 0)) == NULL)
+    return NULL;
+  ny = PyArray_Size((PyObject *) PyY);
+  /* checking they are the same size */
+  if (nx!=ny)
+    {
+      PyErr_SetString(PyExc_ValueError,"Input arrays must have the same size");
+      return NULL;
+    }
+  
+  for (i=0;i<nx;i++)
+    {
+      data.u = (*(double *) (PyX->data+i*PyX->strides[0])) * DEG_TO_RAD;
+      data.v = (*(double *) (PyY->data+i*PyY->strides[0])) * DEG_TO_RAD;
+      
+      data = pj_fwd(data,self->projection);
+      
+      (*(double *) (PyX->data+i*PyX->strides[0])) = data.u;
+      (*(double *) (PyY->data+i*PyY->strides[0])) = data.v;
+    }
+  
+  return Py_BuildValue("(OO)",PyArray_Return(PyX),PyArray_Return(PyY));
+}
+
+static PyObject *Proj_gridinv(Proj* self, PyObject * args)
+{
+  PyTupleObject  *input;
+  PyArrayObject *PyX, *PyY;  
+  PyObject *o;  
+  int n,nx,ny,i;
+  projUV data;
+
+  /* parsing arguments */
+  if (!PyArg_ParseTuple(args, "O!", &PyTuple_Type, &input))
+    return NULL;
+  /* get tupe size */
+  n = PyTuple_Size((PyObject *) input);
+  if (n!=2)
+    {
+      PyErr_SetString(PyExc_ValueError,"Input must be tuple with two values");
+      return NULL;
+    }
+  /* convert tuple to two arrays */
+  o = PyTuple_GetItem((PyObject *) input, 0);
+  if ((PyX = (PyArrayObject *) PyArray_CopyFromObject(o, PyArray_DOUBLE, 1, 0)) == NULL)
+    return NULL;
+  nx = PyArray_Size((PyObject *) PyX);
+  o = PyTuple_GetItem((PyObject *) input, 1);
+  if ((PyY = (PyArrayObject *) PyArray_CopyFromObject(o, PyArray_DOUBLE, 1, 0)) == NULL)
+    return NULL;
+  ny = PyArray_Size((PyObject *) PyY);
+  /* checking they are the same size */
+  if (nx!=ny)
+    {
+      PyErr_SetString(PyExc_ValueError,"Input arrays must have the same size");
+      return NULL;
+    }
+  
+  for (i=0;i<nx;i++)
+    {
+      data.u = (*(double *) (PyX->data+i*PyX->strides[0]));
+      data.v = (*(double *) (PyY->data+i*PyY->strides[0]));
+      
+      data = pj_inv(data,self->projection);
+      
+      (*(double *) (PyX->data+i*PyX->strides[0])) = data.u * RAD_TO_DEG;
+      (*(double *) (PyY->data+i*PyY->strides[0])) = data.v * RAD_TO_DEG;
+    }
+  
+  return Py_BuildValue("(OO)",PyArray_Return(PyX),PyArray_Return(PyY));
+}
+
+static int  Proj_print(Proj *self, FILE *file, int flags)
+{
+  char *info;
+  
+  if ((info=pj_get_def(self->projection,0)) == NULL) 
+    {
+      PyErr_SetString(PyExc_RuntimeError,pj_strerrno(pj_errno));
+      return -1;
+    }
+  fprintf(file,"%s",info);
+  return 0;
+}
+
+
+static PyMethodDef Proj_methods[] = {
+    {"fwd", (PyCFunction)Proj_fwd, METH_VARARGS, "Do the forward projection."},
+    {"inv", (PyCFunction)Proj_inv, METH_VARARGS, "Do the inverse projection."},
+    {"gridfwd", (PyCFunction)Proj_gridfwd, METH_VARARGS, "Do the forward projection of an entire array."},
+    {"gridinv", (PyCFunction)Proj_gridinv, METH_VARARGS, "Do the forward projection of an entire array."},
+    {NULL}  /* Sentinel */
 };
 
+static PyTypeObject ProjType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "proj.Proj",               /*tp_name*/
+    sizeof(Proj),              /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Proj_dealloc,  /*tp_dealloc*/
+    (printfunc)Proj_print,     /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,        /*tp_flags*/
+    "Proj object",             /* tp_doc */
+    0,		               /* tp_traverse */
+    0,		               /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    Proj_methods,              /* tp_methods */
+    0,                         /* tp_members */
+    0,                         /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)Proj_init,       /* tp_init */
+    0,                         /* tp_alloc */
+    Proj_new,                  /* tp_new */
+};
 
-void initproj(void)
+static PyMethodDef proj_methods[] = {
+    {NULL}  /* Sentinel */
+};
+
+#ifndef PyMODINIT_FUNC	/* declarations for DLL import/export */
+#define PyMODINIT_FUNC void
+#endif
+PyMODINIT_FUNC
+initproj(void) 
 {
-  Py_InitModule("proj", ProjMethods);
+  PyObject* m;
+  
+  ProjType.tp_new = PyType_GenericNew;
+  if (PyType_Ready(&ProjType) < 0)
+    return;
+  
+  m = Py_InitModule3("proj", proj_methods,"Proj4 Python module");
+  
+  Py_INCREF(&ProjType);
+  PyModule_AddObject(m, "Proj", (PyObject *)&ProjType);
   import_array();
 }
 
