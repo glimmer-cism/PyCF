@@ -122,17 +122,17 @@ class CFArea(PyGMT.AreaXY):
         datay = vely.get2Dfield(time,level=level)
 
         # calculate node spacing
-        vector_density = 0.3
+        vector_density = 0.2
         x_spacing = int(((self.ur[0]-self.ll[0])/(self.size[0]*self.file.deltax))*vector_density)+1
         y_spacing = int(((self.ur[1]-self.ll[1])/(self.size[1]*self.file.deltay))*vector_density)+1
 
         fact = 360./(2*math.pi)
         outstring = StringIO()
-        scale = 0.5/max(Numeric.array(data).flat)
         for i in range(int(self.ll[0]/self.file.deltax),int(self.ur[0]/self.file.deltax),x_spacing):
             for j in range(int(self.ll[1]/self.file.deltay),int(self.ur[1]/self.file.deltay),y_spacing):
                 if (data[i,j]>mins):
-                    outstring.write('%f %f %f %f\n'%(velx.xdim[i], velx.ydim[j], fact*math.atan2(datay[i,j],datax[i,j]), data[i,j]*scale)) #1))#data[i,j]))
+                    outstring.write('%f %f %f %f\n'%(velx.xdim[i], velx.ydim[j], fact*math.atan2(datay[i,j],datax[i,j]), 0.3))
+
         self.canvascom('psxy',' -G0 -Sv0.01/0.1/0.1',indata=outstring.getvalue())
         
     def contour(self,var,contours,args,time,level=0):

@@ -151,6 +151,8 @@ if __name__ == '__main__':
     plots.append(EIS2plot(bigarea,pos=[0,7.5]))
     plots.append(EIS2plot(bigarea,pos=[9,7.5]))
     plots.append(EIS2plot(bigarea,pos=[0,0]))
+    key = PyGMT.KeyArea(bigarea,pos=[7,0],size=[10.,6.])
+    key.num = [2,10]
 
     for i in range(0,len(plots)):
         plots[i].plot_paper(eis2data[exp],i)
@@ -158,6 +160,7 @@ if __name__ == '__main__':
 
     for f in range(0,opts.nfiles,increment):
         cffile = opts.cffile(f)
+        key.plot_box(cffile.title,PyCF.CFcolours[f])
         if increment == 1:
             eis = PyCF.CFgetstats(cffile,-1,eismint=True)
         else:

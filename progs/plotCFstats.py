@@ -26,18 +26,20 @@ import PyGMT,PyCF,sys
 parser = PyCF.CFOptParser()
 parser.width=15.
 parser.profile(vars=False)
+parser.add_option("-e","--eismint",default=False,action="store_true",help="plot central thickness")
 parser.add_option("-f","--file",metavar='NAME',type="string",dest='dataname',help="name of file containing ice extent data")
 parser.add_option("-m","--meltfrac",default=False,action="store_true",help="extract fractional melt area.")
 parser.plot()
 opts = PyCF.CFOptions(parser,-2)
 
 do_extent = opts.options.profname != None
+eismint = opts.options.eismint
 
 plot = opts.plot()
 plot.defaults['LABEL_FONT_SIZE']='12p'
 plot.defaults['ANOT_FONT_SIZE']='10p'
 bigarea = PyGMT.AreaXY(plot,size=opts.papersize)
-tsarea = PyCF.CFAreaTS(bigarea,pos=[0.,4.5],size=[opts.options.width,opts.options.width/3])
+tsarea = PyCF.CFAreaTS(bigarea,pos=[0.,4.5],size=[opts.options.width,opts.options.width/4])
 key = PyGMT.KeyArea(bigarea,size=[opts.options.width,3.])
 
 if opts.options.meltfrac:
@@ -56,6 +58,10 @@ if do_extent:
     ie = tsarea.newts()
     ie.xlabel = 'time [ka]'
     ie.ylabel = 'ice extent'
+if eismint:
+    eis = tsarea.newts()
+    eis.xlabel = 'time [ka]'
+    eis.ylabel = 'divide and midpoint ice thickness [m]'
 
 for fnum in range(0,len(opts.args)-1):
     if do_extent:
@@ -78,6 +84,13 @@ for fnum in range(0,len(opts.args)-1):
     if mf != None:
         melt_data = cffile.getFracMelt()
         mf.line('-W1/%s'%PyCF.CFcolours[fnum],cffile.time(None),melt_data)
+
+    if eismint:
+        thk = cffile.getvar('thk')
+        divide   = [len(cffile.file.variables['x1'][:])/2,len(cffile.file.variables['y1'][:])/2]
+        midpoint = [3*len(cffile.file.variables['x1'][:])/4,len(cffile.file.variables['y1'][:])/2]
+        eis.line('-W1/%s'%PyCF.CFcolours[fnum],cffile.time(None),thk.getSpotIJ(divide,time=None))
+        eis.line('-W1/%s'%PyCF.CFcolours[fnum],cffile.time(None),thk.getSpotIJ(midpoint,time=None))
 
 if do_extent and opts.options.dataname != None:
     efile = open(opts.options.dataname)

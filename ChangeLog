@@ -1,3 +1,9 @@
+2004-12-01 Magnus Hagdorn
+ * CF_area.py: have fixed length vectors. Still not quite right...
+ * plotCFstats.py: added option to plot central ice thicknesses
+ * plotCFvar.py: we can now also plot multiple files
+ * plotEISMINT2stats.py: added legend
+
 2004-11-30 Magnus Hagdorn
  * CF_area.py: added vector velocity plots
  * CF_colourmap.py: colourmaps for vel and bvel
