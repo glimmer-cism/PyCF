@@ -23,7 +23,6 @@
 __all__ = ['CFArea']
 
 import PyGMT,Numeric
-from CF_loadfile import *
 
 class CFArea(PyGMT.AreaXY):
     """CF grid plotting area."""
@@ -93,16 +92,23 @@ class CFArea(PyGMT.AreaXY):
         PyGMT.AreaXY.contour(self,var.getGMTgrid(time,level=level),contours,args)
 
 if __name__ == '__main__':
-    import sys
+    from CF_options import *
+
+    parser = CFOptParser()
+    parser.variable()
+    parser.time()
+    parser.region()
+    parser.plot()
+
+    opts = CFOptions(parser)
+    infile = opts.cffile()
+    var = opts.vars(infile)
+    ts = opts.times(infile)
     
-    infile = CFloadfile(sys.argv[1])
-    var = CFvariable(infile,'topg')
-    
-    plot = PyGMT.Canvas(sys.argv[2])
+    plot = opts.plot()
     area = CFArea(plot,infile)
-    area.image(var,0)
-    area.contour(var,[1000.],'',0)
+    area.image(var,ts)
     area.coastline()
     area.coordsystem()
-    area.printinfo(0)
+    area.printinfo(ts)
     plot.close()

@@ -1,4 +1,7 @@
 2004-06-14 Magnus Hagdorn
+ * added shared command line option parser
+
+2004-06-14 Magnus Hagdorn
  * rename false_westing to false_easting
    (CF_proj.py, add_projinfo.py, create_topo.py)
 

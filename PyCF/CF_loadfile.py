@@ -155,6 +155,8 @@ class CFvariable(object):
         self.CFfile = CFfile
         self.file = CFfile.file
         self.name = var
+        if var not in self.file.variables.keys():
+            raise KeyError, 'Variable not in file'
         self.var = self.file.variables[var]
         self.__colourmap = CFcolourmap(self)
 
@@ -192,7 +194,6 @@ class CFvariable(object):
     def __set_colourmap(self,name):
         self.__colourmap = CFcolourmap(self,filename=name)
     colourmap = property(__get_colourmap,__set_colourmap)
-
     
     def get2Dfield(self,time,level=0):
         """Get a 2D field.
