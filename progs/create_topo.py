@@ -149,15 +149,25 @@ if __name__ == '__main__':
         cffile.comment = comment
 
     # creating dimensions
+    cffile.createDimension('x0',numx-1)
     cffile.createDimension('x1',numx)
+    cffile.createDimension('y0',numy-1)
     cffile.createDimension('y1',numy)
+    cffile.createDimension('level',1)
     cffile.createDimension('time',None)
     #creating variables
+    varx=cffile.createVariable('x0')
+    varx[:] = (delta[0]*Numeric.arange(numx-1)).astype(Numeric.Float32)
     varx=cffile.createVariable('x1')
     varx[:] = (delta[0]*Numeric.arange(numx)).astype(Numeric.Float32)
 
+    vary=cffile.createVariable('y0')
+    vary[:] = (delta[1]*Numeric.arange(numy-1)).astype(Numeric.Float32)
     vary=cffile.createVariable('y1')
     vary[:] = (delta[1]*Numeric.arange(numy)).astype(Numeric.Float32)
+
+    varlevel=cffile.createVariable('level')
+    varlevel[0] = 1
 
     vartime=cffile.createVariable('time')
     vartime[0] = 0

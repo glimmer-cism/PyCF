@@ -1,4 +1,7 @@
 2004-06-18 Magnus Hagdorn
+ * need to also create unused dimensions
+
+2004-06-18 Magnus Hagdorn
  * make a disitinction between polar stereographic and general stereographic
    projections.
 
