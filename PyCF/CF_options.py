@@ -100,6 +100,8 @@ class CFOptParser(optparse.OptionParser):
             self.__var()
         self.add_option("-p","--profile",metavar='PROFILE',type='string',dest='profname',help="name of file containing profile control points")
         self.add_option("--not_projected",action="store_false",default=True,dest="prof_is_projected",help="Set this flag if the profile data is not projected.")
+        self.add_option("--colourmap",type="string",dest="colourmap",help="name of GMT cpt file to be used (autogenerate one when set to None)")
+        self.add_option("--legend",action="store_true", dest="dolegend",default=False,help="Plot a colour legend")
         
     def time(self):
         """Time option."""
@@ -259,7 +261,13 @@ class CFOptions(object):
 
         prof = cffile.getprofile(self.options.vars[varn])
         prof.pmt = self.options.pmt
-
+        try:
+            if self.options.colourmap == 'None':
+                prof.colourmap = '.__auto.cpt'
+            elif self.options.colourmap != None:
+                prof.colourmap = self.options.colourmap
+        except:
+            prof.colourmap = '.__auto.cpt'
         return prof
 
     def times(self,cffile,timen=0):

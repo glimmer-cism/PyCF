@@ -321,7 +321,11 @@ class CFvariable(object):
                     print 'Warning, cannot correct for pmt because ice thicknesses are not in file'
                 else:
                     ih = Numeric.transpose(self.file.variables['thk'][time,:,:])
-                    grid = grid + 8.7e-4*ih
+                    if self.name == 'btemp':
+                        fact = 1.
+                    else:
+                        fact = self.file.variables['level'][level]
+                    grid = grid + 8.7e-4*ih*fact
         return grid
 
     def spline(self,pos,time,level=0):
