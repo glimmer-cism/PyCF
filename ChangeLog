@@ -1,3 +1,7 @@
+2004-12-02 Magnus Hagdorn
+ * extract3DProfile.py: new prog for extracting profile through
+   3D field
+
 2004-12-01 Magnus Hagdorn
  * CF_area.py: have fixed length vectors. Still not quite right...
  * plotCFstats.py: added option to plot central ice thicknesses
