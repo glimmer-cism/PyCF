@@ -109,7 +109,7 @@ if __name__ == '__main__':
     parser.region()
     parser.plot()
 
-    opts = CFOptions(parser)
+    opts = CFOptions(parser,2)
     infile = opts.cffile()
     var = opts.vars(infile)
     ts = opts.times(infile)

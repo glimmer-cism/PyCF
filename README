@@ -18,3 +18,10 @@ since some modules query GLIMMER_PREFIX to find data files.
 
 Programs
 * create_topo.py - create input topo file
+* add_projinfo.py - add project info to existing CF file
+* plotCFvar.py - simple plot of CF file
+  you can: - specify either a number of variables or a number of times
+             that should be plotted
+           - set the width of individual maps
+           - set lower left corner and/or upper right corner of plot
+  check plotCFvar.py -h

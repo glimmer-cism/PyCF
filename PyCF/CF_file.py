@@ -160,6 +160,11 @@ class CFfile(object):
         self.__ur_geo = self.projection.proj4(self.__ur_xy,inv=True)
     projection = property(__get_projection,__set_projection)
 
+    # get aspect ratio
+    def __get_aspect(self):
+        return (self.ur_xy[1]-self.ll_xy[1])/(self.ur_xy[0]-self.ll_xy[0])
+    aspect_ratio = property(__get_aspect)
+
     def reset_bb(self):
         """Reset bounding box."""
         self.__ll_xy_changed = False

@@ -20,7 +20,7 @@
 
 __all__ = ['CFOptParser','CFOptions']
 
-import optparse, PyGMT
+import optparse, sys, PyGMT, os.path
 from CF_loadfile import *
 
 class CFOptParser(optparse.OptionParser):
@@ -70,24 +70,64 @@ class CFOptParser(optparse.OptionParser):
 class CFOptions(object):
     """Do some option/argument massaging."""
 
-    def __init__(self,parser):
+    def __init__(self,parser,numargs=None):
         """Initialise.
 
-        parser: Option parser."""
+        parser: Option parser.
+        numargs: the number of arguments expected. A negative numargs implies the minimum number of arguments."""
 
         (self.options, self.args) = parser.parse_args()
 
-    def plot(self,argn=-1):
+        if numargs != None:
+            if numargs>=0:
+                if len(self.args)!=numargs:
+                    sys.stderr.write('Error, expected %d arguments and got %d arguments\n'%(numargs,len(self.args)))
+                    sys.exit(1)
+            else:
+                if len(self.args)<-numargs:
+                    sys.stderr.write('Error, expected at least %d arguments and got %d arguments\n'%(-numargs,len(self.args)))
+                    sys.exit(1)
+
+    def __get_nvars(self):
+        try:
+            return len(self.options.vars)
+        except:
+            return 1
+    nvars = property(__get_nvars)
+
+    def __get_ntimes(self):
+        try:
+            return len(self.options.times)
+        except:
+            return 1
+    ntimes = property(__get_ntimes)
+
+    def __get_papersize(self):
+        if self.options.landscape:
+            orientation = "landscape"
+        else:
+            orientation = "portrait"
+        return PyGMT.PaperSize(self.options.size,orientation)
+    papersize = property(__get_papersize)
+
+    def plot(self,argn=-1,number=None):
         """Setup plot.
 
-        argn: number of argument holding output name."""
+        argn: number of argument holding output name.
+        number: number of series in file"""
 
         if self.options.landscape:
             orientation = "landscape"
         else:
             orientation = "portrait"
 
-        plot = PyGMT.Canvas(self.args[argn],size=self.options.size,orientation=orientation)
+        if number!=None:
+            (root,ext) = os.path.splitext(self.args[argn])
+            fname = '%s.%03d%s'%(root,number,ext)
+        else:
+            fname = self.args[argn]
+
+        plot = PyGMT.Canvas(fname,size=self.options.size,orientation=orientation)
         if self.options.verbose:
             plot.verbose = True
         return plot

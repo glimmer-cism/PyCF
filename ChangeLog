@@ -1,4 +1,10 @@
 2004-06-17 Magnus Hagdorn
+ * added aspect ratio to CF_file.py
+ * added check for number of arguments (CF_options.py, CF_area.py)
+ * added papersize, nvars, ntimes to CF_options.py
+ * added new program plotCFvar.py
+	
+2004-06-17 Magnus Hagdorn
  * projmodule.c: massive change. The extension module provides a 
    projection type, with lots of methods to do proj4 projections
  * CF_proj.py: use new proj module
