@@ -1,3 +1,7 @@
+2004-12-13 Magnus Hagdorn
+ * CF_profilearea.py: select different pens, plot more than one profile
+ *  plotProfile.py, plotSpot.py: plot more than one file
+
 2004-12-02 Magnus Hagdorn
  * extract3DProfile.py: new prog for extracting profile through
    3D field

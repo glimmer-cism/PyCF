@@ -28,7 +28,7 @@ parser.width=15.
 parser.profile()
 parser.time()
 parser.plot()
-opts = PyCF.CFOptions(parser,2)
+opts = PyCF.CFOptions(parser,-2)
 infile = opts.cfprofile()
 
 if opts.options.level == None:
@@ -36,21 +36,35 @@ if opts.options.level == None:
 else:
     level = opts.options.level
 
+dokey = opts.nfiles > 1
+
 plot = opts.plot()
 plot.defaults['LABEL_FONT_SIZE']='12p'
 plot.defaults['ANOT_FONT_SIZE']='10p'
 bigarea = PyGMT.AreaXY(plot,size=opts.papersize)
 
+if dokey:
+    key = PyGMT.KeyArea(bigarea,pos=[-2.,0.],size=[opts.options.width+4,2])
+    key.num = [2,4]
+    key.plot_line(infile.title,'1/%s'%PyCF.CFcolours[0])
+
+area = PyCF.CFProfileMArea(bigarea,pos=[0,3.5],size=[opts.options.width,opts.options.width/5.])
+varea = []
 for i in range(0,opts.nvars):
     profile = opts.profs(infile,i)
     time = opts.times(infile,0)
+    varea.append(area.newprof(profile,time,level=opts.options.level,pen='1/%s'%PyCF.CFcolours[0]))
 
-    area = PyCF.CFProfileArea(bigarea,profile,time,level=opts.options.level,size=[opts.options.width,opts.options.width/3.],pos=[1.,i*(opts.options.width/3.+0.5)])
-    if i > 0:
-        area.axis='Wesn'
-        area.xlabel = ''
+for f in range(1,opts.nfiles):
+    infile = opts.cfprofile(f)
+    for i in range(0,opts.nvars):
+        profile = opts.profs(infile,i)
+        time = opts.times(infile,0)
+        varea[i].plot(profile,time,level=opts.options.level,pen='1/%s'%PyCF.CFcolours[f])
+    if dokey:
+        key.plot_line(infile.title,'1/%s'%PyCF.CFcolours[f])
 
-    area.finalise(expandy=True)
-    area.coordsystem()
+area.finalise(expandy=True)
+area.coordsystem()
 
 plot.close()

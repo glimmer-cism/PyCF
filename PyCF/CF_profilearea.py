@@ -27,7 +27,7 @@ import PyGMT,Numeric
 class CFProfileArea(PyGMT.AutoXY):
     """CF profile plotting area."""
 
-    def __init__(self,parent,profile,time,level=None,pos=[0.,0.],size=[18.,5.]):
+    def __init__(self,parent,profile,time,level=None,pen='1/0/0/0',pos=[0.,0.],size=[18.,5.]):
         """Initialise.
 
         parent: can be either a Canvas or another Area.
@@ -42,6 +42,16 @@ class CFProfileArea(PyGMT.AutoXY):
         self.file = profile.cffile
         self.axis='WeSn'
         self.xlabel = 'distance along profile [km]'
+        self.plot(profile,time,level=level,pen=pen)
+        self.__stamp = None
+
+    def plot(self,profile,time,level=None,pen='1/0/0/0'):
+        """Plot Profile.
+
+        profile: CF profile
+        time: time slice
+        level: level to be processed"""
+        
         if profile.is3d and level == None and not profile.average:
             self.ylabel = 'elevation [m]'
 
@@ -50,21 +60,20 @@ class CFProfileArea(PyGMT.AutoXY):
             ihdata = Numeric.array(profile.cffile.getprofile('thk').getProfile(time))
             try:
                 rhdata = Numeric.array(profile.cffile.getprofile('topg').getProfile(time))
-                self.line('-W1/0/0/0',profile.cffile.xvalues,rhdata)
+                self.line('-W%s'%pen,profile.cffile.xvalues,rhdata)
             except:
                 rhdata = Numeric.zeros(len(ihdata))
             ihdata = rhdata+ihdata
-            self.line('-W1/0/0/0',profile.cffile.xvalues,ihdata)
+            self.line('-W%s'%pen,profile.cffile.xvalues,ihdata)
         else:
             if level == None:
                 level = 0
             self.ylabel = '%s [%s]'%(profile.long_name,profile.units)
             data = profile.getProfile(time,level=level)
-            self.line('-W1/0/0/0',profile.cffile.xvalues,data)
+            self.line('-W%s'%pen,profile.cffile.xvalues,data)
             if profile.name == 'is':
                 rhdata = Numeric.array(profile.cffile.getprofile('topg').getProfile(time))
-                self.line('-W1/0/0/0',profile.cffile.xvalues,rhdata)
-        self.__stamp = None
+                self.line('-W%s'%pen,profile.cffile.xvalues,rhdata)
                 
     def stamp(self,text):
         """Print text in lower left corner."""
@@ -111,14 +120,14 @@ class CFProfileMArea(PyGMT.AreaXY):
         self.finalised = False
         self.plots = []
 
-    def newprof(self,profile,time,level=None):
+    def newprof(self,profile,time,level=None,pen='1/0/0/0'):
         """Create a new profile plot.
 
         profile: CF profile
         time: time slice
         level: level to be processed"""
 
-        newpr = CFProfileArea(self.pt,profile,time,level=level,pos=[0,self.numplots*(self.size[1]+self.dy)],
+        newpr = CFProfileArea(self.pt,profile,time,level=level,pen=pen,pos=[0,self.numplots*(self.size[1]+self.dy)],
                               size=self.size)
         self.plots.append(newpr)
         self.numplots = self.numplots + 1
