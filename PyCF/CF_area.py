@@ -24,7 +24,7 @@ __all__ = ['CFArea']
 
 import PyGMT,Numeric
 from CF_loadfile import CFvariable
-
+from CF_colourmap import CFcolours
 class CFArea(PyGMT.AreaXY):
     """CF grid plotting area."""
 
@@ -126,11 +126,21 @@ class CFArea(PyGMT.AreaXY):
 
         if hasattr(self.file,'interpolated'):
             self.line(args,self.file.interpolated[0,:].tolist(),self.file.interpolated[1,:].tolist())
-    
+
+    def rsl_locations(self,rsldb,dataset=None):
+        """Plot RSL locations.
+
+        rsldb: RSL database data set
+        dataset: if not None, list of dataset ids to be plotted (when None, plot all)."""
+
+        rsldata = rsldb.getLocationRange(self.file.minmax_long,self.file.minmax_lat)
+        for loc in rsldata:
+            self.geo.plotsymbol([loc[3]],[loc[4]],size=0.2,symbol='a',args='-G%s'%CFcolours[loc[1]])
 
 if __name__ == '__main__':
     from CF_options import *
-
+    from CF_IOrsl import *
+    
     parser = CFOptParser()
     parser.variable()
     parser.time()
@@ -147,6 +157,8 @@ if __name__ == '__main__':
         area.land(ts)
     area.image(var,ts,clip = opts.options.clip)
     area.coastline()
+    rsl = CFRSL('/home/magi/Development/src/PyCF/pelt.dat')
+    area.rsl_locations(rsl)
     area.coordsystem()
     area.printinfo(ts)
     plot.close()

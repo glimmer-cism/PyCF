@@ -40,6 +40,9 @@ class CFfile(object):
         self.__ur_xy_changed = False
         self.__ur_xy = [0,0]
         self.__ur_geo = [0,0]
+
+        self.__long = None
+        self.__lat = None
         
     # title
     def __set_title(self,title):
@@ -183,6 +186,38 @@ class CFfile(object):
         return (self.file.variables['y1'][1]-self.file.variables['y1'][0])
     deltay = property(__get_deltay)
 
+    # get min/max longitude and latitude
+    def __minmax_geo(self):
+        if self.projection != 'lin':
+            c = [self.file.variables['y1'][0]]
+            data = self.projection.Proj4.gridinv((self.file.variables['x1'][:],c*len(self.file.variables['x1'][:])))
+            longs = [min(data[0]),max(data[0])]
+            lats  = [min(data[1]),max(data[1])]
+            c = [self.file.variables['y1'][-1]]
+            data = self.projection.Proj4.gridinv((self.file.variables['x1'][:],c*len(self.file.variables['x1'][:])))
+            longs = [min(longs[0],min(data[0])),max(longs[1],max(data[0]))]
+            lats  = [min(lats[0],min(data[1])), max(lats[1],max(data[1]))]
+            c = [self.file.variables['x1'][0]]
+            data = self.projection.Proj4.gridinv((c*len(self.file.variables['y1'][:]),self.file.variables['y1'][:]))
+            longs = [min(longs[0],min(data[0])),max(longs[1],max(data[0]))]
+            lats  = [min(lats[0],min(data[1])), max(lats[1],max(data[1]))]
+            c=[self.file.variables['x1'][-1]]
+            data = self.projection.Proj4.gridinv((c*len(self.file.variables['y1'][:]),self.file.variables['y1'][:]))
+            longs = [min(longs[0],min(data[0])),max(longs[1],max(data[0]))]
+            lats  = [min(lats[0],min(data[1])), max(lats[1],max(data[1]))]
+            self.__long = longs
+            self.__lat = lats
+    def __get_long(self):
+        if self.__long == None:
+            self.__minmax_geo()
+        return self.__long
+    def __get_lat(self):
+        if self.__lat == None:
+            self.__minmax_geo()
+        return self.__lat
+    minmax_long = property(__get_long)
+    minmax_lat = property(__get_lat)
+            
     def inside(self, point):
         """Check if point is inside data set."""
 

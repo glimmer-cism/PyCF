@@ -35,6 +35,10 @@ class CFOptParser(optparse.OptionParser):
         optparse.OptionParser.__init__(self,usage)
 
         self.width = 10.
+        try:
+            self.rsldb = os.path.join(os.environ['GLIMMER_PREFIX'],'share','PyCF','rsl.db')
+        except:
+            self.rsldb = None
         
     def plot(self):
         """Plot options."""
@@ -100,6 +104,14 @@ class CFOptParser(optparse.OptionParser):
         """Time option."""
         self.add_option("-t","--time",metavar='TIME',action='append',type="float",dest='times',help="time to be processed (this option can be used more than once)")
 
+    def timeint(self):
+        """Time interval options."""
+        self.add_option("-t","--time",metavar='T0 T1',type="float",nargs=2,dest='times',help="specify time interval T0 T1, if none process entire file.")
+
+    def rsl(self):
+        """RSL options."""
+        self.add_option("-r","--rsldb",metavar='DB',type="string",default=self.rsldb,help="name of RSL database file [%s]"%self.rsldb)
+        self.add_option("--rsl_selection",type="choice",choices=['fenscan'],default='fenscan',help="Change selection of RSL locations to be plotted, can be one of [\"fenscan\"] (default: fenscan)")
 
 class CFOptions(object):
     """Do some option/argument massaging."""

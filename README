@@ -8,6 +8,8 @@ You will need the following packages
 * Numeric   http://www.pfdubois.com/numpy/
 * Scientific Python 
             http://starship.python.net/~hinsen/ScientificPython/
+* pygsl     http://pygsl.sourceforge.net/
+* PySQLite  http://pysqlite.sourceforge.net/
 * PyGMT     https://forge.nesc.ac.uk/projects/pygmt/
 
 If your proj4 library is not in a standard location than you need to set
@@ -15,6 +17,13 @@ the environment variable PROJ_PREFIX to point to the location where proj4
 is installed. You should install PyCF into the GLIMMER_PREFIX, i.e.
 ./setup.py install --home=$GLIMMER_PREFIX
 since some modules query GLIMMER_PREFIX to find data files.
+
+RSL database
+If you want to use to RSL plotting methods and programs you need to first
+create/get the RSL database. You can download the Peltier's RSL database from 
+ftp://ftp.ncdc.noaa.gov/pub/data/paleo/paleocean/relative_sea_level/sealevel.dat
+The ascii data set can be converted to the SQLite database using 
+PyCF/CF_IOrsl.py --create_db -p sealevel.dat $GLIMMER_PREFIX/share/PyCF/rsl.db
 
 Programs
 * create_topo.py - create input topo file

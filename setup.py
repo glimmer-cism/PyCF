@@ -44,6 +44,7 @@ data_files = [('share/PyCF/',['data/ice.cpt',
                       'progs/plotSpot.py',
                       'progs/plotProfile.py',
                       'progs/plotCFstats.py',
+                      'progs/plotRSL.py',
                       'progs/ran_topo.py'])]
 
 setup (name = "PyCF",

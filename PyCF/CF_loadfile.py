@@ -21,6 +21,7 @@
 __all__=['CFloadfile','CFvariable','CFchecklist']
 
 import Numeric, Scientific.IO.NetCDF,os
+from pygsl import spline
 from PyGMT.PyGMTgrid import Grid
 from CF_proj import *
 from CF_colourmap import *
@@ -158,6 +159,30 @@ class CFloadfile(CFfile):
             return values
         ih = self.file.variables['thk'][t,:,:].flat
         return sum(ih)*fact
+
+    def getRSL(self,loc,time):
+        """Get RSL data.
+
+        loc: array,list,tuple containing longitude and latitude of RSL location
+        time: if None, return data for all time slices
+              if list/etc of size two, interpret as array selection
+              if single value, get only this time slice"""
+
+        # get times
+        (tarray,t) = CFchecklist(time,self.file.variables['time'])
+        # get location
+        xyloc = self.project(loc)
+        if not self.inside(xyloc):
+            raise RuntimeError, 'Point outside grid'
+        data = self.getvar('slc')
+        # extract data
+        values = []
+        if tarray:
+            for i in range(t[0],t[1]+1):
+                values.append(data.spline(xyloc,i))
+            return values
+
+        return data.spline(xyloc,t)
     
 class CFvariable(object):
     """Handling CF variables."""
@@ -176,6 +201,7 @@ class CFvariable(object):
         self.var = self.file.variables[var]
         self.__colourmap = CFcolourmap(self)
         self.pmt = False
+        self.slc_eus = True
 
     def __get_units(self):
         try:
@@ -226,6 +252,9 @@ class CFvariable(object):
             grid = Numeric.transpose(self.var[time,:,:])
         if self.name == 'topg':
             if 'eus' in self.file.variables.keys():
+                grid = grid - self.file.variables['eus'][time]
+        if self.name == 'slc':
+            if 'eus' in self.file.variables.keys() and self.slc_eus:
                 grid = grid + self.file.variables['eus'][time]
         # correct temperature
         if self.name in temperatures:
@@ -236,6 +265,25 @@ class CFvariable(object):
                     ih = Numeric.transpose(self.file.variables['thk'][time,:,:])
                     grid = grid + 8.7e-4*ih
         return grid
+
+    def spline(self,pos,time,level=0):
+        """Interpolate 2D field using cubic splines.
+
+        pos: [xloc,yloc]
+        time: time slice
+        level: horizontal slice."""
+
+        data = self.get2Dfield(time,level=level)
+        # interpolate along columns
+        r = []
+        for c in range(0,data.shape[0]):
+            col = spline.cspline(data.shape[1])
+            col.init(self.ydim[:],data[c,:])
+            r.append(col.eval(pos[1]))
+        # interpolate row
+        row = spline.cspline(data.shape[0])
+        row.init(self.xdim[:],r)
+        return row.eval(pos[0])
 
     def getGMTgrid(self,time,level=0):
         """Get a GMT grid.

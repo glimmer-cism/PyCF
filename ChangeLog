@@ -1,3 +1,14 @@
+2004-10-22 Magnus Hagdorn
+ * CF_IOrsl.py: new class for handling RSL data base
+ * CF_rsl.py: plot RSL curve
+ * CF_file.py: get min/max latitude and longitude
+ * CF_loadfile.py: added method to interpolate field using splines,
+	           added method to extraxr RSL data at geographic location
+ * CF_area.py: added method to plot RSL locations on map
+ * CF_options.py: added some RSL options
+ * plotRSL.py: plot funky RSL diagram
+ * updated README
+	
 2004-09-29 Magnus Hagdorn
  * CF_profile.py: remove triangulate from imports
  * plotEISMINT.py: tidy up help messages (we don't need to ask for variables)
