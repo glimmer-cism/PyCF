@@ -60,6 +60,8 @@ class CFloadfile(CFfile):
                 self.mapvarname = var
                 break
         self.reset_bb()
+        # initialising variable dictionary
+        self.__vars = {}
 
     def time(self,t):
         """Return selected time value."""
@@ -116,17 +118,28 @@ class CFloadfile(CFfile):
                   point[1] >= self.file.variables['y1'][0] and point[1] <= self.file.variables['y1'][-1])
         return result
 
+    def getvar(self,var):
+        """Get a variable from file.
+
+        var: name of variables
+
+        this method caches the return variable structure."""
+
+        if var not in self.__vars:
+            self.__vars[var] = CFvariable(self,var)
+        return self.__vars[var]
+
 class CFvariable(object):
     """Handling CF variables."""
 
-    def __init__(self,CFfile,var):
+    def __init__(self,cffile,var):
         """Initialise.
 
         CFFile: CF file
         var: name of variable"""
 
-        self.CFfile = CFfile
-        self.file = CFfile.file
+        self.cffile = cffile
+        self.file = cffile.file
         self.name = var
         if var not in self.file.variables.keys():
             raise KeyError, 'Variable not in file'

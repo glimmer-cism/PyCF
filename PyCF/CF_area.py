@@ -28,30 +28,30 @@ from CF_loadfile import CFvariable
 class CFArea(PyGMT.AreaXY):
     """CF grid plotting area."""
 
-    def __init__(self,parent,CFfile,pos=[0.,0.],size=10):
+    def __init__(self,parent,cffile,pos=[0.,0.],size=10):
         """Initialising ISM area.
 
         parent: can be either a Canvas or another Area.
-        CFfile: CF file used for setting up projection and area
+        cffile: CF file used for setting up projection and area
         pos: position of area relative to the parent
         size: size of GMT area
         """
 
         # initialising geographic area
-        self.file = CFfile
-        if CFfile.projection == 'lin':
-            self.geo = PyGMT.AreaXY(parent,pos=pos,size=[size,CFfile.aspect_ratio*size])
-            self.geo.setregion([CFfile.ll_geo[0]/CFfile.deltax,CFfile.ll_geo[1]/CFfile.deltax],
-                               [CFfile.ur_geo[0]/CFfile.deltax,CFfile.ur_geo[1]/CFfile.deltax])
+        self.file = cffile
+        if cffile.projection == 'lin':
+            self.geo = PyGMT.AreaXY(parent,pos=pos,size=[size,cffile.aspect_ratio*size])
+            self.geo.setregion([cffile.ll_geo[0]/cffile.deltax,cffile.ll_geo[1]/cffile.deltax],
+                               [cffile.ur_geo[0]/cffile.deltax,cffile.ur_geo[1]/cffile.deltax])
         else:
-            self.geo = PyGMT.AreaGEO(parent,CFfile.projection.getGMTprojection(mapwidth=size).upper(), pos=pos, size=size)
-            self.geo.setregion(CFfile.ll_geo, CFfile.ur_geo)
+            self.geo = PyGMT.AreaGEO(parent,cffile.projection.getGMTprojection(mapwidth=size).upper(), pos=pos, size=size)
+            self.geo.setregion(cffile.ll_geo, cffile.ur_geo)
         # initialising paper area
         self.paper = PyGMT.AreaXY(parent,pos=pos,size=self.geo.size)
 
         # initialising XY area
         PyGMT.AreaXY.__init__(self,parent,pos=pos,size=self.geo.size)
-        self.setregion(CFfile.ll_xy, CFfile.ur_xy)
+        self.setregion(cffile.ll_xy, cffile.ur_xy)
 
     def coordsystem(self,grid=True):
         """Plot coordinate system.
@@ -90,7 +90,7 @@ class CFArea(PyGMT.AreaXY):
         
         clipped = False
         if clip in ['topg','thk','usurf'] :
-            cvar = CFvariable(var.CFfile,clip)
+            cvar = CFvariable(var.cffile,clip)
             self.clip(cvar.getGMTgrid(time),0.1)
             clipped = True
         PyGMT.AreaXY.image(self,var.getGMTgrid(time,level=level),var.colourmap.cptfile)

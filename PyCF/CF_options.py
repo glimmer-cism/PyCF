@@ -85,6 +85,12 @@ class CFOptParser(optparse.OptionParser):
         self.__var()
         self.add_option("-i","--ij",dest='ij',metavar="I J",type="int",nargs=2,action='append',help="node to be plotted (this option can be used more than once)")
 
+    def profile(self):
+        """Profile options."""
+        
+        self.__var()
+        self.add_option("-p","--profile",metavar='PROFILE',type='string',dest='profname',help="name of file containing profile control points")
+        self.add_option("--not_projected",action="store_false",default=True,dest="prof_is_projected",help="Set this flag if the profile data is not projected.")
         
     def time(self):
         """Time option."""
@@ -178,13 +184,32 @@ class CFOptions(object):
         
         return infile
 
+    def cfprofile(self,argn=0):
+        """Load CF profile.
+
+        argn: number of argument holding CF file name."""
+
+        # load profile data
+        xdata = []
+        ydata = []
+        infile = file(self.options.profname)
+        for line in infile.readlines():
+            l = line.split()
+            xdata.append(float(l[0]))
+            ydata.append(float(l[1]))                         
+        infile.close()
+        profile = CFloadprofile(self.args[argn],xdata,ydata,projected=self.options.prof_is_projected)
+
+        return profile
+
     def vars(self,cffile,varn=0):
         """Get variable.
 
+        cffile: CF netCDF file
         varn: variable number
         """
 
-        var = CFvariable(cffile,self.options.vars[varn])
+        var = cffile.getvar(self.options.vars[varn])
         try:
             if self.options.colourmap == 'None':
                 var.colourmap = '.__auto.cpt'
@@ -194,6 +219,17 @@ class CFOptions(object):
             var.colourmap = '.__auto.cpt'
         var.pmt = self.options.pmt
         return var
+
+    def profs(self,cffile,varn=0):
+        """Get profiles.
+
+        cffile: CF netCDF profile file
+        varn: variable number
+        """
+
+        prof = cffile.getprofile(self.options.vars[varn])
+
+        return prof
 
     def times(self,cffile,timen=0):
         """Get time slice.

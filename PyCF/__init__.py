@@ -7,3 +7,5 @@ from CF_colourmap import *
 from CF_options import *
 from CF_area import *
 from CF_timeseries import *
+from CF_utils import *
+from CF_profile import *

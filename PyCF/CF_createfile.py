@@ -95,7 +95,7 @@ class CFcreatefile(CFfile):
         append: set to true if file should be open rw"""
 
         CFfile.__init__(self,fname)
-        
+        self.mapvarname = 'mapping'
         # get variable definitions
         try:
             vname=os.environ['GLIMMER_PREFIX']

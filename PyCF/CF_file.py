@@ -102,7 +102,7 @@ class CFfile(object):
     history = property(__get_history,__set_history)
 
     # wrap projection stuff
-    def __do_proj(self,val,inv=False):
+    def project(self,val,inv=False):
         if self.projection == 'lin':
             return val
         else:
@@ -121,10 +121,10 @@ class CFfile(object):
     # and geographic coordinates
     def __get_ll_geo(self):
         if self.__ll_xy_changed:
-            self.__ll_geo = self.__do_proj(self.__ll_xy,inv=True)
+            self.__ll_geo = self.project(self.__ll_xy,inv=True)
         return self.__ll_geo
     def __set_ll_geo(self,val):
-        self.__set_ll_xy = self.__set_ll_xy(self.__do_proj(val))
+        self.__set_ll_xy = self.__set_ll_xy(self.project(val))
         self.__ll_xy_changed = False
         self.__ll_geo = val
     ll_geo = property(__get_ll_geo,__set_ll_geo)
@@ -142,10 +142,10 @@ class CFfile(object):
     # and geographic coordinates
     def __get_ur_geo(self):
         if self.__ur_xy_changed:
-            self.__ur_geo = self.__do_proj(self.__ur_xy,inv=True)
+            self.__ur_geo = self.project(self.__ur_xy,inv=True)
         return self.__ur_geo
     def __set_ur_geo(self,val):
-        self.__set_ur_xy(self.__do_proj(val))
+        self.__set_ur_xy(self.project(val))
         self.__ur_xy_changed = False
         self.__ur_geo = val
     ur_geo = property(__get_ur_geo,__set_ur_geo)
@@ -166,8 +166,8 @@ class CFfile(object):
             varmap=self.file.createVariable(self.mapvarname,'c',())
         copyCFMap(proj,varmap)
         self.__projection = getCFProj(proj)
-        self.__ll_geo = self.__do_proj(self.__ll_xy,inv=True)
-        self.__ur_geo = self.__do_proj(self.__ur_xy,inv=True)
+        self.__ll_geo = self.project(self.__ll_xy,inv=True)
+        self.__ur_geo = self.project(self.__ur_xy,inv=True)
     projection = property(__get_projection,__set_projection)
 
     # get aspect ratio
@@ -188,10 +188,10 @@ class CFfile(object):
         """Reset bounding box."""
         self.__ll_xy_changed = False
         self.__ll_xy = [self.file.variables['x1'][0],self.file.variables['y1'][0]]
-        self.__ll_geo = self.__do_proj(self.__ll_xy,inv=True)
+        self.__ll_geo = self.project(self.__ll_xy,inv=True)
         self.__ur_xy_changed = False
         self.__ur_xy = [self.file.variables['x1'][-1],self.file.variables['y1'][-1]]
-        self.__ur_geo = self.__do_proj(self.__ur_xy,inv=True)
+        self.__ur_geo = self.project(self.__ur_xy,inv=True)
 
     def close(self):
         """Close CF file."""
