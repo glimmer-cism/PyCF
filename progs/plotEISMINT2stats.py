@@ -163,9 +163,10 @@ if __name__ == '__main__':
         else:
             compfile = opts.cffile(f+1)
             comp = PyCF.CFgetstats(compfile,-1,eismint=True)
-            eis = PyCF.CFgetstats(cffile,-1,eismint=True) - comp
+            eis = PyCF.CFgetstats(cffile,-1,eismint=True)
+            eis = eis - comp
             for i in range(0,4):
-                eis[i]=eis[i]/abs(comp[i])
+                eis[i]=100.*eis[i]/abs(comp[i])
         for i in range(0,len(plots)):
             plots[i].plot(eis[i],PyCF.CFcolours[f])
 

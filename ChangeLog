@@ -1,4 +1,8 @@
 2004-11-29 Magnus Hagdorn
+ * plotEISMINT2stats.py: fixed bug where relative changes were not multiplied
+ with 100 to get %
+
+2004-11-29 Magnus Hagdorn
  * CF_colourmap.py: moved data directory stuff to CF_utils.py
  * CF_utils.py: added data directory stuff, added EISMINT2 stats extraction
  * extractCFstats.py: moved EISMINT2 stats extraction to CF_utils.py
