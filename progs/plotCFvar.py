@@ -31,6 +31,11 @@ parser.plot()
 opts = PyCF.CFOptions(parser,2)
 infile = opts.cffile()
 
+if opts.options.level == None:
+    level = 0
+else:
+    level = opts.options.level
+
 if opts.nvars>1 and opts.ntimes>1:
     sys.stderr.write('Error, can only have either more than one time slice or more than one variable!\n')
     sys.exit(1)
@@ -73,19 +78,21 @@ if numplots > 1:
         area = PyCF.CFArea(bigarea,infile,pos=[x*sizex,opts.papersize[1]-(y+1)*sizey],size=sizex-deltax)
         if opts.options.land:
             area.land(time)
-        area.image(var,time,clip = opts.options.clip)
+        area.image(var,time,clip = opts.options.clip,level=level)
         area.coastline()
         area.axis='wesn'
         area.coordsystem()
         area.printinfo(time)
 else:
     plot = opts.plot()
-    area = PyCF.CFArea(plot,infile,size=sizex-deltax)
+    area = PyCF.CFArea(plot,infile,pos=[0.,3.],size=sizex-deltax)
     if opts.options.land:
         area.land(time)
-    area.image(var,time,clip = opts.options.clip)
+    area.image(var,time,clip = opts.options.clip,level=level)
     area.coastline()
     area.coordsystem()
     area.printinfo(time)
+    if opts.options.dolegend:
+        PyGMT.colourkey(area,var.colourmap.cptfile,title=var.long_name,pos=[0,-2])
     
 plot.close()

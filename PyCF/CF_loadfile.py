@@ -26,6 +26,22 @@ from CF_proj import *
 from CF_colourmap import *
 from CF_file import *
 
+temperatures = ['btemp','temp']
+
+def CFchecklist(section,variable):
+    """Check if section is a list.
+
+    if variable is a None,     return (True,[0,len(variable)-1])
+    if variable is a list/etc, return (True,[section[0],section[1]])
+    if variable is a value,    return (False,val) """
+
+    if section is None:
+        return (True, [0,len(variable)-1])
+    elif type(section) == list or type(section) == tuple or type(section) == Numeric.ArrayType:
+        return (True, [section[0],section[1]])
+    else:
+        return (False,section)
+
 class CFloadfile(CFfile):
     """Loading a CF netCDF file."""
 
@@ -47,7 +63,13 @@ class CFloadfile(CFfile):
 
     def time(self,t):
         """Return selected time value."""
-        return float(self.file.variables['time'][t])*self.timescale
+
+        (isar,sel) = CFchecklist(t,self.file.variables['time'])
+
+        if isar:
+            return self.file.variables['time'][sel[0]:sel[1]]*self.timescale
+        else:
+            return self.file.variables['time'][sel]*self.timescale
 
     def timeslice(self,time,round='n'):
         """Get the time slice.
@@ -110,6 +132,7 @@ class CFvariable(object):
             raise KeyError, 'Variable not in file'
         self.var = self.file.variables[var]
         self.__colourmap = CFcolourmap(self)
+        self.pmt = False
 
     def __get_units(self):
         try:
@@ -120,6 +143,8 @@ class CFvariable(object):
 
     def __get_long_name(self):
         try:
+            if self.name in temperatures and self.pmt and 'thk' in self.file.variables.keys():
+                return 'homologous %s'%self.var.long_name
             return self.var.long_name
         except:
             return ''
@@ -156,6 +181,17 @@ class CFvariable(object):
             grid = Numeric.transpose(self.var[time,level,:,:])
         else:
             grid = Numeric.transpose(self.var[time,:,:])
+        if self.name == 'topg':
+            if 'eus' in self.file.variables.keys():
+                grid = grid + self.file.variables['eus'][time]
+        # correct temperature
+        if self.name in temperatures:
+            if self.pmt:
+                if 'thk' not in self.file.variables.keys():
+                    print 'Warning, cannot correct for pmt because ice thicknesses are not in file'
+                else:
+                    ih = Numeric.transpose(self.file.variables['thk'][time,:,:])
+                    grid = grid + 8.7e-4*ih
         return grid
 
     def getGMTgrid(self,time,level=0):
@@ -178,3 +214,39 @@ class CFvariable(object):
         grid.data = self.get2Dfield(time,level)
         
         return grid
+
+    def getSpotIJ(self,node,time=None,level=0):
+        """Get data at a grid node.
+
+        node: list/tuple/array of size 2 selecting node
+        time: if None, return data for all time slices
+              if list/etc of size two, interpret as array selection
+              if single value, get only this time slice
+        level: if None get data for all levels (time must be a single value)
+               otherwise get a specific level"""
+
+        if node[0] < 0 or node[0] >= len(self.xdim) or node[1] < 0 or node[1] >= len(self.ydim):
+            raise RuntimeError, 'node is outside bounds'
+
+        (tarray,t) = CFchecklist(time,self.file.variables['time'])
+        (larray,l) = CFchecklist(level,self.file.variables['level'])
+
+        if 'level' not in self.var.dimensions:
+            larray = False
+            l = 0
+
+        if larray and tarray:
+            raise RuntimeError, 'Cannot select both multiple times and vertical slices'
+
+        values = []
+        if tarray:
+            for i in range(t[0],t[1]+1):
+                values.append(self.get2Dfield(i,l)[node[0],node[1]])
+            return values
+        if larray:
+            for i in range(l[0],l[1]+1):
+                values.append(self.get2Dfield(t,i)[node[0],node[1]])
+            return values
+
+        return self.get2Dfield(t,l)[node[0],node[1]]
+        

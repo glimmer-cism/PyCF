@@ -1,3 +1,11 @@
+2004-08-09 Magnus Hagdorn
+ * added new program to plot variables at a single location (plotSpot.py, setup.py)
+ * added non-geographic projection (CF_area.py, CF_file.py 
+ * CF_file.py: added property for grid spacing
+ * new method to extract data at a single node (CF_loadfile.py)
+ * CF_options.py: added spots, homologous temperature, level selection
+ * plotCFvar.py: added level selection
+	
 2004-07-01 Magnus Hagdorn
  * plotEISvar.py: added new program to plot EIS forcing and variable
  * added plotting of land above SL (CF_area.py, CF_options.py, plotCFvar.py)

@@ -18,7 +18,7 @@
 
 """Handling colourmaps."""
 
-__all__=['CFcolourmap']
+__all__=['CFcolourmap','CFcolours']
 
 import os, PyGMT,Numeric
 
@@ -29,6 +29,8 @@ except:
 cname = os.path.join(cname,'share','PyCF')
 if not os.path.exists(cname):
             raise RuntimeError, 'Error, cannot find %s,\nPyCF is not installed properly.'%cname
+
+CFcolours = ['255/0/0','0/255/0','0/0/255','0/255/255','255/0/255','255/255/0','127/0/0','0/127/0','0/0/127','0/127/127','127/0/127','127/127/0']
 
 class CFcolourmap(object):
     """Colourmaps."""

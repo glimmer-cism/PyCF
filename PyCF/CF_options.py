@@ -35,7 +35,6 @@ class CFOptParser(optparse.OptionParser):
 
         self.width = 10.
         
-        
     def plot(self):
         """Plot options."""
 
@@ -43,7 +42,6 @@ class CFOptParser(optparse.OptionParser):
         group.add_option("--size",dest="size",default="a4",help="Size of output (default a4)")
         group.add_option("--landscape",action="store_true", dest="landscape",help="select landscape mode")
         group.add_option("--width",type="float",dest="width",default=self.width, help="width of plot (default %.2f cm)"%(self.width))
-        group.add_option("--colourmap",type="string",dest="colourmap",help="name of GMT cpt file to be used (autogenerate one when set to None)")
         group.add_option("--verbose",action="store_true", dest="verbose",default=False,help="Be verbose")
         self.add_option_group(group)
 
@@ -65,14 +63,29 @@ class CFOptParser(optparse.OptionParser):
         group.add_option("--temp",dest='tempfile',metavar="FILE",type="string",help="Name of file containing temperature forcing")
         group.add_option("--slc",dest='slcfile',metavar="FILE",type="string",help="Name of file containing SLC forcing")
         self.add_option_group(group)
+
+    def __var(self):
+        # variable options
+        self.add_option("-v","--variable",metavar='NAME',action='append',type="string",dest='vars',help="variable to be processed (this option can be used more than once)")
+        self.add_option("-l","--level",metavar="LEV",type='int',dest='level',help='level to be plotted')
+        self.add_option("--pmt",action="store_true", dest="pmt",default=False,help='Correct temperature for temperature dependance on pressure')
         
     def variable(self):
         """Variable option."""
 
-        self.add_option("-v","--variable",metavar='NAME',action='append',type="string",dest='vars',help="variable to be processed (this option can be used more than once)")
+        self.__var()
         self.add_option("-c","--clip",metavar='VAR',type="choice",dest='clip',choices=['thk','topg','usurf'],help="display variable only where ['thk','topg','usurf']>0.")
         self.add_option("--land",action="store_true", dest="land",default=False,help="Indicate area above SL")
+        self.add_option("--colourmap",type="string",dest="colourmap",help="name of GMT cpt file to be used (autogenerate one when set to None)")
+        self.add_option("--legend",action="store_true", dest="dolegend",default=False,help="Plot a colour legend")
+        
+    def spot(self):
+        """Spot options."""
 
+        self.__var()
+        self.add_option("-i","--ij",dest='ij',metavar="I J",type="int",nargs=2,action='append',help="node to be plotted (this option can be used more than once)")
+
+        
     def time(self):
         """Time option."""
         self.add_option("-t","--time",metavar='TIME',action='append',type="float",dest='times',help="time to be processed (this option can be used more than once)")
@@ -172,10 +185,14 @@ class CFOptions(object):
         """
 
         var = CFvariable(cffile,self.options.vars[varn])
-        if self.options.colourmap == 'None':
+        try:
+            if self.options.colourmap == 'None':
+                var.colourmap = '.__auto.cpt'
+            elif self.options.colourmap != None:
+                var.colourmap = self.options.colourmap
+        except:
             var.colourmap = '.__auto.cpt'
-        elif self.options.colourmap != None:
-            var.colourmap = self.options.colourmap
+        var.pmt = self.options.pmt
         return var
 
     def times(self,cffile,timen=0):

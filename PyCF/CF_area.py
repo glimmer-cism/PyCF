@@ -39,8 +39,13 @@ class CFArea(PyGMT.AreaXY):
 
         # initialising geographic area
         self.file = CFfile
-        self.geo = PyGMT.AreaGEO(parent,CFfile.projection.getGMTprojection(mapwidth=size).upper(), pos=pos, size=size)
-        self.geo.setregion(CFfile.ll_geo, CFfile.ur_geo)
+        if CFfile.projection == 'lin':
+            self.geo = PyGMT.AreaXY(parent,pos=pos,size=[size,CFfile.aspect_ratio*size])
+            self.geo.setregion([CFfile.ll_geo[0]/CFfile.deltax,CFfile.ll_geo[1]/CFfile.deltax],
+                               [CFfile.ur_geo[0]/CFfile.deltax,CFfile.ur_geo[1]/CFfile.deltax])
+        else:
+            self.geo = PyGMT.AreaGEO(parent,CFfile.projection.getGMTprojection(mapwidth=size).upper(), pos=pos, size=size)
+            self.geo.setregion(CFfile.ll_geo, CFfile.ur_geo)
         # initialising paper area
         self.paper = PyGMT.AreaXY(parent,pos=pos,size=self.geo.size)
 
@@ -59,7 +64,10 @@ class CFArea(PyGMT.AreaXY):
         """Plot coastline.
 
         args: arguments passed on to pscoast."""
-        self.geo.coastline(args)
+        try:
+            self.geo.coastline(args)
+        except:
+            pass
 
     def stamp(self,text):
         """Print text in lower left corner."""

@@ -32,7 +32,7 @@ parser.plot()
 opts = PyCF.CFOptions(parser,2)
 infile = opts.cffile()
 
-if opts.ntimes>1 or opts.nvars>1:
+if opts.nvars>1:
     sys.stderr.write('Error, can only handle a single time slice and variable')
     sys.exit(1)
 
@@ -73,30 +73,40 @@ sizey = infile.aspect_ratio*opts.options.width+deltay
 
 plot=None
 var  = opts.vars(infile)
-time = opts.times(infile)
+if opts.options.times == None:
+    times = range(0,len(infile.file.variables['time'][:]))
+else:
+    times = []
+    for t in range(0,len(opts.options.times)):
+        times.append( opts.times(infile,t))
 
-plot = opts.plot()
-plot.defaults['LABEL_FONT_SIZE']='12p'
-bigarea = PyGMT.AreaXY(plot,size=opts.papersize)
-area = PyCF.CFArea(bigarea,infile,pos=[0,starty],size=sizex-deltax)
-if opts.options.land:
-    area.land(time)
-area.image(var,time,clip = opts.options.clip)
-area.coastline()
-area.coordsystem()
-area.printinfo(time)
-
-if starty>0.:            
-    area = PyCF.CFEISforcing(bigarea,pos=[.5,0.],size=force)
-if opts.options.slcfile != None:
-    area.slc(slc.time,slc.data[:,0])
-if opts.options.tempfile != None:
-    area.temp(temp.time,temp.data[:,0])
-if opts.options.elafile != None:
-    area.ela(ela.time,ela.data[:,0])    
-if starty>0.:
+i=0
+for time in times:
+    if len(times)>1:
+        plot = opts.plot(number=i)
+        i=i+1
+    else:
+        plot = opts.plot()
+        
+    plot.defaults['LABEL_FONT_SIZE']='12p'
+    bigarea = PyGMT.AreaXY(plot,size=opts.papersize)
+    area = PyCF.CFArea(bigarea,infile,pos=[0,starty],size=sizex-deltax)
+    if opts.options.land:
+        area.land(time)
+    area.image(var,time,clip = opts.options.clip)
+    area.coastline()
     area.coordsystem()
-    area.time(opts.options.times[0])
+    area.printinfo(time)
 
-    
-plot.close()
+    if starty>0.:            
+        area = PyCF.CFEISforcing(bigarea,pos=[.5,0.],size=force)
+    if opts.options.slcfile != None:
+        area.slc(slc.time,slc.data[:,0])
+    if opts.options.tempfile != None:
+        area.temp(temp.time,temp.data[:,0])
+    if opts.options.elafile != None:
+        area.ela(ela.time,ela.data[:,0])    
+    if starty>0.:
+        area.coordsystem()
+        area.time(infile.time(time))
+    plot.close()
