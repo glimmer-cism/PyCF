@@ -39,7 +39,7 @@ class CFArea(PyGMT.AreaXY):
 
         # initialising geographic area
         self.file = CFfile
-        self.geo = PyGMT.AreaGEO(parent,CFfile.projection.getGMTprojection().upper(), pos=pos, size=size)
+        self.geo = PyGMT.AreaGEO(parent,CFfile.projection.getGMTprojection(mapwidth=size).upper(), pos=pos, size=size)
         self.geo.setregion(CFfile.ll_geo, CFfile.ur_geo)
         # initialising paper area
         self.paper = PyGMT.AreaXY(parent,pos=pos,size=self.geo.size)

@@ -18,7 +18,8 @@
 
 """Handling CF grid mappings"""
 
-__all__=['CFProj','CFProj_aea','CFProj_lcc','getCFProj','copyCFMap','CFProj_parse_GMTproj','CFProj_printGMThelp']
+__all__=['DummyProj','CFProj','CFProj_aea','CFProj_lcc','getCFProj','copyCFMap',
+         'CFProj_parse_GMTproj','CFProj_printGMThelp']
 
 import Numeric
 from PyCF import proj
@@ -101,25 +102,31 @@ class CFProj_stere(CFProj):
         # polar variation
         if var.grid_mapping_name == 'polar_stereographic':
             self.params['lon_0'] = var.straight_vertical_longitude_from_pole[0]
-            self.params['lat_0'] = 90.
+            self.params['lat_0'] = var.latitude_of_projection_origin[0]
+            if hasattr(var,'standard_parallel'):
+                self.params['lat_ts'] = var.standard_parallel[0]
+            elif hasattr(var,'scale_factor_at_projection_origin'):
+                self.params['k_0'] = var.scale_factor_at_projection_origin[0]
         else: # others
             self.params['lat_0'] = var.latitude_of_projection_origin[0]
             self.params['lon_0'] = var.longitude_of_central_meridian[0]
-        try:
             self.params['k_0'] = var.scale_factor_at_projection_origin[0]
-        except AttributeError:
-            self.params['k_0'] = 1.0
         self.gmt_type = 's'
 
-    def getGMTprojection(self):
+    def getGMTprojection(self,mapwidth=None):
         """Get GMT projection string."""
 
-        if 'k_0' in self.params:
-            return '%s%f/%f/%f'%(self.gmt_type,
-                              self.params['lon_0'],self.params['lat_0'],self.params['k_0'])
+        if mapwidth==None:
+            if 'k_0' in self.params:
+                gmt = '%s%f/%f/%f'%(self.gmt_type,
+                                    self.params['lon_0'],self.params['lat_0'],self.params['k_0'])
+            else:
+                gmt = '%s%f/%f/%f'%(self.gmt_type,
+                                    self.params['lon_0'],self.params['lat_0'],self.params['lat_ts'])
         else:
-            return '%s%f/%f'%(self.gmt_type,
-                              self.params['lon_0'],self.params['lat_0'])    
+            gmt = '%s%f/%f'%(self.gmt_type,
+                             self.params['lon_0'],self.params['lat_0'])
+        return gmt
         
 class CFProj_laea(CFProj):
     """Lambert Azimuthal Equal Area"""
@@ -133,12 +140,13 @@ class CFProj_laea(CFProj):
         self.params['lon_0'] = var.longitude_of_central_meridian[0]
         self.gmt_type = 'a'
 
-    def getGMTprojection(self):
+    def getGMTprojection(self,mapwidth=None):
         """Get GMT projection string."""
 
-        return '%s%f/%f'%(self.gmt_type,
-                                self.params['lon_0'],self.params['lat_0'])
-
+        gmt = '%s%f/%f'%(self.gmt_type,
+                         self.params['lon_0'],self.params['lat_0'])
+        return gmt
+    
 class CFProj_aea(CFProj_laea):
     """Albers Equal-Area Conic."""
 
@@ -155,12 +163,13 @@ class CFProj_aea(CFProj_laea):
         self.params['proj'] = 'aea'
         self.gmt_type = 'b'
 
-    def getGMTprojection(self):
+    def getGMTprojection(self,mapwidth=None):
         """Get GMT projection string."""
 
-        return '%s%f/%f/%f/%f'%(self.gmt_type,
-                                self.params['lon_0'],self.params['lat_0'],
-                                self.params['lat_1'],self.params['lat_2'])
+        gmt = '%s%f/%f/%f/%f'%(self.gmt_type,
+                               self.params['lon_0'],self.params['lat_0'],
+                               self.params['lat_1'],self.params['lat_2'])
+        return gmt
 
 class CFProj_lcc(CFProj_aea):
     """Lambert Conic Conformal."""
@@ -243,12 +252,14 @@ def CFProj_parse_GMTproj(projstring):
         proj.latitude_of_projection_origin = [float(ps[1])]
     elif projstring[0] in ['s','S']:
         if len(ps) == 2 or len(ps) == 3:
-            proj.grid_mapping_name='stereographic'
-            proj.longitude_of_central_meridian = [float(ps[0])]
             proj.latitude_of_projection_origin = [float(ps[1])]
             if len(ps) == 3:
-                proj.scale_factor_at_projection_origin = [float(ps[2])]
+                proj.grid_mapping_name='polar_stereographic'
+                proj.straight_vertical_longitude_from_pole = [float(ps[0])]
+                proj.standard_parallel = [float(ps[2])]
             else:
+                proj.grid_mapping_name='stereographic'
+                proj.longitude_of_central_meridian = [float(ps[0])]
                 proj.scale_factor_at_projection_origin = [1.]
         else:
             print 'Error, wrong number of projection arguments'
@@ -265,4 +276,4 @@ def CFProj_printGMThelp():
     print '\t  -Jalon0/lat0\n\t      Lambert Azimuthal Equal Area. Give projection center'
     print '\t  -Jblon0/lat0/lat1/lat2\n\t      Albers Equal-Area Conic. Give projection center and\n\t      two  standard  parallels.'
     print '\t  -Jllon0/lat0/lat1/lat2\n\t      Lambert Conic Conformal. Give projection center and\n\t      two  standard  parallels.'
-    print '\t  -Jslon0/lat0[/scale]\n\t      Stereographic projection. Give projection center and\n\t      optionally scale at projection center.'
+    print '\t  -Jslon0/lat0[/slat]\n\t      Stereographic projection. Give projection center and\n\t      optionally standard parallel.'
