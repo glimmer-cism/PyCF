@@ -22,6 +22,7 @@ __all__ = ['CFOptParser','CFOptions']
 
 import optparse, sys, PyGMT, os.path
 from CF_loadfile import *
+from CF_profile import *
 
 class CFOptParser(optparse.OptionParser):
     """Handle options."""
@@ -228,6 +229,7 @@ class CFOptions(object):
         """
 
         prof = cffile.getprofile(self.options.vars[varn])
+        prof.pmt = self.options.pmt
 
         return prof
 

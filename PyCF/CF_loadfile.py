@@ -111,13 +111,6 @@ class CFloadfile(CFfile):
                 return t1
         raise AssertionError, 'Why are we here?'
 
-    def inside(self, point):
-        """Check if point is inside data set."""
-
-        result = (point[0] >= self.file.variables['x1'][0] and point[0] <= self.file.variables['x1'][-1] and
-                  point[1] >= self.file.variables['y1'][0] and point[1] <= self.file.variables['y1'][-1])
-        return result
-
     def getvar(self,var):
         """Get a variable from file.
 

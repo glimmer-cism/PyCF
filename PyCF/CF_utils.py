@@ -16,12 +16,17 @@
 
 """Useful utility functions."""
 
+__all__ = ['CFinterpolate_xy']
+
+import math, Numeric
+
 def CFinterpolate_xy(profile,interval):
     "linearly interpolate profile, return interpolated array and number of points outside region"
 
     data = []
-    for i in range(0,len(profile[0,:])):
-        data.append([float(profile[0,i]),float(profile[1,i])])
+    p = Numeric.array(profile)
+    for i in range(0,len(p[0,:])):
+        data.append([float(p[0,i]),float(p[1,i])])
     remainder = lr = 0.
     d0 = data[0]
     ix = []

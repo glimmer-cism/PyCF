@@ -57,9 +57,9 @@ class CFloadprofile(CFloadfile):
                 point = self.project([xloc[i],yloc[i]])
                 self.xloc.append(point[0])
                 self.yloc.append(point[1])
-                
+
         self.interval = interval
-        self.interpolated = interpolate_xy([self.xloc,self.yloc],self.interval)
+        self.interpolated = CFinterpolate_xy([self.xloc,self.yloc],self.interval)
 
         if xrange[0] == None:
             start = 0
@@ -80,7 +80,7 @@ class CFloadprofile(CFloadfile):
         interpy = []
         xvalues = []
         for i in range(0,len(self.interpolated[1,:])):
-            if self.inside_xy(self.interpolated[:,i]):
+            if self.inside(self.interpolated[:,i]):
                 interpx.append(self.interpolated[0,i])
                 interpy.append(self.interpolated[1,i])
                 xvalues.append(self.xvalues[i])
@@ -110,7 +110,7 @@ class CFprofile(CFvariable):
         if not isinstance(cfprofile,CFloadprofile):
             raise ValueError, 'Not a profile file'
 
-        CFvariable.__init__(cfprofile,var)
+        CFvariable.__init__(self,cfprofile,var)
 
         #cache profile data
         self.__data = {}
@@ -125,6 +125,6 @@ class CFprofile(CFvariable):
             self.__data[time] = {}
         if level not in self.__data[time]:
             var = self.getGMTgrid(time,level=level)
-            self.__data[time][level] = var.grdtrack(self.interpolated[0,:],self.interpolated[1,:])
+            self.__data[time][level] = var.grdtrack(self.cffile.interpolated[0,:],self.cffile.interpolated[1,:])
 
         return self.__data[time][level]

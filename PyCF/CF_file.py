@@ -182,7 +182,14 @@ class CFfile(object):
     def __get_deltay(self):
         return (self.file.variables['y1'][1]-self.file.variables['y1'][0])
     deltay = property(__get_deltay)
-    
+
+    def inside(self, point):
+        """Check if point is inside data set."""
+
+        result = (point[0] >= self.file.variables['x1'][0] and point[0] <= self.file.variables['x1'][-1] and
+                  point[1] >= self.file.variables['y1'][0] and point[1] <= self.file.variables['y1'][-1])
+        return result
+
 
     def reset_bb(self):
         """Reset bounding box."""
