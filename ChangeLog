@@ -1,4 +1,8 @@
 2004-06-13 Magnus Hagdorn
+ * move projection help messages to CF_proj.py (create_topo.py)
+ * add_projinfo.py: program used to add mapping info to netCDF files
+	
+2004-06-13 Magnus Hagdorn
  * added some contents to README
  * added class for creating new netCDF files using the specs from the glimmer 
    src (CF_createfile.py, __init__.py)

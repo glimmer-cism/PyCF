@@ -27,10 +27,7 @@ def usage():
     print 'create CF topography from a GMT grid file'
     print ''
     print '  -h, --help\n\tthis message'
-    print '  -Jspec\n\tGMT like projection specification'
-    print '\t  -Jalon0/lat0\n\t    Lambert Azimuthal Equal Area. Give projection center/'
-    print '\t  -Jblon0/lat0/lat1/lat2\n\t    Albers Equal-Area Conic. Give projection center and  two  standard  parallels.'
-    print '\t  -Jllon0/lat0/lat1/lat2\n\t    Lambert Conic Conformal. Give projection center and  two  standard  parallels.'
+    PyCF.CFProj_printGMThelp()
     print '  -o, --origin lon/lat\n\tLongitude and latitude of origin of the projected coordinate system.'
     print '  -d, --delta dx[/dy]\n\tNode spacing. Assume dx==dy if dy is omitted.'
     print '  -n, --num x/y\n\tGrid size.'
@@ -39,48 +36,6 @@ def usage():
     print '  --source\n\tdata source'
     print '  --references\n\tsome references'
     print '  --comment\n\tcomment'
-
-class DummyProj:
-    """Emptiy class for storing CF projection."""
-    pass
-
-def parse_GMTproj(projstring):
-    """Parse GMT projection string."""
-
-    proj = DummyProj()
-    
-    ps = projstring[1:].split('/')
-    if projstring[0] in ['b','B']:
-        if len(ps) != 4:
-            print 'Error, wrong number of projection arguments'
-            usage()
-            sys.exit(1)
-        proj.grid_mapping_name='albers_conical_equal_area'
-        proj.longitude_of_central_meridian = [float(ps[0])]
-        proj.latitude_of_projection_origin = [float(ps[1])]
-        proj.standard_parallel = [float(ps[2]),float(ps[3])]
-    elif projstring[0] in ['l','L']:
-        if len(ps) != 4:
-            print 'Error, wrong number of projection arguments'
-            usage()
-            sys.exit(1)
-        proj.grid_mapping_name='lambert_conformal_conic'
-        proj.longitude_of_central_meridian = [float(ps[0])]
-        proj.latitude_of_projection_origin = [float(ps[1])]
-        proj.standard_parallel = [float(ps[2]),float(ps[3])]
-    elif projstring[0] in ['a','A']:
-        if len(ps) != 2:
-            print 'Error, wrong number of projection arguments'
-            usage()
-            sys.exit(1)
-        proj.grid_mapping_name='lambert_azimuthal_equal_area'
-        proj.longitude_of_central_meridian = [float(ps[0])]
-        proj.latitude_of_projection_origin = [float(ps[1])]
-    else:
-        print 'Error, no idea about projection: ',projstring
-        usage()
-        sys.exit(1)
-    return proj
         
 if __name__ == '__main__':
 
@@ -113,7 +68,7 @@ if __name__ == '__main__':
             usage()
             sys.exit(0)
         if o == '-J':
-            proj = parse_GMTproj(a)
+            proj = PyCF.CFProj_parse_GMTproj(a)
         if o in ('-o', '--origin'):
             a = a.split('/')
             try:
