@@ -1,3 +1,7 @@
+2004-06-21 Ian Rutt
+ * Added -f option to add_projinfo.py to allow overwriting
+   of existing projection data, if desired.
+
 2004-06-18 Magnus Hagdorn
  * override colourmaps
 

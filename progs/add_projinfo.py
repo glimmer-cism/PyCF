@@ -29,12 +29,16 @@ def usage():
     print '  -h, --help\n\tthis message'
     PyCF.CFProj_printGMThelp()
     print '  -o, --origin lon/lat\n\tLongitude and latitude of origin of the projected coordinate system.'
+    print ''
+    print '  -f, --force\n\tOverwrite existing projection info'
 
 if __name__ == '__main__':
 
+    overwrite=0
+
     # get options
     try:
-        opts, args = getopt.getopt(sys.argv[1:],'hJ:o:',['help','origin='])
+        opts, args = getopt.getopt(sys.argv[1:],'hfJ:o:',['help','origin=','force'])
     except getopt.GetoptError:
         # print usage and exit
         usage()
@@ -62,9 +66,9 @@ if __name__ == '__main__':
                 print 'Error, cannot parse origin string'
                 usage()
                 sys.exit(1)
-
+        if o in ('-f', '--force'):
+            overwrite=1
         
-
     if proj is None or origin is None:
         usage()
         sys.exit(1)
@@ -77,10 +81,14 @@ if __name__ == '__main__':
     cffile = Scientific.IO.NetCDF.NetCDFFile(inname,'r+')
 
     if 'mapping' in cffile.variables.keys():
-        print 'netCDF file already got map projection info.'
-        sys.exit(0)
+        if overwrite==1:
+            varmap=cffile.variables['mapping']
+        else:
+            print 'netCDF file already got map projection info.'
+            sys.exit(0)
+    else:
+        varmap=cffile.createVariable('mapping','c',())
 
-    varmap=cffile.createVariable('mapping','c',())
     PyCF.copyCFMap(proj,varmap)
 
     for var in cffile.variables.keys():
