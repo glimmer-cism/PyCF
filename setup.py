@@ -53,6 +53,7 @@ data_files = [('share/PyCF/',['data/ice.cpt',
                       'progs/ran_topo.py',
 		      'progs/extractTS.py',
                       'progs/plotStreams.py',
+                      'progs/plotCFdiff.py',
                       'progs/plotEISMINT2stats.py'])]
 
 setup (name = "PyCF",

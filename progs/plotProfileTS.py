@@ -88,6 +88,11 @@ areats.image(data,profile.colourmap.cptfile)
 if clipped:
     areats.unclip()
 
+if clip != 'thk':
+    cvar = infile.getprofile('thk')
+    cdata = cvar.getProfileTS(time=[t0,t1])
+areats.contour(cdata,[0.1],'-W1/0/0/0')
+
 areats.coordsystem()
 
 plot.close()
