@@ -101,6 +101,35 @@ class CFloadprofile(CFloadfile):
             self.__profiles[var] = CFprofile(self,var)
         return self.__profiles[var]
 
+    def getExtent(self,time=None):
+        """Get ice extent along profile.
+
+        time: if None, return data for all time slices
+              if list/etc of size two, interpret as array selection
+              if single value, get only this time slice
+
+        this is a hack, we start looking from the end of the profile and stop when we found
+        a change from no ice to ice."""
+
+        (tarray,t) = CFchecklist(time,self.file.variables['time'])
+        values = []
+        if tarray:
+            for i in range(t[0],t[1]+1):
+                values.append(self.__getExtent(i))
+            return values
+        return self.__getExtent(t)
+
+    def __getExtent(self,time):
+        data = self.getprofile('thk').getProfile(time)
+        #right BC
+        if data[-1] > 0. and data[-1]<1.e10:
+            return self.xvalues[-1]
+        for i in range(len(data[:])-2,0,-1):
+            if data[i] > 0. and data[i]<1.e10:
+                return self.xvalues[i]
+        # if we are at the end we just return position of last value to close data set
+        return self.xvalues[0]
+
 class CFprofile(CFvariable):
     """Handling CF Profiles."""
 
@@ -181,4 +210,3 @@ class CFprofile(CFvariable):
                     grid.data[j,start:end] = interpolated
             self.__data2d[time] = grid
         return self.__data2d[time]
-        

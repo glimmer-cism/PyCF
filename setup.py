@@ -42,7 +42,8 @@ data_files = [('share/PyCF/',['data/ice.cpt',
                       'progs/plotEISMINT.py',
                       'progs/glide_launch.py',
                       'progs/plotSpot.py',
-                      'progs/plotProfile.py'])]
+                      'progs/plotProfile.py',
+                      'progs/plotCFstats.py'])]
 
 setup (name = "PyCF",
        version = "0.0",

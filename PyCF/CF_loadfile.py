@@ -18,7 +18,7 @@
 
 """Loading CF files."""
 
-__all__=['CFloadfile','CFvariable']
+__all__=['CFloadfile','CFvariable','CFchecklist']
 
 import Numeric, Scientific.IO.NetCDF,os
 from PyGMT.PyGMTgrid import Grid
@@ -134,7 +134,7 @@ class CFloadfile(CFfile):
         fact = self.deltax*self.deltay*scale
         if tarray:
             for i in range(t[0],t[1]+1):
-                ih = Numeric.where(self.file.variables['thk'][i,:,:]>0.,1,0).flat
+                ih = Numeric.where(self.file.variables['thk'][i,:,:]>0. and self.file.variables['thk'][i,:,:] <1.e10,1,0).flat
                 values.append(sum(ih)*fact)
             return values
         ih = Numeric.where(self.file.variables['thk'][t,:,:]>0.,1,0).flat
@@ -152,7 +152,8 @@ class CFloadfile(CFfile):
         fact = self.deltax*self.deltay*scale
         if tarray:
             for i in range(t[0],t[1]+1):
-                ih = self.file.variables['thk'][i,:,:].flat
+                ih = Numeric.where(self.file.variables['thk'][i,:,:]>0. and self.file.variables['thk'][i,:,:] <1.e10,
+                                   self.file.variables['thk'][i,:,:],0.).flat
                 values.append(sum(ih)*fact)
             return values
         ih = self.file.variables['thk'][t,:,:].flat

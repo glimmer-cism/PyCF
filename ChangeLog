@@ -1,3 +1,11 @@
+2004-09-28 Magnus Hagdorn
+ * CF_loadfile.py: made CFchecklist public, fixed ice vol/area calculations to ignore missing data
+ * CF_options.py: can select a profile without selecting variable
+ * CF_profile.py: added method to extract ice extent along profile
+ * plotEISMINT.py: added GPL license
+ * plotCFstats.py: new program to plot time series of model statistics 
+ * setup.py: handle plotCFstats.py
+	
 2004-09-17 Magnus Hagdorn
  * added glide launcher
  * added super EISMINT plotter

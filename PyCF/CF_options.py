@@ -86,10 +86,13 @@ class CFOptParser(optparse.OptionParser):
         self.__var()
         self.add_option("-i","--ij",dest='ij',metavar="I J",type="int",nargs=2,action='append',help="node to be plotted (this option can be used more than once)")
 
-    def profile(self):
-        """Profile options."""
-        
-        self.__var()
+    def profile(self,vars=True):
+        """Profile options.
+
+        vars: set to False if only profile is needed"""
+
+        if vars:
+            self.__var()
         self.add_option("-p","--profile",metavar='PROFILE',type='string',dest='profname',help="name of file containing profile control points")
         self.add_option("--not_projected",action="store_false",default=True,dest="prof_is_projected",help="Set this flag if the profile data is not projected.")
         
