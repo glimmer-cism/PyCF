@@ -1,3 +1,8 @@
+2005-02-03 Magnus Hagdorn
+ * CF_area.py: fixed a bug
+ * CF_createfile.py: removed spot, now can load var definitions from multiple files
+ * CF_options.py: fixed a minor problem
+
 2004-12-13 Magnus Hagdorn
  * CF_profilearea.py: select different pens, plot more than one profile
  *  plotProfile.py, plotSpot.py: plot more than one file

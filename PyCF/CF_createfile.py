@@ -20,7 +20,7 @@
 
 __all__=['CFVariableDef','CFcreatefile']
 
-import Numeric, Scientific.IO.NetCDF,ConfigParser,os,re,string
+import Numeric, Scientific.IO.NetCDF,ConfigParser,os,re,string, glob
 from CF_file import *
 
 NOATTRIB = ['name','dimensions','data','factor','load','f90file','hot','type']
@@ -31,13 +31,13 @@ class CFVariableDef(dict):
     def __init__(self,filename):
         """Initialise Variable class.
 
-        filename: name of file containing variable definitions."""
+        filename: name or list of names of file(s) containing variable definitions."""
 
         dict.__init__(self)
 
         # reading variable configuration file
         vars = ConfigParser.ConfigParser()
-        vars.readfp(open(filename))
+        vars.read(filename)
 
         for v in vars.sections():
             vardef = {}
@@ -45,34 +45,6 @@ class CFVariableDef(dict):
             for (name, value) in vars.items(v):
                 vardef[name] = value
             self.__setitem__(v,vardef)
-            self.__add_spot(vardef)
-
-    def __add_spot(self,vdef):
-        """Add spot variable.
-
-        vname: name of variable
-        vdef:  variable definition"""
-
-        if 'time' not in vdef['dimensions']:
-            return
-
-        spdef = {}
-        for k in vdef:
-            if k=='name':
-                spdef[k] = '%s_spot'%vdef[k]
-            elif k=='dimensions':
-                search = re.search('y[0-1]\s*,\s*x[0-1]', vdef[k])
-                if search!=None:
-                    spdef[k] = vdef[k][:search.start()] + 'spot' + vdef[k][search.end():]
-                else:
-                    return
-            else:
-                spdef[k] = vdef[k]
-        if 'x0' in vdef['dimensions']:
-            spdef['coordinates'] = 'y0_spot x0_spot'
-        else:
-            spdef['coordinates'] = 'y1_spot x1_spot'
-        self.__setitem__(spdef['name'],spdef)
 
     def keys(self):
         """Reorder standard keys alphabetically."""
@@ -103,10 +75,10 @@ class CFcreatefile(CFfile):
             vname=os.environ['GLIMMER_PREFIX']
         except KeyError:
             vname = os.path.expanduser(os.path.join('~','glimmer'))
-        vname = os.path.join(vname,'share','glimmer','ncdf_vars.def')
+        vname = os.path.join(vname,'share','glimmer')
         if not os.path.exists(vname):
             raise RuntimeError, 'Cannot find ncdf_vars.def\nPlease set GLIMMER_HOME to where glimmer is installed'
-        self.vars = CFVariableDef(vname)
+        self.vars = CFVariableDef(glob.glob(vname+'/*.def'))
 
         if append:
             self.file = Scientific.IO.NetCDF.NetCDFFile(self.fname,'a')

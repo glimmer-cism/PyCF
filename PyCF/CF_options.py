@@ -82,8 +82,14 @@ class CFOptParser(optparse.OptionParser):
         self.__var()
         self.add_option("-c","--clip",metavar='VAR',type="choice",dest='clip',choices=['thk','topg','usurf'],help="display variable only where ['thk','topg','usurf']>0.")
         self.add_option("--land",action="store_true", dest="land",default=False,help="Indicate area above SL")
-        self.add_option("--colourmap",type="string",dest="colourmap",help="name of GMT cpt file to be used (autogenerate one when set to None)")
-        self.add_option("--legend",action="store_true", dest="dolegend",default=False,help="Plot a colour legend")
+        try:
+            self.add_option("--colourmap",type="string",dest="colourmap",help="name of GMT cpt file to be used (autogenerate one when set to None)")
+        except:
+            pass
+        try:
+            self.add_option("--legend",action="store_true", dest="dolegend",default=False,help="Plot a colour legend")
+        except:
+            pass
         
     def spot(self):
         """Spot options."""
@@ -99,9 +105,16 @@ class CFOptParser(optparse.OptionParser):
         if vars:
             self.__var()
         self.add_option("-p","--profile",metavar='PROFILE',type='string',dest='profname',help="name of file containing profile control points")
+        self.add_option("--interval",type="float",metavar='INTERVAL',default=10000.,help="set interval to INTERVAL (default = 10000.m)")
         self.add_option("--not_projected",action="store_false",default=True,dest="prof_is_projected",help="Set this flag if the profile data is not projected.")
-        self.add_option("--colourmap",type="string",dest="colourmap",help="name of GMT cpt file to be used (autogenerate one when set to None)")
-        self.add_option("--legend",action="store_true", dest="dolegend",default=False,help="Plot a colour legend")
+        try:
+            self.add_option("--colourmap",type="string",dest="colourmap",help="name of GMT cpt file to be used (autogenerate one when set to None)")
+        except:
+            pass
+        try:
+            self.add_option("--legend",action="store_true", dest="dolegend",default=False,help="Plot a colour legend")
+        except:
+            pass
         
     def time(self):
         """Time option."""
@@ -231,7 +244,7 @@ class CFOptions(object):
             xdata.append(float(l[0]))
             ydata.append(float(l[1]))                         
         infile.close()
-        profile = CFloadprofile(self.args[argn],xdata,ydata,projected=self.options.prof_is_projected)
+        profile = CFloadprofile(self.args[argn],xdata,ydata,projected=self.options.prof_is_projected,interval=self.options.interval)
 
         return profile
 

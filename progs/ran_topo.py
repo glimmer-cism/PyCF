@@ -30,6 +30,9 @@ def usage():
     print '  -d, --delta dx[/dy]\n\tNode spacing. Assume dx==dy if dy is omitted. [default: 25000]'
     print '  -n, --num x/y\n\tGrid size. [default: 61/61]'
     print '  -a, --amplitude a\n\tAmplitude of random topo. [default: 10]'
+    print '  -y, --yprofile name\n\tname of file containing profile in y-dir. (default none)'
+    print '  --long\n\tset longitude (default none)'
+    print '  --lat\n\tset latitude (default none)'
     print '  --title\n\t title for output netCDF file'
     print '  --institution\n\tname of institution'
     print '  --references\n\tsome references'
@@ -39,7 +42,7 @@ if __name__ == '__main__':
 
     # get options
     try:
-        opts, args = getopt.getopt(sys.argv[1:],'hd:n:a:',['help','delta=','num=','amplitude=','title=','institution=','references=','comment='])
+        opts, args = getopt.getopt(sys.argv[1:],'hd:n:a:y:',['help','delta=','num=','amplitude=','title=','institution=','references=','comment=','yprofile=','long=','lat='])
     except getopt.GetoptError,error:
         # print usage and exit
         print error
@@ -59,6 +62,9 @@ if __name__ == '__main__':
     institution=None
     references=None
     comment=None
+    yprof=None
+    long = None
+    lat = None
     for o,a in opts:
         if o in ('-h', '--help'):
             usage()
@@ -83,6 +89,12 @@ if __name__ == '__main__':
                 sys.exit(1)
         if o in ('-a','--amplitude'):
             amplitude = float(a)
+        if o in ('-y','--yprofile'):
+            yprof = open(a)
+        if o == '--long':
+            long = float(a)
+        if o == '--lat':
+            lat = float(a)
         if o == '--title':
             title = a
         if o == '--institution':
@@ -92,7 +104,6 @@ if __name__ == '__main__':
         if o == '--comment':
            comment  = a
         
-
 
     numx = num[0]
     numy = num[1]
@@ -139,9 +150,43 @@ if __name__ == '__main__':
 
     vartopg=cffile.createVariable('topg')
 
+    if long!=None:
+        vlong = cffile.createVariable('lon')
+        vlong[0,:,:] = long
+    if lat!=None:
+        vlat = cffile.createVariable('lat')
+        vlat[0,:,:] = lat
+    
 
+    if yprof != None:
+        x = []
+        y = []
+        for l in yprof.readlines():
+            l = l.split()
+            x.append(float(l[0]))
+            y.append(float(l[1]))
+        i = 0
+        while  i*delta[1]<=x[0]:
+            vartopg[0,i,:] = y[0]
+            i = i + 1
+            if i == numx:
+                break
+        for d in range(0,len(x)-1):
+            slope = (y[d+1]-y[d])/(x[d+1]-x[d])
+            if i == numx:
+                break
+            while  i*delta[1]<=x[d+1]:
+                vartopg[0,i,:] = y[d]+(i*delta[1]-x[d])*slope
+                i = i + 1
+                if i == numx:
+                    break
+        for i in range(i,numx):
+            vartopg[0,i,:] = y[d]
+        
+    else:
+        vartopg[0,:,:] = 0.
 
-    vartopg[0,:,:] = RandomArray.uniform(0.,amplitude,(numy,numx)).astype(Numeric.Float32)
+    vartopg[0,:,:] = vartopg[0,:,:] + RandomArray.uniform(0.,amplitude,(numy,numx)).astype(Numeric.Float32)
 
     
     cffile.close()

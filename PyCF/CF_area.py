@@ -43,8 +43,8 @@ class CFArea(PyGMT.AreaXY):
         self.file = cffile
         if cffile.projection == 'lin':
             self.geo = PyGMT.AreaXY(parent,pos=pos,size=[size,cffile.aspect_ratio*size])
-            self.geo.setregion([cffile.ll_geo[0]/cffile.deltax,cffile.ll_geo[1]/cffile.deltax],
-                               [cffile.ur_geo[0]/cffile.deltax,cffile.ur_geo[1]/cffile.deltax])
+            self.geo.setregion([cffile.ll_geo[0]/cffile.deltax,cffile.ll_geo[1]/cffile.deltay],
+                               [cffile.ur_geo[0]/cffile.deltax,cffile.ur_geo[1]/cffile.deltay])
         else:
             self.geo = PyGMT.AreaGEO(parent,cffile.projection.getGMTprojection(mapwidth=size).upper(), pos=pos, size=size)
             self.geo.setregion(cffile.ll_geo, cffile.ur_geo)
@@ -200,8 +200,8 @@ if __name__ == '__main__':
     area.coastline()
     if parser.profile!=None:
         area.profile(args='-W5/0/0/0')
-    rsl = CFRSL('/home/magi/Development/src/PyCF/pelt.dat')
-    area.rsl_locations(rsl)
+    #rsl = CFRSL('/home/magi/Development/src/PyCF/pelt.dat')
+    #area.rsl_locations(rsl)
     area.coordsystem()
     area.printinfo(ts)
     plot.close()
