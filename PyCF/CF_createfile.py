@@ -88,10 +88,11 @@ class CFVariableDef(dict):
 class CFcreatefile(CFfile):
     """Creating a CF netCDF file."""
 
-    def __init__(self,fname):
+    def __init__(self,fname,append=False):
         """Initialise.
 
-        fname: name of CF file."""
+        fname: name of CF file.
+        append: set to true if file should be open rw"""
 
         CFfile.__init__(self,fname)
         
@@ -104,8 +105,11 @@ class CFcreatefile(CFfile):
         if not os.path.exists(vname):
             raise RuntimeError, 'Cannot find ncdf_vars.def\nPlease set GLIMMER_HOME to where glimmer is installed'
         self.vars = CFVariableDef(vname)
-            
-        self.file = Scientific.IO.NetCDF.NetCDFFile(self.fname,'w')
+
+        if append:
+            self.file = Scientific.IO.NetCDF.NetCDFFile(self.fname,'a')
+        else:
+            self.file = Scientific.IO.NetCDF.NetCDFFile(self.fname,'w')
         self.file.Conventions = "CF-1.0"
         
     def createDimension(self,name, length):

@@ -1,3 +1,6 @@
+2004-06-21 Magnus Hagdorn
+ * add append option to CF_createfile.py
+
 2004-06-21 Ian Rutt
  * Added -f option to add_projinfo.py to allow overwriting
    of existing projection data, if desired.
