@@ -1,3 +1,6 @@
+2005-03-29 Magnus Hagdorn
+ * plotCFvar.py: plot velo fields for number of files
+
 2005-03-23 Magnus Hagdorn
  * create_topo.py: fixed bug where the velo grid has the wrong origin
  * CF_loadfile.py: add option to interpolate onto velocity grid

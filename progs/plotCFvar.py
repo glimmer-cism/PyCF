@@ -102,6 +102,8 @@ if numplots > 1:
         if opts.options.land:
             area.land(time,illuminate=opts.options.illuminate)
         area.image(var,time,clip = opts.options.clip,level=level,mono=opts.options.mono,illuminate=opts.options.illuminate)
+        if var.name in ["vel","bvel"]: 
+            area.velocity_field(time,level=level)
         area.coastline()
         try:
             thk = infile.getvar('thk')
