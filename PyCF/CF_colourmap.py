@@ -54,6 +54,7 @@ class CFcolourmap(object):
                  'ubas' : 'velo.cpt',
                  'vbas' : 'velo.cpt',
                  'thk' : 'ice.cpt',
+                 'is' : 'ice.cpt',
                  'usurf' : 'ice.cpt',
                  'lsurf' : 'topo.cpt',
                  'topg' : 'topo.cpt',
@@ -92,15 +93,8 @@ class CFcolourmap(object):
                 
     def __get_cptfile(self):
         if self.__cptfile == '.__auto.cpt':
-            found = False
-            for v in Numeric.ravel(self.var.file.variables[self.name]):
-                if v != NC_FILL_VALUE:
-                    if not found:
-                        v0 = v
-                        v1 = v
-                    else:
-                        v0 = min(v,v0)
-                        v1 = max(v,v1)
+            v0 = min(Numeric.ravel(self.var.var))
+            v1 = max(Numeric.ravel(self.var.var))
             PyGMT.command('makecpt','-Crainbow -T%f/%f/%f > .__auto.cpt'%(v0,v1,(v1-v0)/10.))
         return self.__cptfile
     cptfile = property(__get_cptfile)

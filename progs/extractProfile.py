@@ -18,39 +18,39 @@
 # along with GLIMMER; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-"""A plot of CF profiles."""
+"""extract data along profile."""
 
 import PyGMT,PyCF,Numeric,sys
 
 # creating option parser
 parser = PyCF.CFOptParser()
-parser.width=15.
 parser.profile()
 parser.time()
-parser.plot()
 opts = PyCF.CFOptions(parser,2)
 infile = opts.cfprofile()
+time = opts.times(infile,0)
 
-if opts.options.level == None:
-    level = 0
-else:
-    level = opts.options.level
+# extracting data
+data = []
+vars = []
 
-plot = opts.plot()
-plot.defaults['LABEL_FONT_SIZE']='12p'
-plot.defaults['ANOT_FONT_SIZE']='10p'
-bigarea = PyGMT.AreaXY(plot,size=opts.papersize)
-
+data.append(infile.xvalues)
+vars.append('# dist')
 for i in range(0,opts.nvars):
     profile = opts.profs(infile,i)
-    time = opts.times(infile,0)
+    vars.append(profile.name)
+    data.append(profile.getProfile(time,level=opts.options.level))
 
-    area = PyCF.CFProfileArea(bigarea,profile,time,level=opts.options.level,size=[opts.options.width,opts.options.width/3.],pos=[1.,i*(opts.options.width/3.+0.5)])
-    if i > 0:
-        area.axis='Wesn'
-        area.xlabel = ''
+# writing data to file
+outfile = open(opts.args[-1],'w')
+outfile.write('# file:\t\t%s\n# title:\t%s\n# time:\t\t%f\n'%(opts.args[-2],infile.title,infile.time(time)))
+for v in vars:
+    outfile.write('%s\t\t'%v)
+outfile.write('\n')
+for x in range(0,len(infile.xvalues)):
+    for d in data:
+        outfile.write('%f\t'%d[x])
+    outfile.write('\n')
 
-    area.finalise(expandy=True)
-    area.coordsystem()
 
-plot.close()
+outfile.close()

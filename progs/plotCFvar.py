@@ -90,6 +90,8 @@ else:
         area.land(time)
     area.image(var,time,clip = opts.options.clip,level=level)
     area.coastline()
+    if var.name == 'is' or var.name == 'thk':
+        area.contour(var,[500,1000,2500,3000],'-W1/255/255/255',time)
     area.coordsystem()
     area.printinfo(time)
     if opts.options.dolegend:

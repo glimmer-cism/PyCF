@@ -20,7 +20,7 @@
 
 """Class for plotting profiles extracted from CF files."""
 
-__all__ = ['CFProfileArea']
+__all__ = ['CFProfileArea','CFProfileMArea']
 
 import PyGMT,Numeric
 
@@ -41,7 +41,7 @@ class CFProfileArea(PyGMT.AutoXY):
         PyGMT.AutoXY.__init__(self,parent,pos=pos,size=size)
         self.axis='WeSn'
         self.xlabel = 'distance along profile [km]'
-        if 'level' in profile.var.dimensions and level == None:
+        if profile.is3d and level == None:
             self.ylabel = 'elevation [m]'
 
             data = profile.getProfile2D(time)
@@ -60,4 +60,81 @@ class CFProfileArea(PyGMT.AutoXY):
             self.ylabel = '%s [%s]'%(profile.long_name,profile.units)
             data = profile.getProfile(time,level=level)
             self.line('-W1/0/0/0',profile.cffile.xvalues,data)
+            if profile.name == 'is':
+                rhdata = Numeric.array(profile.cffile.getprofile('topg').getProfile(time))
+                self.line('-W1/0/0/0',profile.cffile.xvalues,rhdata)
 
+class CFProfileMArea(PyGMT.AreaXY):
+    """Plot multiple profiles"""
+
+    def __init__(self,parent,pos=[0.,0.],size=[18.,5.]):
+        """Initialising ISM area.
+
+        parent: can be either a Canvas or another Area.
+        pos: position of area relative to the parent
+        size: size of GMT area
+        """
+
+        self.numplots = 0
+        self.pt = PyGMT.AreaXY(parent,pos=pos,size=[30.,30.])
+        self.ps = pos
+        self.size = size
+        self.dy = 0.5
+        self.finalised = False
+        self.plots = []
+
+    def newprof(self,profile,time,level=None):
+        """Create a new profile plot.
+
+        profile: CF profile
+        time: time slice
+        level: level to be processed"""
+
+        newpr = CFProfileArea(self.pt,profile,time,level=level,pos=[0,self.numplots*(self.size[1]+self.dy)],
+                              size=self.size)
+        self.plots.append(newpr)
+        self.numplots = self.numplots + 1
+        return newpr
+
+    def finalise(self,expandx=False,expandy=False):
+        """Finalise plot.
+
+        i.e. set up region and do all the actual plotting.
+        expandx, expandy: when set to True expand region to sensible value."""
+        if not self.finalised:
+            if len(self.plots) == 0:
+                raise RuntimeError, 'No plots added'
+            # get global range of x values
+            tsrange = [self.plots[0].ll[0], self.plots[0].ur[0]]
+            for ts in self.plots:
+                tsrange[0] = min(tsrange[0],ts.ll[0])
+                tsrange[1] = max(tsrange[1],ts.ur[0])
+            # finalise each plot
+            i = 0
+            for ts in self.plots:
+                ts.ll[0] = tsrange[0]
+                ts.ur[0] = tsrange[1]
+                ts.finalise(expandx=expandx,expandy=expandy)
+                if i==0:
+                    ts.axis = 'WeSn'
+                else:
+                    ts.axis = 'Wesn'
+                    ts.xlabel = ''
+                i = i + 1
+            self.totalarea = PyGMT.AreaXY(self.pt,
+                                          size=[self.size[0],
+                                                self.numplots * self.size[1] + (self.numplots-1) * self.dy])
+            self.totalarea.setregion([ts.ll[0],0.],[ts.ur[0],1.])
+            self.finalised=True
+
+    def coordsystem(self,grid=False):
+        """Draw coordinate system.
+
+        grid: grid = anot if true and [xy]grid not set"""
+
+        if not self.finalised:
+            self.finalise()
+
+        # loop over plots
+        for ts in self.plots:
+            ts.coordsystem(grid=grid)

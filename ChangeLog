@@ -1,4 +1,14 @@
 2004-10-22 Magnus Hagdorn
+ * CF_area.py: plot profile line if requested
+ * CF_colourmap.py: revert min/max finding algorithm
+ * CF_loadfile.py: added ice surface variable, ie. topg+thk
+ * CF_options.py: don't need to load plot options
+ * CF_profilearea.py: add new class to plot multiple profiles above each other
+ * plotCFvar.py: contour ice thickness/surface
+ * plotProfile.py: change default size of profile plot
+ * extractProfile.py: new program used for extracting data along profile
+	
+2004-10-22 Magnus Hagdorn
  * CF_IOrsl.py: new class for handling RSL data base
  * CF_rsl.py: plot RSL curve
  * CF_file.py: get min/max latitude and longitude

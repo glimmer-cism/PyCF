@@ -143,12 +143,15 @@ if __name__ == '__main__':
     
     parser = CFOptParser()
     parser.variable()
+    parser.profile(vars=False)
     parser.time()
     parser.region()
     parser.plot()
-
     opts = CFOptions(parser,2)
-    infile = opts.cffile()
+    if parser.profile!=None:
+        infile = opts.cfprofile()
+    else:
+        infile = opts.cffile()
     var = opts.vars(infile)
     ts = opts.times(infile)
     plot = opts.plot()
@@ -157,6 +160,8 @@ if __name__ == '__main__':
         area.land(ts)
     area.image(var,ts,clip = opts.options.clip)
     area.coastline()
+    if parser.profile!=None:
+        area.profile(args='-W5/0/0/0')
     rsl = CFRSL('/home/magi/Development/src/PyCF/pelt.dat')
     area.rsl_locations(rsl)
     area.coordsystem()

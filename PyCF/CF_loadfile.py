@@ -196,16 +196,21 @@ class CFvariable(object):
         self.cffile = cffile
         self.file = cffile.file
         self.name = var
-        if var not in self.file.variables.keys():
+        if var=='is':
+            if 'topg' not in self.file.variables.keys() or 'thk' not in self.file.variables.keys():
+                raise KeyError, 'Variable not in file'
+        elif var not in self.file.variables.keys():
             raise KeyError, 'Variable not in file'
-        self.var = self.file.variables[var]
         self.__colourmap = CFcolourmap(self)
         self.pmt = False
         self.slc_eus = True
 
     def __get_units(self):
         try:
-            return self.var.units
+            if self.name == 'is':
+                return self.file.variables['topg'].units
+            else:
+                return self.file.variables[self.name].units
         except:
             return ''
     units = property(__get_units)
@@ -213,32 +218,56 @@ class CFvariable(object):
     def __get_long_name(self):
         try:
             if self.name in temperatures and self.pmt and 'thk' in self.file.variables.keys():
-                return 'homologous %s'%self.var.long_name
-            return self.var.long_name
+                return 'homologous %s'%self.file.variables[self.name].long_name
+            elif self.name == 'is':
+                return 'ice surface elevation'
+            return self.file.variables[self.name].long_name
         except:
             return ''
     long_name = property(__get_long_name)
 
     def __get_standard_name(self):
         try:
-            return self.var.standard_name
+            return self.file.variables[self.name].standard_name
         except:
             return ''
     standard_name = property(__get_standard_name)
 
     def __get_xdim(self):
-        return self.file.variables[self.var.dimensions[-1]]
+        if self.name=='is':
+            return self.file.variables[self.file.variables['topg'].dimensions[-1]]
+        else:
+            return self.file.variables[self.file.variables[self.name].dimensions[-1]]
     xdim = property(__get_xdim)
 
     def __get_ydim(self):
-        return self.file.variables[self.var.dimensions[-2]]
+        if self.name=='is':
+            return self.file.variables[self.file.variables['topg'].dimensions[-2]]
+        else:
+            return self.file.variables[self.file.variables[self.name].dimensions[-2]]
     ydim = property(__get_ydim)
+
+    def __is3d(self):
+        is3d = False
+        if self.name != 'is':
+            if 'level' in self.file.variables[self.name].dimensions :
+                is3d = True
+        return is3d
+    is3d = property(__is3d)
 
     def __get_colourmap(self):
         return self.__colourmap
     def __set_colourmap(self,name):
         self.__colourmap = CFcolourmap(self,filename=name)
     colourmap = property(__get_colourmap,__set_colourmap)
+
+    def __get_var(self):
+        if self.name=='is':
+            return self.file.variables['topg'][:,:,:]+self.file.variables['thk'][:,:,:]
+        else:
+            return self.file.variables[self.name]
+    var = property(__get_var)
+                                                                                       
     
     def get2Dfield(self,time,level=0):
         """Get a 2D field.
@@ -246,11 +275,14 @@ class CFvariable(object):
         time: time slice
         level: horizontal slice."""
 
-        if len(self.var.shape) is 4:
-            grid = Numeric.transpose(self.var[time,level,:,:])
+        if self.is3d:
+            grid = Numeric.transpose(self.file.variables[self.name][time,level,:,:])
         else:
-            grid = Numeric.transpose(self.var[time,:,:])
-        if self.name == 'topg':
+            if self.name == 'is':
+                grid = Numeric.transpose(self.file.variables['topg'][time,:,:] + self.file.variables['thk'][time,:,:])
+            else:
+                grid = Numeric.transpose(self.file.variables[self.name][time,:,:])
+        if self.name in ['topg','is']:
             if 'eus' in self.file.variables.keys():
                 grid = grid - self.file.variables['eus'][time]
         if self.name == 'slc':
@@ -322,7 +354,7 @@ class CFvariable(object):
         (tarray,t) = CFchecklist(time,self.file.variables['time'])
         (larray,l) = CFchecklist(level,self.file.variables['level'])
 
-        if 'level' not in self.var.dimensions:
+        if 'level' not in self.file.variables[self.name].dimensions:
             larray = False
             l = 0
 

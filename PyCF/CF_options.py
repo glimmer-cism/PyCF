@@ -162,20 +162,29 @@ class CFOptions(object):
         argn: number of argument holding output name.
         number: number of series in file"""
 
-        if self.options.landscape:
-            orientation = "landscape"
-        else:
-            orientation = "portrait"
-
+        orientation = "portrait"
+        try:
+            if self.options.landscape:
+                orientation = "landscape"
+        except:
+            pass
+    
         if number!=None:
             (root,ext) = os.path.splitext(self.args[argn])
             fname = '%s.%03d%s'%(root,number,ext)
         else:
             fname = self.args[argn]
 
-        plot = PyGMT.Canvas(fname,size=self.options.size,orientation=orientation)
-        if self.options.verbose:
-            plot.verbose = True
+        try:
+            size=self.options.size
+        except:
+            size="a4"
+        plot = PyGMT.Canvas(fname,size=size,orientation=orientation)
+        try:
+            if self.options.verbose:
+                plot.verbose = True
+        except:
+            pass
         return plot
 
     def cffile(self,argn=0):
