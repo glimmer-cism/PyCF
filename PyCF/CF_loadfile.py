@@ -122,6 +122,42 @@ class CFloadfile(CFfile):
             self.__vars[var] = CFvariable(self,var)
         return self.__vars[var]
 
+    def getIceArea(self,time=None,scale=1.):
+        """Get area covered by ice.
+        
+        time: if None, return data for all time slices
+              if list/etc of size two, interpret as array selection
+              if single value, get only this time slice"""
+
+        (tarray,t) = CFchecklist(time,self.file.variables['time'])
+        values = []
+        fact = self.deltax*self.deltay*scale
+        if tarray:
+            for i in range(t[0],t[1]+1):
+                ih = Numeric.where(self.file.variables['thk'][i,:,:]>0.,1,0).flat
+                values.append(sum(ih)*fact)
+            return values
+        ih = Numeric.where(self.file.variables['thk'][t,:,:]>0.,1,0).flat
+        return sum(ih)*fact
+
+    def getIceVolume(self,time=None,scale=1.):
+        """Get ice volume
+        
+        time: if None, return data for all time slices
+              if list/etc of size two, interpret as array selection
+              if single value, get only this time slice"""
+
+        (tarray,t) = CFchecklist(time,self.file.variables['time'])
+        values = []
+        fact = self.deltax*self.deltay*scale
+        if tarray:
+            for i in range(t[0],t[1]+1):
+                ih = self.file.variables['thk'][i,:,:].flat
+                values.append(sum(ih)*fact)
+            return values
+        ih = self.file.variables['thk'][t,:,:].flat
+        return sum(ih)*fact
+    
 class CFvariable(object):
     """Handling CF variables."""
 

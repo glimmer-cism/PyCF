@@ -1,3 +1,17 @@
+2004-08-26 Magnus Hadorn
+ * CF_area.py: we can now also plot profile lines
+ * CF_loadfile.py: add methods to calculate ice area and volume
+ * CF_profile.py: we can now load 2D profiles (e.g. temperatures etc)
+   this does not quite work yet because we use triangulate which will interpolate
+   data outside ice sheet
+ * CF_profilearea.py: simple plotting area for profiles
+ * CF_timeseries.py: use new AutoXY API
+ * __init__.py: added CF_profilearea.py
+ * create_topo.py: we can now also specify upper right corner
+ * plotProfile.py: use CF_profilearea.py
+ * plotSpot.py: use new AutoXY API
+ * temp.cpt: NaN nodes set to white
+	
 2004-08-20 Magnus Hagdorn
  * plotProfile.py works now
 

@@ -69,9 +69,9 @@ i = 0
 for ij in opts.options.ij:
     data = var.getSpotIJ(ij,time,level)
     if dotimes:
-        area.add_line('-W1/%s'%PyCF.CFcolours[i],infile.time(time),data)
+        area.line('-W1/%s'%PyCF.CFcolours[i],infile.time(time),data)
     elif dolevels:
-        area.add_line('-W1/%s'%PyCF.CFcolours[i],data,infile.file.variables['level'])
+        area.line('-W1/%s'%PyCF.CFcolours[i],data,infile.file.variables['level'])
     key.plot_line('(%d,%d)'%ij,'1/%s'%PyCF.CFcolours[i])
     i = i+1
         

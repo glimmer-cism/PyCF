@@ -119,6 +119,15 @@ class CFArea(PyGMT.AreaXY):
         self.line('-W -L -G%s'%grey,[self.ll[0],self.ur[0],self.ur[0],self.ll[0]],[self.ll[1],self.ll[1],self.ur[1],self.ur[1]])
         self.unclip()
 
+    def profile(self,args='-W1/0/0/0'):
+        """Plot profile if present in file.
+
+        args: pen arguments default -W1/0/0/0"""
+
+        if hasattr(self.file,'interpolated'):
+            self.line(args,self.file.interpolated[0,:].tolist(),self.file.interpolated[1,:].tolist())
+    
+
 if __name__ == '__main__':
     from CF_options import *
 

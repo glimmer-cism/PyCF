@@ -46,14 +46,17 @@ class CFAreaTS(PyGMT.AreaXY):
     def newts(self):
         """Create a new time series plot."""
 
-        newts = PyGMT.AutoXY(self.pt,pos=[self.ps[0],self.ps[1]+self.numplots*(self.size[1]+self.dy)],
+        newts = PyGMT.AutoXY(self.pt,pos=[0,self.numplots*(self.size[1]+self.dy)],
                              size=self.size)
         self.plots.append(newts)
         self.numplots = self.numplots + 1
         return newts
 
-    def finalise(self):
-        """Finalise plot."""
+    def finalise(self,expandx=False,expandy=False):
+        """Finalise plot.
+
+        i.e. set up region and do all the actual plotting.
+        expandx, expandy: when set to True expand region to sensible value."""
         if not self.finalised:
             if len(self.plots) == 0:
                 raise RuntimeError, 'No plots added'
@@ -67,14 +70,14 @@ class CFAreaTS(PyGMT.AreaXY):
             for ts in self.plots:
                 ts.ll[0] = tsrange[0]
                 ts.ur[0] = tsrange[1]
-                ts.finalise()
+                ts.finalise(expandx=expandx,expandy=expandy)
                 if i==0:
                     ts.axis = 'WeSn'
                 else:
                     ts.axis = 'Wesn'
                     ts.xlabel = ''
                 i = i + 1
-            self.totalarea = PyGMT.AreaXY(self.pt,pos=self.ps,
+            self.totalarea = PyGMT.AreaXY(self.pt,
                                           size=[self.size[0],
                                                 self.numplots * self.size[1] + (self.numplots-1) * self.dy])
             self.totalarea.setregion([ts.ll[0],0.],[ts.ur[0],1.])
@@ -119,21 +122,21 @@ class CFEISforcing(CFAreaTS):
     def slc(self,times,slc):
         """Plot slc."""
         self.slc = self.newts()
-        self.slc.add_line('-W1/0/0/0',times,slc)
+        self.slc.line('-W1/0/0/0',times,slc)
         self.slc.xlabel = self.timelab
         self.slc.ylabel = self.slclab
 
     def temp(self,times,temp):
         """Plot temperature."""
         self.temp = self.newts()
-        self.temp.add_steps('-W1/0/0/0',times,temp)
+        self.temp.steps('-W1/0/0/0',times,temp)
         self.temp.xlabel = self.timelab
         self.temp.ylabel = self.templab
 
     def ela(self,times,ela):
         """Plot elaerature."""
         self.ela = self.newts()
-        self.ela.add_steps('-W1/0/0/0',times,ela)
+        self.ela.steps('-W1/0/0/0',times,ela)
         self.ela.xlabel = self.timelab
         self.ela.ylabel = self.elalab
     

@@ -24,11 +24,12 @@ def usage():
     "print short help message"
 
     print 'Usage: create_topo.py [OPTIONS] infile outfile'
-    print 'create CF topography from a GMT grid file'
+    print 'create CF topography from a GMT grid file\nEither specify the number of nodes or the coordinates of the upper left corner.'
     print ''
     print '  -h, --help\n\tthis message'
     PyCF.CFProj_printGMThelp()
     print '  -o, --origin lon/lat\n\tLongitude and latitude of origin of the projected coordinate system.'
+    print '  -u, --upper lon/lat\n\tLongitude and latitude of upper left corner.'
     print '  -d, --delta dx[/dy]\n\tNode spacing. Assume dx==dy if dy is omitted.'
     print '  -n, --num x/y\n\tGrid size.'
     print '  --title\n\t title for output netCDF file'
@@ -41,9 +42,10 @@ if __name__ == '__main__':
 
     # get options
     try:
-        opts, args = getopt.getopt(sys.argv[1:],'hJ:o:d:n:',['help','origin=','delta=','num=','title=','institution=','source=','references=','comment='])
-    except getopt.GetoptError:
+        opts, args = getopt.getopt(sys.argv[1:],'hJ:o:d:n:u:',['help','origin=','delta=','num=','title=','institution=','source=','references=','comment=','upper'])
+    except getopt.GetoptError,error:
         # print usage and exit
+        print error
         usage()
         sys.exit(1)
 
@@ -56,6 +58,7 @@ if __name__ == '__main__':
 
     proj = None
     origin = None
+    upper = None
     delta = None
     num = None
     title=None
@@ -75,6 +78,14 @@ if __name__ == '__main__':
                 origin = [float(a[0]),float(a[1])]
             except:
                 print 'Error, cannot parse origin string'
+                usage()
+                sys.exit(1)
+        if o in ('-u','--upper'):
+            a = a.split('/')
+            try:
+                upper = [float(a[0]),float(a[1])]
+            except:
+                print 'Error, cannot parse upper left corner string'
                 usage()
                 sys.exit(1)
         if o in ('-d','--delta'):
@@ -107,7 +118,7 @@ if __name__ == '__main__':
            comment  = a
         
 
-    if proj is None or origin is None or delta is None or num is None:
+    if proj is None or origin is None or delta is None or (num is None and upper is None):
         usage()
         sys.exit(1)
 
@@ -115,6 +126,9 @@ if __name__ == '__main__':
     proj4.setOrigin(origin[0],origin[1])
     proj.false_easting = proj4.params['x_0']
     proj.false_northing = proj4.params['y_0']
+    if upper != None:
+        u = proj4.proj4(upper)
+        num = [int(u[0]/delta[0])+1,int(u[1]/delta[1])+1]
     # projecting topography
     proj_gmt='-J%s/1:1 -R%s -A -D%f/%f'%(
         proj4.getGMTprojection(),

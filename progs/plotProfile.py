@@ -20,7 +20,7 @@
 
 """A plot of CF profiles."""
 
-import PyGMT,PyCF,sys
+import PyGMT,PyCF,Numeric,sys
 
 # creating option parser
 parser = PyCF.CFOptParser()
@@ -30,6 +30,10 @@ parser.plot()
 opts = PyCF.CFOptions(parser,2)
 infile = opts.cfprofile()
 
+if opts.options.level == None:
+    level = 0
+else:
+    level = opts.options.level
 
 plot = opts.plot()
 plot.defaults['LABEL_FONT_SIZE']='12p'
@@ -38,17 +42,13 @@ bigarea = PyGMT.AreaXY(plot,size=opts.papersize)
 
 for i in range(0,opts.nvars):
     profile = opts.profs(infile,i)
-    area = PyGMT.AutoXY(bigarea,size=[opts.options.width,opts.options.width/2.],pos=[1.,i*(opts.options.width/2.+0.5)])
-    if i == 0:
-        area.axis='WeSn'
-        area.xlabel = 'distance along profile [km]'
-    else:
+    time = opts.times(infile,0)
+
+    area = PyCF.CFProfileArea(bigarea,profile,time,level=opts.options.level,size=[opts.options.width,opts.options.width/2.],pos=[1.,i*(opts.options.width/2.+0.5)])
+    if i > 0:
         area.axis='Wesn'
         area.xlabel = ''
-    area.ylabel = '%s [%s]'%(profile.long_name,profile.units)
-    time = opts.times(infile,0)
-    data = profile.getProfile(time)
-    area.add_line('-W1/0/0/0',infile.xvalues,data)
+
     area.finalise(expandy=True)
     area.coordsystem()
 

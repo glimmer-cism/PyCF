@@ -18,11 +18,12 @@
 
 """Loading CF profiles files."""
 
-__all__=['CFloadprofile']
+__all__=['CFloadprofile','CFprofile']
 
 import Numeric
 from CF_loadfile import *
 from CF_utils import CFinterpolate_xy
+from PyGMT import triangulate
 
 class CFloadprofile(CFloadfile):
     """Loading a profile line from a CF netCDF file."""
@@ -70,10 +71,11 @@ class CFloadprofile(CFloadfile):
         else:
             end = int(xrange[1]/interval+0.9999)
         self.interpolated = self.interpolated[:,start:end]
-        self.xrange = [start*self.interval*xscale, end*self.interval*xscale]
+        self.interval = self.interval*xscale
+        self.xrange = [start*self.interval, end*self.interval]
         self.xvalues = []
         for i in range(0,len(self.interpolated[1,:])):
-            self.xvalues.append(self.xrange[0]+i*self.interval*xscale)
+            self.xvalues.append(self.xrange[0]+i*self.interval)
 
         # clip to region of file
         interpx = []
@@ -107,6 +109,8 @@ class CFprofile(CFvariable):
         cfprofile: CF Profile file
         var: name of variable"""
 
+        self.yres = 10.
+
         if not isinstance(cfprofile,CFloadprofile):
             raise ValueError, 'Not a profile file'
 
@@ -114,6 +118,7 @@ class CFprofile(CFvariable):
 
         #cache profile data
         self.__data = {}
+        self.__data2d = {}
         
     def getProfile(self,time,level=0):
         """Get a profile.
@@ -128,3 +133,37 @@ class CFprofile(CFvariable):
             self.__data[time][level] = var.grdtrack(self.cffile.interpolated[0,:],self.cffile.interpolated[1,:])
 
         return self.__data[time][level]
+
+    def getProfile2D(self,time):
+        """Get a 2D profile.
+
+        time: time slice
+
+        returns a GMT grid"""
+
+        if 'level' not in self.var.dimensions:
+            raise ValueError, 'Not a 3D variable'
+
+        if time not in self.__data2d:
+            x = []
+            y = []
+            z = []
+
+            ihprof = CFprofile(self.cffile,'thk').getProfile(time)
+            try:
+                rhprof = CFprofile(self.cffile,'topg').getProfile(time)
+            except:
+                rhprof = Numeric.zeros(len(ihprof)).tolist()
+            for i in range(0,len(self.file.variables['level'])):
+                level = (1.-self.file.variables['level'][i])
+                prof = self.getProfile(time,level=i)
+                for j in range(0,len(self.cffile.xvalues)):
+                    gr = 0
+                    if ihprof[j]>0.:
+                        x.append(self.cffile.xvalues[j])
+                        y.append(rhprof[j]+level*ihprof[j])
+                        z.append(prof[j])
+            grid = triangulate(x,y,z,self.cffile.interval,self.yres)
+            self.__data2d[time] = grid
+        return self.__data2d[time]
+        
