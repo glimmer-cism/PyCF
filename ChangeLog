@@ -1,3 +1,9 @@
+2004-11-30 Magnus Hagdorn
+ * CF_area.py: added vector velocity plots
+ * CF_colourmap.py: colourmaps for vel and bvel
+ * CF_loadfile.py: get magnitude of velocity fields
+ * plotCFvar.py: also plot vectors
+
 2004-11-29 Magnus Hagdorn
  * plotEISMINT2stats.py: fixed bug where relative changes were not multiplied
  with 100 to get %

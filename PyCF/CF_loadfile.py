@@ -229,6 +229,12 @@ class CFvariable(object):
         if self.name=='is':
             if 'topg' not in self.file.variables.keys() or 'thk' not in self.file.variables.keys():
                 raise KeyError, 'Variable not in file'
+        elif self.name=='vel':
+            if 'uvel' not in self.file.variables.keys() or 'vvel' not in self.file.variables.keys():
+                raise KeyError, 'Variable not in file'
+        elif self.name=='bvel':
+            if 'ubas' not in self.file.variables.keys() or 'vbas' not in self.file.variables.keys():
+                raise KeyError, 'Variable not in file'
         elif self.name not in self.file.variables.keys():
             raise KeyError, 'Variable not in file'
         self.__colourmap = CFcolourmap(self)
@@ -239,6 +245,10 @@ class CFvariable(object):
         try:
             if self.name == 'is':
                 return self.file.variables['topg'].units
+            elif self.name == 'vel':
+                return self.file.variables['uvel'].units
+            elif self.name == 'bvel':
+                return self.file.variables['ubas'].units
             else:
                 return self.file.variables[self.name].units
         except:
@@ -251,6 +261,10 @@ class CFvariable(object):
                 name = 'homologous %s'%self.file.variables[self.name].long_name
             elif self.name == 'is':
                 name =  'ice surface elevation'
+            elif self.name == 'vel':
+                name = 'horizontal velocity'
+            elif self.name == 'bvel':
+                name = 'horizontal basal velocity'
             else:
                 name = self.file.variables[self.name].long_name
         except:
@@ -270,6 +284,10 @@ class CFvariable(object):
     def __get_xdim(self):
         if self.name=='is':
             return self.file.variables[self.file.variables['topg'].dimensions[-1]]
+        elif self.name == 'vel':
+            return self.file.variables[self.file.variables['uvel'].dimensions[-1]]
+        elif self.name == 'bvel':
+            return self.file.variables[self.file.variables['ubas'].dimensions[-1]]
         else:
             return self.file.variables[self.file.variables[self.name].dimensions[-1]]
     xdim = property(__get_xdim)
@@ -277,14 +295,20 @@ class CFvariable(object):
     def __get_ydim(self):
         if self.name=='is':
             return self.file.variables[self.file.variables['topg'].dimensions[-2]]
+        elif self.name == 'vel':
+            return self.file.variables[self.file.variables['uvel'].dimensions[-2]]
+        elif self.name == 'bvel':
+            return self.file.variables[self.file.variables['ubas'].dimensions[-2]]
         else:
             return self.file.variables[self.file.variables[self.name].dimensions[-2]]
     ydim = property(__get_ydim)
 
     def __is3d(self):
         is3d = False
-        if self.name != 'is':
-            if 'level' in self.file.variables[self.name].dimensions :
+        if self.name != 'is' and self.name != 'bvel':
+            if self.name == 'vel':
+                is3d = True
+            elif 'level' in self.file.variables[self.name].dimensions :
                 is3d = True
         return is3d
     is3d = property(__is3d)
@@ -298,6 +322,12 @@ class CFvariable(object):
     def __get_var(self):
         if self.name=='is':
             return self.file.variables['topg'][:,:,:]+self.file.variables['thk'][:,:,:]
+        elif self.name == 'vel':
+            return Numeric.sqrt(self.file.variables['uvel'][:,:,:,:]*self.file.variables['uvel'][:,:,:,:] +
+                                self.file.variables['vvel'][:,:,:,:]*self.file.variables['vvel'][:,:,:,:])
+        elif self.name == 'bvel':
+            grid = Numeric.sqrt(self.file.variables['ubas'][:,:,:]*self.file.variables['ubas'][:,:,:]+
+                                self.file.variables['vbas'][:,:,:]*self.file.variables['vbas'][:,:,:])
         else:
             return self.file.variables[self.name]
     var = property(__get_var)
@@ -333,10 +363,19 @@ class CFvariable(object):
         level: horizontal slice."""
 
         if self.is3d:
-            grid = Numeric.transpose(self.file.variables[self.name][time,level,:,:])
+            if self.name == 'vel':
+                grid = Numeric.transpose(Numeric.sqrt(
+                    self.file.variables['uvel'][time,level,:,:]*self.file.variables['uvel'][time,level,:,:]+
+                    self.file.variables['vvel'][time,level,:,:]*self.file.variables['vvel'][time,level,:,:]))
+            else:
+                grid = Numeric.transpose(self.file.variables[self.name][time,level,:,:])
         else:
             if self.name == 'is':
                 grid = Numeric.transpose(self.file.variables['topg'][time,:,:] + self.file.variables['thk'][time,:,:])
+            elif self.name == 'bvel':
+                grid = Numeric.transpose(Numeric.sqrt(
+                    self.file.variables['ubas'][time,:,:]*self.file.variables['ubas'][time,:,:]+
+                    self.file.variables['vbas'][time,:,:]*self.file.variables['vbas'][time,:,:]))
             else:
                 grid = Numeric.transpose(self.file.variables[self.name][time,:,:])
         if self.name in ['topg','is']:

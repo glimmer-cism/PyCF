@@ -91,6 +91,8 @@ else:
     if opts.options.land:
         area.land(time)
     area.image(var,time,clip = opts.options.clip,level=level,mono=opts.options.mono)
+    if var.name=="vel":
+        area.velocity_field(time,level=level)
     area.coastline()
     area.contour(thk,[0.1],'-W2/0/0/0',time)
     if var.name == 'is' or var.name == 'thk':

@@ -22,9 +22,11 @@
 
 __all__ = ['CFArea']
 
-import PyGMT,Numeric
+import PyGMT,Numeric,math
 from CF_loadfile import CFvariable
 from CF_colourmap import CFcolours
+from StringIO import StringIO
+
 class CFArea(PyGMT.AreaXY):
     """CF grid plotting area."""
 
@@ -102,6 +104,37 @@ class CFArea(PyGMT.AreaXY):
         if clipped:
             self.unclip()
 
+    def velocity_field(self,time,level=0,mins=10.):
+        """Plot vectors of velocity field
+
+        time: time slice
+        level: horizontal slice
+        mins: do not plot vectors below this size (default 0.01)
+        """
+
+        # get velocity components
+        velx = self.file.getvar('uvel')
+        vely  = self.file.getvar('vvel')
+        vel = self.file.getvar('vel')
+
+        data = vel.get2Dfield(time,level=level)
+        datax = velx.get2Dfield(time,level=level)
+        datay = vely.get2Dfield(time,level=level)
+
+        # calculate node spacing
+        vector_density = 0.3
+        x_spacing = int(((self.ur[0]-self.ll[0])/(self.size[0]*self.file.deltax))*vector_density)+1
+        y_spacing = int(((self.ur[1]-self.ll[1])/(self.size[1]*self.file.deltay))*vector_density)+1
+
+        fact = 360./(2*math.pi)
+        outstring = StringIO()
+        scale = 0.5/max(Numeric.array(data).flat)
+        for i in range(int(self.ll[0]/self.file.deltax),int(self.ur[0]/self.file.deltax),x_spacing):
+            for j in range(int(self.ll[1]/self.file.deltay),int(self.ur[1]/self.file.deltay),y_spacing):
+                if (data[i,j]>mins):
+                    outstring.write('%f %f %f %f\n'%(velx.xdim[i], velx.ydim[j], fact*math.atan2(datay[i,j],datax[i,j]), data[i,j]*scale)) #1))#data[i,j]))
+        self.canvascom('psxy',' -G0 -Sv0.01/0.1/0.1',indata=outstring.getvalue())
+        
     def contour(self,var,contours,args,time,level=0):
         """Plot a contour map.
 
