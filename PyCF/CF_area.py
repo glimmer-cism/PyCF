@@ -20,12 +20,12 @@
 
 """Class for plotting ISM grid files."""
 
-__all__ = ['Area']
+__all__ = ['CFArea']
 
 import PyGMT,Numeric
 from CF_loadfile import *
 
-class Area(PyGMT.AreaXY):
+class CFArea(PyGMT.AreaXY):
     """CF grid plotting area."""
 
     def __init__(self,parent,CFfile,pos=[0.,0.],size=10):
@@ -66,16 +66,44 @@ class Area(PyGMT.AreaXY):
 
         self.paper.text([0.15,0.15],text,textargs='8 0 0 LB',comargs='-W255/255/255o')
 
+    def printinfo(self,time):
+        """Print a data name and time slice."""
 
+        self.stamp('%s   %.2fka'%(self.file.title,self.file.time(time)))
+        
+    def image(self,var,time,level=0):
+        """Plot a colour map.
+
+        var: CFvariable
+        time: time slice
+        level: horizontal slice
+        """
+        
+        PyGMT.AreaXY.image(self,var.getGMTgrid(time,level=level),'/home/magi/ism/tools/gmt/topo.cpt')
+
+    def contour(self,var,contours,args,time,level=0):
+        """Plot a contour map.
+
+        var: CFvariable
+        contours: list of contour intervals
+        args: further arguments
+        time: time slice
+        level: horizontal slice."""
+
+        PyGMT.AreaXY.contour(self,var.getGMTgrid(time,level=level),contours,args)
 
 if __name__ == '__main__':
     import sys
 
     
     infile = CFloadfile(sys.argv[1])
+    var = CFvariable(infile,'topg')
+    
     plot = PyGMT.Canvas(sys.argv[2])
-    area = Area(plot,infile)
+    area = CFArea(plot,infile)
+    area.image(var,0)
+    area.contour(var,[1000.],'',0)
     area.coastline()
     area.coordsystem()
-    area.stamp('hi')
+    area.printinfo(0)
     plot.close()

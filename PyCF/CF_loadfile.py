@@ -18,9 +18,10 @@
 
 """Loading CF files."""
 
-__all__=['CFloadfile']
+__all__=['CFloadfile','CFvariable']
 
 import Numeric, Scientific.IO.NetCDF,os
+from PyGMT.PyGMTgrid import Grid
 from CF_proj import *
 
 class CFloadfile(object):
@@ -140,3 +141,71 @@ class CFloadfile(object):
         result = (point[0] >= self.file.variables['x1'][0] and point[0] <= self.file.variables['x1'][-1] and
                   point[1] >= self.file.variables['y1'][0] and point[1] <= self.file.variables['y1'][-1])
         return result
+
+class CFvariable(object):
+    """Handling CF variables."""
+
+    def __init__(self,CFfile,var):
+        """Initialise.
+
+        CFFile: CF file
+        var: name of variable"""
+
+        self.CFfile = CFfile
+        self.file = CFfile.file
+        self.var = self.file.variables[var]
+
+    def __get_units(self):
+        try:
+            return self.var.units
+        except:
+            return ''
+    units = property(__get_units)
+
+    def __get_long_name(self):
+        try:
+            return self.var.long_name
+        except:
+            return ''
+    long_name = property(__get_long_name)
+
+    def __get_xdim(self):
+        return self.file.variables[self.var.dimensions[-1]]
+    xdim = property(__get_xdim)
+
+    def __get_ydim(self):
+        return self.file.variables[self.var.dimensions[-2]]
+    ydim = property(__get_ydim)
+    
+    def get2Dfield(self,time,level=0):
+        """Get a 2D field.
+
+        time: time slice
+        level: horizontal slice."""
+
+        if len(self.var.shape) is 4:
+            grid = Numeric.transpose(self.var[time,level,:,:])
+        else:
+            grid = Numeric.transpose(self.var[time,:,:])
+        return grid
+
+    def getGMTgrid(self,time,level=0):
+        """Get a GMT grid.
+
+        time: time slice
+        level: horizontal slice."""
+
+        grid = Grid()
+        grid.zunits = self.units
+        grid.remark = self.long_name
+        
+        # setting min/max of coords
+        grid.x_minmax = [self.xdim[0],self.xdim[-1]]
+        grid.y_minmax = [self.ydim[0],self.ydim[-1]]
+    
+        if (time >= len(self.file.variables['time'][:])):
+            raise ValueError, 'ISM file does not contain time slice %d' % time
+
+        grid.data = self.get2Dfield(time,level)
+        
+        return grid

@@ -1,3 +1,7 @@
+2004-06-14 Magnus Hagdorn
+ * CF_loadfile.py: added variable class
+ * CF_area.py: first test of plotting images and contour lines
+	
 2004-06-13 Magnus Hagdorn
  * CF_proj.py: made scale_factor_at_projection_origin optional and added a 
    function for projecting points
