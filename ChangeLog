@@ -1,0 +1,2 @@
+2004-06-10 Magnus Hagdorn
+ * started PyCF, python progs/modules for handling CF/Glimmer netCDF files
