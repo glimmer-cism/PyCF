@@ -135,7 +135,7 @@ class CFloadfile(CFfile):
         fact = self.deltax*self.deltay*scale
         if tarray:
             for i in range(t[0],t[1]+1):
-                ih = Numeric.where(self.file.variables['thk'][i,:,:]>0. and self.file.variables['thk'][i,:,:] <1.e10,1,0).flat
+                ih = Numeric.where(self.file.variables['thk'][i,:,:]>0.,1,0).flat
                 values.append(sum(ih)*fact)
             return values
         ih = Numeric.where(self.file.variables['thk'][t,:,:]>0.,1,0).flat
@@ -153,8 +153,7 @@ class CFloadfile(CFfile):
         fact = self.deltax*self.deltay*scale
         if tarray:
             for i in range(t[0],t[1]+1):
-                ih = Numeric.where(self.file.variables['thk'][i,:,:]>0. and self.file.variables['thk'][i,:,:] <1.e10,
-                                   self.file.variables['thk'][i,:,:],0.).flat
+                ih = Numeric.where(self.file.variables['thk'][i,:,:]>0.,self.file.variables['thk'][i,:,:],0.).flat
                 values.append(sum(ih)*fact)
             return values
         ih = self.file.variables['thk'][t,:,:].flat
@@ -179,9 +178,9 @@ class CFloadfile(CFfile):
                 else:
                     values.append(0.)
             return values
-        ih = self.getIceArea(time=i,scale=scale)
+        ih = self.getIceArea(time=t,scale=scale)
         if ih>0:
-            mlt = Numeric.where(self.file.variables['bmlt'][i,:,:]>0.,1,0).flat
+            mlt = Numeric.where(self.file.variables['bmlt'][t,:,:]>0.,1,0).flat
             return sum(mlt)*fact/ih
         else:
             return 0.

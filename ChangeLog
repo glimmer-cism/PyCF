@@ -1,3 +1,8 @@
+2004-11-25 Magnus Hagdorn
+ * CF_loadfile.py: some minor fixes
+ * CF_options.py: added -T switch to specify time slice rather than time
+ * extractCFstats.py: new program for extracting EISMINT statistics
+
 2004-11-23 Magnus Hagdorn
  * extractProfile.py: correct labeling for averaged quantities
  * plotEISMINT.py: much improved EISMINT plotter

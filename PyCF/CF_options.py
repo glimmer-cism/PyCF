@@ -106,6 +106,7 @@ class CFOptParser(optparse.OptionParser):
     def time(self):
         """Time option."""
         self.add_option("-t","--time",metavar='TIME',action='append',type="float",dest='times',help="time to be processed (this option can be used more than once)")
+        self.add_option("-T","--timeslice",metavar='N',action='append',type="int",help="time slice to be processed (this option can be used more than once)")
 
     def timeint(self):
         """Time interval options."""
@@ -277,5 +278,7 @@ class CFOptions(object):
 
         if self.options.times != None:
             return cffile.timeslice(self.options.times[timen])
+        elif self.options.timeslice !=None:
+            return self.options.timeslice[timen]
         else:
             return 0
