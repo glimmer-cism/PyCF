@@ -172,16 +172,16 @@ class CFOptions(object):
 
         if hasattr(self.options,'llx'):
             if self.options.llx != None:
-                infile.ll_xy = self.options.llx
+                infile.ll_xy = list(self.options.llx)
         if hasattr(self.options,'urx'):
             if self.options.urx != None:
-                infile.ur_xy = self.options.urx
+                infile.ur_xy = list(self.options.urx)
         if hasattr(self.options,'llg'):
             if self.options.llg != None:
-                infile.ll_geo = self.options.llg
+                infile.ll_geo = list(self.options.llg)
         if hasattr(self.options,'urg'):
             if self.options.urg != None:
-                infile.ur_geo = self.options.urg
+                infile.ur_geo = list(self.options.urg)
         
         return infile
 

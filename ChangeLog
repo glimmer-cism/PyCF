@@ -1,3 +1,10 @@
+2004-09-16 Magnus Hagdorn
+ * CF_colourmap.py: need to find min max of field by hand so we honour the NC_FILL_VALUE
+ * CF_options.py: coordinates should be list rather than tuples
+ * CF_profile.py: linearly interpolate vertical layers for each column
+ * CF_utils.py: add linear interpolation routine
+ * temp.cpt, mb.cpt: change background and foreground to white
+
 2004-08-26 Magnus Hadorn
  * CF_area.py: we can now also plot profile lines
  * CF_loadfile.py: add methods to calculate ice area and volume

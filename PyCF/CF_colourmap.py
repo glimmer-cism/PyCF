@@ -32,6 +32,8 @@ if not os.path.exists(cname):
 
 CFcolours = ['255/0/0','0/255/0','0/0/255','0/255/255','255/0/255','255/255/0','127/0/0','0/127/0','0/0/127','0/127/127','127/0/127','127/127/0']
 
+NC_FILL_VALUE = 1.9938419936773738e+37
+
 class CFcolourmap(object):
     """Colourmaps."""
 
@@ -90,8 +92,15 @@ class CFcolourmap(object):
                 
     def __get_cptfile(self):
         if self.__cptfile == '.__auto.cpt':
-            v0 = min(Numeric.ravel(self.var.file.variables[self.name]))
-            v1 = max(Numeric.ravel(self.var.file.variables[self.name]))
+            found = False
+            for v in Numeric.ravel(self.var.file.variables[self.name]):
+                if v != NC_FILL_VALUE:
+                    if not found:
+                        v0 = v
+                        v1 = v
+                    else:
+                        v0 = min(v,v0)
+                        v1 = max(v,v1)
             PyGMT.command('makecpt','-Crainbow -T%f/%f/%f > .__auto.cpt'%(v0,v1,(v1-v0)/10.))
         return self.__cptfile
     cptfile = property(__get_cptfile)

@@ -23,7 +23,8 @@ __all__=['CFloadprofile','CFprofile']
 import Numeric
 from CF_loadfile import *
 from CF_utils import CFinterpolate_xy
-from PyGMT import triangulate
+from PyGMT import triangulate, Grid
+from CF_utils import CFinterpolate_linear
 
 class CFloadprofile(CFloadfile):
     """Loading a profile line from a CF netCDF file."""
@@ -145,25 +146,39 @@ class CFprofile(CFvariable):
             raise ValueError, 'Not a 3D variable'
 
         if time not in self.__data2d:
-            x = []
-            y = []
-            z = []
-
-            ihprof = CFprofile(self.cffile,'thk').getProfile(time)
+            # load ice thickness and bedrock profiles
+            ihprof = Numeric.array(CFprofile(self.cffile,'thk').getProfile(time))
             try:
-                rhprof = CFprofile(self.cffile,'topg').getProfile(time)
+                rhprof = Numeric.array(CFprofile(self.cffile,'topg').getProfile(time))
             except:
-                rhprof = Numeric.zeros(len(ihprof)).tolist()
+                rhprof = Numeric.zeros(len(ihprof))
+            ymin=min(rhprof)
+            ymax=max(rhprof+ihprof)
+            numy=int((ymax-ymin)/self.yres)+1
+
+            # load data
+            data = Numeric.zeros([len(self.file.variables['level']), len(self.cffile.xvalues)], Numeric.Float32)
             for i in range(0,len(self.file.variables['level'])):
-                level = (1.-self.file.variables['level'][i])
-                prof = self.getProfile(time,level=i)
-                for j in range(0,len(self.cffile.xvalues)):
-                    gr = 0
-                    if ihprof[j]>0.:
-                        x.append(self.cffile.xvalues[j])
-                        y.append(rhprof[j]+level*ihprof[j])
-                        z.append(prof[j])
-            grid = triangulate(x,y,z,self.cffile.interval,self.yres)
+                prof = self.getProfile(time,level=len(self.file.variables['level'])-i-1)
+                data[i,:] = prof
+
+            # setup output grid
+            grid = Grid()
+            grid.x_minmax = [0,self.cffile.xvalues[-1]]
+            grid.y_minmax = [ymin,ymax]
+            grid.data = Numeric.zeros([len(self.cffile.xvalues),numy], Numeric.Float32)
+            grid.data[:,:] = -100000000.
+            # interpolate
+            rhprof = rhprof-ymin
+            for j in range(0,len(self.cffile.xvalues)):
+                if ihprof[j]>0.:
+                    start = int(rhprof[j]/self.yres)
+                    end   = int((rhprof[j]+ihprof[j])/self.yres)+1
+                    pos = Numeric.arange(start*self.yres,end*self.yres,self.yres)
+                    interpolated = CFinterpolate_linear(rhprof[j]+ihprof[j]*self.file.variables['level'][:],
+                                                        data[:,j],
+                                                        pos)
+                    grid.data[j,start:end] = interpolated
             self.__data2d[time] = grid
         return self.__data2d[time]
         

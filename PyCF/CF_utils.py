@@ -16,7 +16,7 @@
 
 """Useful utility functions."""
 
-__all__ = ['CFinterpolate_xy']
+__all__ = ['CFinterpolate_xy','CFinterpolate_linear']
 
 import math, Numeric
 
@@ -52,3 +52,29 @@ def CFinterpolate_xy(profile,interval):
         d0 = d    
     
     return Numeric.array([ix,iy],Numeric.Float32)
+
+def CFinterpolate_linear(x,y,pos):
+    """Linear interpolation.
+
+    x,y: data points
+    pos: list of new x positions onto which y should be interpolated.
+
+    we assume monotonic sequences in x and pos"""
+
+    if len(x)!=len(y):
+        raise ValueError, 'x and y are not of the same length.'
+
+    res = []
+    j = 0
+    for i in range(0,len(pos)):
+        # boundary conditions
+        if pos[i] <= x[0]:
+            res.append(y[0])
+            continue
+        if pos[i] >= x[-1]:
+            res.append(y[-1])
+            continue
+        while (pos[i]>x[j]):
+            j = j + 1
+        res.append(y[j-1]+(pos[i]-x[j-1])*(y[j]-y[j-1])/(x[j]-x[j-1]))
+    return res
