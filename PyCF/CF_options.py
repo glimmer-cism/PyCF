@@ -46,6 +46,7 @@ class CFOptParser(optparse.OptionParser):
         group = optparse.OptionGroup(self,"Plot Options","These options are used to control the appearance of the plot")
         group.add_option("--size",dest="size",default="a4",help="Size of output (default a4)")
         group.add_option("--landscape",action="store_true", dest="landscape",help="select landscape mode")
+        group.add_option("--mono",action="store_true",default=False,help="convert colour plots to mono")
         group.add_option("--width",type="float",dest="width",default=self.width, help="width of plot (default %.2f cm)"%(self.width))
         group.add_option("--verbose",action="store_true", dest="verbose",default=False,help="Be verbose")
         self.add_option_group(group)

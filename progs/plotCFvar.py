@@ -50,6 +50,7 @@ sizey = infile.aspect_ratio*opts.options.width+deltay
 plot=None
 var  = opts.vars(infile)
 time = opts.times(infile)
+thk = infile.getvar('thk')
 if numplots > 1:
     numx = int((opts.papersize[0])/(sizex))
     numy = int((opts.papersize[1])/(sizey))
@@ -78,8 +79,9 @@ if numplots > 1:
         area = PyCF.CFArea(bigarea,infile,pos=[x*sizex,opts.papersize[1]-(y+1)*sizey],size=sizex-deltax)
         if opts.options.land:
             area.land(time)
-        area.image(var,time,clip = opts.options.clip,level=level)
+        area.image(var,time,clip = opts.options.clip,level=level,mono=opts.options.mono)
         area.coastline()
+        area.contour(thk,[0.1],'-W2/0/0/0',time)
         area.axis='wesn'
         area.coordsystem()
         area.printinfo(time)
@@ -88,8 +90,9 @@ else:
     area = PyCF.CFArea(plot,infile,pos=[0.,3.],size=sizex-deltax)
     if opts.options.land:
         area.land(time)
-    area.image(var,time,clip = opts.options.clip,level=level)
+    area.image(var,time,clip = opts.options.clip,level=level,mono=opts.options.mono)
     area.coastline()
+    area.contour(thk,[0.1],'-W2/0/0/0',time)
     if var.name == 'is' or var.name == 'thk':
         area.contour(var,[500,1000,2500,3000],'-W1/255/255/255',time)
     area.coordsystem()

@@ -1,3 +1,11 @@
+2004-11-10 Magnus Hagdorn
+ * CF_area.py: added switch to plot mono images
+ * CF_options.py: added switch to plot mono images
+ * CF_loadfile.py: calculate fractional melt area
+ * CF_createfile.py: produce CF compliant netCDF files
+ * plotCFstats.py: plot melt fraction
+ * plotCFstats.py: added switch to plot mono images
+
 2004-11-04 Magnus Hagdorn
  * plot3DProfiles.py: plot more profiles per page
  * minor changes of plotEISMINT.py

@@ -79,13 +79,14 @@ class CFArea(PyGMT.AreaXY):
 
         self.stamp('%s   %.2fka'%(self.file.title,self.file.time(time)))
         
-    def image(self,var,time,level=0,clip=None):
+    def image(self,var,time,level=0,clip=None,mono=False):
         """Plot a colour map.
 
         var: CFvariable
         time: time slice
         level: horizontal slice
         clip: only display data where clip>0.
+        mono: convert colour to mono
         """
         
         clipped = False
@@ -93,7 +94,11 @@ class CFArea(PyGMT.AreaXY):
             cvar = CFvariable(var.cffile,clip)
             self.clip(cvar.getGMTgrid(time),0.1)
             clipped = True
-        PyGMT.AreaXY.image(self,var.getGMTgrid(time,level=level),var.colourmap.cptfile)
+        if mono:
+            args="-M"
+        else:
+            args=""
+        PyGMT.AreaXY.image(self,var.getGMTgrid(time,level=level),var.colourmap.cptfile,args=args)
         if clipped:
             self.unclip()
 

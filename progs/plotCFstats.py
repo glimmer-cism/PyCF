@@ -27,6 +27,7 @@ parser = PyCF.CFOptParser()
 parser.width=15.
 parser.profile(vars=False)
 parser.add_option("-f","--file",metavar='NAME',type="string",dest='dataname',help="name of file containing ice extent data")
+parser.add_option("-m","--meltfrac",default=False,action="store_true",help="extract fractional melt area.")
 parser.plot()
 opts = PyCF.CFOptions(parser,-2)
 
@@ -39,6 +40,12 @@ bigarea = PyGMT.AreaXY(plot,size=opts.papersize)
 tsarea = PyCF.CFAreaTS(bigarea,pos=[0.,4.5],size=[opts.options.width,opts.options.width/3])
 key = PyGMT.KeyArea(bigarea,size=[opts.options.width,3.])
 
+if opts.options.meltfrac:
+    mf = tsarea.newts()
+    mf.xlabel = 'time [ka]'
+    mf.ylabel = 'melt fraction'
+else:
+    mf = None
 iv = tsarea.newts()
 iv.xlabel = 'time [ka]'
 iv.ylabel = 'ice volume'
@@ -67,6 +74,10 @@ for fnum in range(0,len(opts.args)-1):
     if do_extent:
         ice_extent = cffile.getExtent()
         ie.line('-W1/%s'%PyCF.CFcolours[fnum],cffile.time(None),ice_extent)
+
+    if mf != None:
+        melt_data = cffile.getFracMelt()
+        mf.line('-W1/%s'%PyCF.CFcolours[fnum],cffile.time(None),melt_data)
 
 if do_extent and opts.options.dataname != None:
     efile = open(opts.options.dataname)

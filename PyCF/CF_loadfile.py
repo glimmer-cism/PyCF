@@ -160,6 +160,32 @@ class CFloadfile(CFfile):
         ih = self.file.variables['thk'][t,:,:].flat
         return sum(ih)*fact
 
+    def getFracMelt(self,time=None,scale=1.):
+        """Get fractional area where basal melting occurs.
+
+        time: if None, return data for all time slices
+              if list/etc of size two, interpret as array selection
+              if single value, get only this time slice"""
+
+        (tarray,t) = CFchecklist(time,self.file.variables['time'])
+        values = []
+        fact = self.deltax*self.deltay*scale
+        if tarray:
+            for i in range(t[0],t[1]+1):
+                ih = self.getIceArea(time=i,scale=scale)
+                if ih>0:
+                    mlt = Numeric.where(self.file.variables['bmlt'][i,:,:]>0.,1,0).flat
+                    values.append(sum(mlt)*fact/ih)
+                else:
+                    values.append(0.)
+            return values
+        ih = self.getIceArea(time=i,scale=scale)
+        if ih>0:
+            mlt = Numeric.where(self.file.variables['bmlt'][i,:,:]>0.,1,0).flat
+            return sum(mlt)*fact/ih
+        else:
+            return 0.
+
     def getRSL(self,loc,time):
         """Get RSL data.
 

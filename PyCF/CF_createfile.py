@@ -23,6 +23,8 @@ __all__=['CFVariableDef','CFcreatefile']
 import Numeric, Scientific.IO.NetCDF,ConfigParser,os,re,string
 from CF_file import *
 
+NOATTRIB = ['name','dimensions','data','factor','load','f90file','hot','type']
+
 class CFVariableDef(dict):
     """Dictionary containing variable definitions."""
 
@@ -130,9 +132,58 @@ class CFcreatefile(CFfile):
             raise KeyError, 'Cannot find definition for variable %s'%name
         v = self.vars[name]
         var = self.file.createVariable(name,Numeric.Float32,tuple(string.replace(v['dimensions'],' ','').split(',')))
-        for a in ['long_name','standard_name','units']:
-            if a in v:
+        for a in v:
+            if a not in NOATTRIB:
                 setattr(var,a,v[a])
         if self.mapvarname != '' and 'x' in v['dimensions'] and 'y' in v['dimensions']:
             var.grid_mapping = self.mapvarname
         return var
+
+if __name__ == '__main__':
+    # creating a test netCDF file
+
+    import CF_proj
+
+    filename="test.nc"
+    numx=100
+    numy=150
+
+    proj = CF_proj.DummyProj()
+    proj.grid_mapping_name='albers_conical_equal_area'
+    proj.false_easting = [1903971.]
+    proj.false_northing = [898179.3]
+    proj.longitude_of_central_meridian = [33.5]
+    proj.latitude_of_projection_origin = [60.5]
+    proj.standard_parallel = [52.83333, 68.16666]
+
+    cffile = CFcreatefile(filename)
+    cffile.title = "Test CF file"
+    cffile.institution = "University of Edinburgh"
+    cffile.source = "None"
+    cffile.comment = "Testing if our netCDF files conform with CF standard"
+
+    # creating dimensions
+    cffile.createDimension('x0',numx-1)
+    cffile.createDimension('x1',numx)
+    cffile.createDimension('y0',numy-1)
+    cffile.createDimension('y1',numy)
+    cffile.createDimension('level',1)
+    cffile.createDimension('time',None)
+
+    cffile.projection=proj
+    
+    # creating variables
+    var=cffile.createVariable('x0')
+    var[:]=Numeric.arange(numx-1).astype(Numeric.Float32)
+    var=cffile.createVariable('x1')
+    var[:]=Numeric.arange(numx).astype(Numeric.Float32)
+    var=cffile.createVariable('y0')
+    var[:]=Numeric.arange(numy-1).astype(Numeric.Float32)
+    var=cffile.createVariable('y1')
+    var[:]=Numeric.arange(numy).astype(Numeric.Float32)
+    
+    for v in cffile.vars:
+        if 'spot' not in v and v not in ['level','x0','y0','x1','y1']:
+            var = cffile.createVariable(v)
+
+    cffile.close()
