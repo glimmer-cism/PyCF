@@ -308,15 +308,19 @@ class CFvariable(object):
             return ''
     standard_name = property(__get_standard_name)
 
-    def __get_xdim(self):
+    def __get_xdimension(self):
         if self.name=='is':
-            return self.file.variables[self.file.variables['topg'].dimensions[-1]]
+            return self.file.variables['topg'].dimensions[-1]
         elif self.name == 'vel':
-            return self.file.variables[self.file.variables['uvel'].dimensions[-1]]
+            return self.file.variables['uvel'].dimensions[-1]
         elif self.name == 'bvel':
-            return self.file.variables[self.file.variables['ubas'].dimensions[-1]]
+            return self.file.variables['ubas'].dimensions[-1]
         else:
-            return self.file.variables[self.file.variables[self.name].dimensions[-1]]
+            return self.file.variables[self.name].dimensions[-1]
+    xdimension = property(__get_xdimension)
+
+    def __get_xdim(self):
+        return self.file.variables[self.xdimension]
     xdim = property(__get_xdim)
 
     def __get_ydim(self):
@@ -359,11 +363,16 @@ class CFvariable(object):
             return self.file.variables[self.name]
     var = property(__get_var)
 
-    def get2Dfield(self,time,level=0):
+    def __get_isvelogrid(self):
+        return self.xdimension=='x0'
+    isvelogrid = property(__get_isvelogrid)
+
+    def get2Dfield(self,time,level=0,velogrid=False):
         """Get a 2D field.
 
         time: time slice
-        level: horizontal slice."""
+        level: horizontal slice
+        velogrid: set to true to interpolate onto velocity grid."""
 
         if self.average:
             if not self.is3d:
@@ -372,22 +381,23 @@ class CFvariable(object):
             grid = Numeric.zeros((len(self.xdim),len(self.ydim)),Numeric.Float32)
 
             sigma = self.file.variables['level']
-            sliceup = self.__get2Dfield(time,level=-1)
+            sliceup = self.__get2Dfield(time,level=-1,velogrid=velogrid)
             for k in range(len(sigma)-2,-1,-1):
-                slice = self.__get2Dfield(time,level=k)
-                grid = grid+(sliceup+slice)*(sigma[k+1]-sigma[k])
-                sliceup = self.__get2Dfield(time,level=k)
+                g_slice = self.__get2Dfield(time,level=k,velogrid=velogrid)
+                grid = grid+(sliceup+g_slice)*(sigma[k+1]-sigma[k])
+                sliceup = self.__get2Dfield(time,level=k,velogrid=velogrid)
             grid = 0.5*grid
         else:
-            grid = self.__get2Dfield(time,level=level)
+            grid = self.__get2Dfield(time,level=level,velogrid=velogrid)
 
         return grid
     
-    def __get2Dfield(self,time,level=0):
+    def __get2Dfield(self,time,level=0,velogrid=False):
         """Get a 2D field.
 
         time: time slice
-        level: horizontal slice."""
+        level: horizontal slice
+        velogrid: set to true to interpolate onto velocity grid."""
 
         if self.is3d:
             if self.name == 'vel':
@@ -423,6 +433,11 @@ class CFvariable(object):
                     else:
                         fact = self.file.variables['level'][level]
                     grid = grid + 8.7e-4*ih*fact
+
+        if velogrid:
+            if not self.isvelogrid:
+                g_inter = 0.25*(grid[:-1,:-1]+grid[1:,1:]+grid[:-1,1:]+grid[1:,:-1])
+                grid = g_inter
         return grid
 
     def spline(self,pos,time,level=0):
@@ -444,24 +459,29 @@ class CFvariable(object):
         row.init(self.xdim[:],r)
         return row.eval(pos[0])
 
-    def getGMTgrid(self,time,level=0):
+    def getGMTgrid(self,time,level=0,velogrid=False):
         """Get a GMT grid.
 
         time: time slice
-        level: horizontal slice."""
+        level: horizontal slice
+        velogrid: set to true to interpolate onto velocity grid."""
 
         grid = Grid()
         grid.zunits = self.units
         grid.remark = self.long_name
         
         # setting min/max of coords
-        grid.x_minmax = [self.xdim[0],self.xdim[-1]]
-        grid.y_minmax = [self.ydim[0],self.ydim[-1]]
+        if velogrid:
+            grid.x_minmax = [self.file.variables['x0'][0],self.file.variables['x0'][-1]]
+            grid.y_minmax = [self.file.variables['y0'][0],self.file.variables['y0'][-1]]
+        else:
+            grid.x_minmax = [self.xdim[0],self.xdim[-1]]
+            grid.y_minmax = [self.ydim[0],self.ydim[-1]]
     
         if (time >= len(self.file.variables['time'][:])):
             raise ValueError, 'ISM file does not contain time slice %d' % time
 
-        grid.data = self.get2Dfield(time,level)
+        grid.data = self.get2Dfield(time,level,velogrid=velogrid)
         
         return grid
 

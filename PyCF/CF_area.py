@@ -22,7 +22,8 @@
 
 __all__ = ['CFArea']
 
-import PyGMT,Numeric,math
+import PyGMT,Numeric,math,os
+from PyGMT import gridcommand
 from CF_loadfile import CFvariable
 from CF_colourmap import CFcolours
 from StringIO import StringIO
@@ -81,7 +82,7 @@ class CFArea(PyGMT.AreaXY):
 
         self.stamp('%s   %.2fka'%(self.file.title,self.file.time(time)))
         
-    def image(self,var,time,level=0,clip=None,mono=False):
+    def image(self,var,time,level=0,clip=None,mono=False,illuminate=None):
         """Plot a colour map.
 
         var: CFvariable
@@ -89,10 +90,11 @@ class CFArea(PyGMT.AreaXY):
         level: horizontal slice
         clip: only display data where clip>0.
         mono: convert colour to mono
+        illuminate: azimuth of light source (default None)
         """
         
         clipped = False
-        if clip in ['topg','thk','usurf'] :
+        if clip in ['topg','thk','usurf','is'] :
             cvar = CFvariable(var.cffile,clip)
             self.clip(cvar.getGMTgrid(time),0.1)
             clipped = True
@@ -100,9 +102,21 @@ class CFArea(PyGMT.AreaXY):
             args="-M"
         else:
             args=""
+
+        illu = False
+        if illuminate in ['topg','thk','usurf','is'] :
+            illu = True
+            illu_var = CFvariable(var.cffile,illuminate)
+            illu_grd = illu_var.getGMTgrid(time,velogrid=var.isvelogrid)
+            illu_arg = "=1 -G.__illu.grd -A0 -Ne0.6"
+            gridcommand('grdgradient',illu_arg,illu_grd,verbose=self.verbose)
+            args = "%s -I.__illu.grd"%args
+            
         PyGMT.AreaXY.image(self,var.getGMTgrid(time,level=level),var.colourmap.cptfile,args=args)
         if clipped:
             self.unclip()
+        if illu:
+            os.remove('.__illu.grd')
 
     def velocity_field(self,time,level=0,mins=10.):
         """Plot vectors of velocity field
@@ -113,16 +127,21 @@ class CFArea(PyGMT.AreaXY):
         """
 
         # get velocity components
-        velx = self.file.getvar('uvel')
-        vely  = self.file.getvar('vvel')
-        vel = self.file.getvar('vel')
+        if 'uvel' in self.file.file.variables and 'vvel' in self.file.file.variables:
+            velx = self.file.getvar('uvel')
+            vely  = self.file.getvar('vvel')
+            vel = self.file.getvar('vel')
+        else:
+            velx = self.file.getvar('ubas')
+            vely  = self.file.getvar('vbas')
+            vel = self.file.getvar('bvel')
 
         data = vel.get2Dfield(time,level=level)
         datax = velx.get2Dfield(time,level=level)
         datay = vely.get2Dfield(time,level=level)
 
         # calculate node spacing
-        vector_density = 0.2
+        vector_density = 0.3
         x_spacing = int(((self.ur[0]-self.ll[0])/(self.size[0]*self.file.deltax))*vector_density)+1
         y_spacing = int(((self.ur[1]-self.ll[1])/(self.size[1]*self.file.deltay))*vector_density)+1
 
@@ -146,16 +165,31 @@ class CFArea(PyGMT.AreaXY):
 
         PyGMT.AreaXY.contour(self,var.getGMTgrid(time,level=level),contours,args)
 
-    def land(self,time,grey='240'):
+    def land(self,time,grey='180',illuminate=None):
         """Plot area above sea level.
 
         time: time slice
         grey: grey value."""
 
+
+        args=""
+
         cvar = CFvariable(self.file,'topg')
-        self.clip(cvar.getGMTgrid(time),0.1)
-        self.line('-W -L -G%s'%grey,[self.ll[0],self.ur[0],self.ur[0],self.ll[0]],[self.ll[1],self.ll[1],self.ur[1],self.ur[1]])
-        self.unclip()
+        cvar_grd = cvar.getGMTgrid(time)
+        if illuminate in ['topg','thk','is'] :
+            illu_arg = "=1 -G.__illu.grd -A0 -Ne0.6"
+            gridcommand('grdgradient',illu_arg,cvar_grd,verbose=self.verbose)
+            args = "%s -I.__illu.grd"%args
+
+        # create colour map
+        cmap = open('.__grey.cpt','w')
+        cmap.write('-15000 255     255     255  0 255     255     255\n')
+        cmap.write('0 %s %s %s 10000  %s %s %s \n'%(grey,grey,grey,grey,grey,grey))
+        cmap.close()
+
+        
+        PyGMT.AreaXY.image(self,cvar_grd,'.__grey.cpt',args=args)
+        os.remove('.__grey.cpt')
 
     def profile(self,args='-W1/0/0/0'):
         """Plot profile if present in file.
@@ -186,7 +220,7 @@ if __name__ == '__main__':
     parser.region()
     parser.plot()
     opts = CFOptions(parser,2)
-    if parser.profile!=None:
+    if opts.options.profname!=None:
         infile = opts.cfprofile()
     else:
         infile = opts.cffile()
@@ -195,8 +229,8 @@ if __name__ == '__main__':
     plot = opts.plot()
     area = CFArea(plot,infile)
     if opts.options.land:
-        area.land(ts)
-    area.image(var,ts,clip = opts.options.clip)
+        area.land(ts,illuminate=opts.options.illuminate)
+    area.image(var,ts,clip = opts.options.clip,illuminate=opts.options.illuminate)
     area.coastline()
     if parser.profile!=None:
         area.profile(args='-W5/0/0/0')

@@ -1,3 +1,12 @@
+2005-03-23 Magnus Hagdorn
+ * create_topo.py: fixed bug where the velo grid has the wrong origin
+ * CF_loadfile.py: add option to interpolate onto velocity grid
+ * CF_area.py: add option to illuminate images to give impression of a 3D surface,
+   we also use basal velo fields for vector plots, add illumination to land option,
+   fix profile plotting bug
+ * CF_options.py: add illumination option, rename spot option to --ij
+ * plotCFvar.py: hook up illumination
+
 2005-03-12 Magnus Hagdorn
  * setup.py: bump version to 0.2
  * CF_createfile.py: fix minor bug

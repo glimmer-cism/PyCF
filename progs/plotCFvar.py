@@ -100,8 +100,8 @@ if numplots > 1:
         y = int((i-p*(numx*numy))/numx)
         area = PyCF.CFArea(bigarea,infile,pos=[x*sizex,opts.papersize[1]-(y+1)*sizey],size=sizex-deltax)
         if opts.options.land:
-            area.land(time)
-        area.image(var,time,clip = opts.options.clip,level=level,mono=opts.options.mono)
+            area.land(time,illuminate=opts.options.illuminate)
+        area.image(var,time,clip = opts.options.clip,level=level,mono=opts.options.mono,illuminate=opts.options.illuminate)
         area.coastline()
         try:
             thk = infile.getvar('thk')
@@ -117,10 +117,11 @@ else:
     plot = opts.plot()
     area = PyCF.CFArea(plot,infile,pos=[0.,3.],size=sizex-deltax)
     if opts.options.land:
-        area.land(time)
-    area.image(var,time,clip = opts.options.clip,level=level,mono=opts.options.mono)
-    if var.name=="vel":
+        area.land(time,illuminate=opts.options.illuminate)
+    area.image(var,time,clip = opts.options.clip,level=level,mono=opts.options.mono,illuminate=opts.options.illuminate)
+    if var.name in ["vel","bvel"]: 
         area.velocity_field(time,level=level)
+    
     area.coastline()
     try:
         thk = infile.getvar('thk')
