@@ -1,3 +1,8 @@
+2004-11-01 Magnus Hagdorn
+ * CF_options.py: added number of input files
+ * CF_profilearea.py: added text stamp to profile area
+ * plot3DProfiles.py: new prog for plotting profiles from different files above each other
+
 2004-10-22 Magnus Hagdorn
  * CF_area.py: plot profile line if requested
  * CF_colourmap.py: revert min/max finding algorithm

@@ -39,6 +39,7 @@ class CFProfileArea(PyGMT.AutoXY):
         """
         
         PyGMT.AutoXY.__init__(self,parent,pos=pos,size=size)
+        self.file = profile.cffile
         self.axis='WeSn'
         self.xlabel = 'distance along profile [km]'
         if profile.is3d and level == None:
@@ -63,7 +64,34 @@ class CFProfileArea(PyGMT.AutoXY):
             if profile.name == 'is':
                 rhdata = Numeric.array(profile.cffile.getprofile('topg').getProfile(time))
                 self.line('-W1/0/0/0',profile.cffile.xvalues,rhdata)
+        self.__stamp = None
+                
+    def stamp(self,text):
+        """Print text in lower left corner."""
 
+        self.__stamp = text
+
+    def printinfo(self,time=None):
+        """Print a data name and time slice."""
+
+        if time != None:
+            self.stamp('%s   %.2fka'%(self.file.title,self.file.time(time)))
+        else:
+            self.stamp('%s'%(self.file.title))
+
+    def finalise(self,expandx=False,expandy=False):
+        """Finalise autoXY plot.
+
+        i.e. set up region and do all the actual plotting.
+        expandx, expandy: when set to True expand region to sensible value.
+        """
+
+        PyGMT.AutoXY.finalise(self,expandx=expandx,expandy=expandy)
+        
+        if self.__stamp != None:
+            self.paper.text([self.paper.size[0]-0.15,self.paper.size[1]-0.15],
+                            self.__stamp,textargs='8 0 0 RT',comargs='-W255/255/255o')
+        
 class CFProfileMArea(PyGMT.AreaXY):
     """Plot multiple profiles"""
 
