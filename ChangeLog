@@ -1,4 +1,9 @@
 2005-03-12 Magnus Hagdorn
+ * setup.py: bump version to 0.2
+ * CF_createfile.py: fix minor bug
+ * CF_loadfile.py: add method to clone a CF file
+
+2005-03-12 Magnus Hagdorn
  * CF_diff.py, plotCFdiff.py: minor improvements
 
 2005-03-09 Magnus Hagdorn

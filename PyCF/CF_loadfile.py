@@ -26,6 +26,7 @@ from PyGMT.PyGMTgrid import Grid
 from CF_proj import *
 from CF_colourmap import *
 from CF_file import *
+from CF_createfile import *
 
 temperatures = ['btemp','temp']
 
@@ -208,7 +209,33 @@ class CFloadfile(CFfile):
             return values
 
         return data.spline(xyloc,t)
-    
+
+    def clone(self,fname):
+        """Clone self.
+
+        create a new CF file with name fname and
+        copy dimensions, mapping and global metadata."""
+
+        newcf = CFcreatefile(fname)
+        # copy global attributes
+        for attrib in ['title','institution','source','references','comment','history']:
+            if hasattr(self,attrib):
+                setattr(newcf,attrib,getattr(self,attrib))
+        # create dimensions
+        for dim in self.file.dimensions.keys():
+            newcf.createDimension(dim,self.file.dimensions[dim])
+            # create dim variables
+            var = newcf.createVariable(dim)
+            if dim != 'time':
+                var[:] = self.file.variables[dim][:]
+        # copy mapping
+        if self.mapvarname in self.file.variables.keys():
+            varmap=newcf.file.createVariable(self.mapvarname,'c',())
+            copyCFMap(self.file.variables[self.mapvarname],varmap)
+
+        return newcf
+        
+              
 class CFvariable(object):
     """Handling CF variables."""
 

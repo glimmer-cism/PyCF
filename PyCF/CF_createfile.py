@@ -23,7 +23,7 @@ __all__=['CFVariableDef','CFcreatefile']
 import Numeric, Scientific.IO.NetCDF,ConfigParser,os,re,string, glob
 from CF_file import *
 
-NOATTRIB = ['name','dimensions','data','factor','load','f90file','hot','type']
+NOATTRIB = ['name','dimensions','data','factor','load','f90file','hot','type','dimlen']
 
 class CFVariableDef(dict):
     """Dictionary containing variable definitions."""
