@@ -1,4 +1,7 @@
 2004-06-18 Magnus Hagdorn
+ * override colourmaps
+
+2004-06-18 Magnus Hagdorn
  * need to also create unused dimensions
 
 2004-06-18 Magnus Hagdorn

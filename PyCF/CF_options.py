@@ -43,6 +43,7 @@ class CFOptParser(optparse.OptionParser):
         group.add_option("--size",dest="size",default="a4",help="Size of output (default a4)")
         group.add_option("--landscape",action="store_true", dest="landscape",help="select landscape mode")
         group.add_option("--width",type="float",dest="width",default=self.width, help="width of plot (default %.2f cm)"%(self.width))
+        group.add_option("--colourmap",type="string",dest="colourmap",help="name of GMT cpt file to be used (autogenerate one when set to None)")
         group.add_option("--verbose",action="store_true", dest="verbose",default=False,help="Be verbose")
         self.add_option_group(group)
 
@@ -159,7 +160,13 @@ class CFOptions(object):
 
         varn: variable number
         """
-        return CFvariable(cffile,self.options.vars[varn])
+
+        var = CFvariable(cffile,self.options.vars[varn])
+        if self.options.colourmap == 'None':
+            var.colourmap = '.__auto.cpt'
+        elif self.options.colourmap != None:
+            var.colourmap = self.options.colourmap
+        return var
 
     def times(self,cffile,timen=0):
         """Get time slice.
