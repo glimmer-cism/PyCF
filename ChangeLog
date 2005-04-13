@@ -1,3 +1,6 @@
+2005-04-13 Magnus Hagdorn
+ * plotCFvar.py: added switch to plot velo glyphs
+
 2005-04-01 Magnus Hagdorn
  * CF_createfile.py: added 'VARSET' to list of non-variables for test.nc file
 

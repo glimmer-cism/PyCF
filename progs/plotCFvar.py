@@ -25,6 +25,7 @@ import PyGMT,PyCF,sys
 # creating option parser
 parser = PyCF.CFOptParser()
 parser.variable()
+parser.add_option("-g","--glyph",metavar='VAR',type="choice",dest='glyph',choices=['vel','vel_avg','bvel'],help="Add velocity glyphs to plot, VAR can be one of [vel,vel_avg,bvel]")
 parser.profile_file()
 parser.time()
 parser.region()
@@ -102,7 +103,7 @@ if numplots > 1:
         if opts.options.land:
             area.land(time,illuminate=opts.options.illuminate)
         area.image(var,time,clip = opts.options.clip,level=level,mono=opts.options.mono,illuminate=opts.options.illuminate)
-        if var.name in ["vel","bvel"]: 
+        if opts.options.glyph!=None or var.name in ["vel","bvel","vel_avg"]: 
             area.velocity_field(time,level=level)
         area.coastline()
         try:
@@ -121,7 +122,7 @@ else:
     if opts.options.land:
         area.land(time,illuminate=opts.options.illuminate)
     area.image(var,time,clip = opts.options.clip,level=level,mono=opts.options.mono,illuminate=opts.options.illuminate)
-    if var.name in ["vel","bvel"]: 
+    if opts.options.glyph!=None or var.name in ["vel","bvel","vel_avg"]: 
         area.velocity_field(time,level=level)
     
     area.coastline()
