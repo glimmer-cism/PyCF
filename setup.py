@@ -57,7 +57,7 @@ data_files = [('share/PyCF/',['data/ice.cpt',
                       'progs/plotEISMINT2stats.py'])]
 
 setup (name = "PyCF",
-       version = "0.2",
+       version = "0.3",
        description = "Python modules for CF",
        author = "Magnus Hagdorn",
        author_email = "Magnus.Hagdorn@ed.ac.uk",

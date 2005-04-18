@@ -44,8 +44,7 @@ class CFArea(PyGMT.AreaXY):
         self.file = cffile
         if cffile.projection == 'lin':
             self.geo = PyGMT.AreaXY(parent,pos=pos,size=[size,cffile.aspect_ratio*size])
-            self.geo.setregion([cffile.ll_geo[0]/cffile.deltax,cffile.ll_geo[1]/cffile.deltay],
-                               [cffile.ur_geo[0]/cffile.deltax,cffile.ur_geo[1]/cffile.deltay])
+            self.geo.setregion([cffile.ll_geo[0]/10000.,cffile.ll_geo[1]/10000.], [cffile.ur_geo[0]/10000.,cffile.ur_geo[1]/10000.])
         else:
             self.geo = PyGMT.AreaGEO(parent,cffile.projection.getGMTprojection(mapwidth=size).upper(), pos=pos, size=size)
             self.geo.setregion(cffile.ll_geo, cffile.ur_geo)

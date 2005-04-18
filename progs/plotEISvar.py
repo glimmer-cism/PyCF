@@ -72,7 +72,12 @@ sizex = opts.options.width+deltax
 sizey = infile.aspect_ratio*opts.options.width+deltay
 
 plot=None
-var  = opts.vars(infile)
+try:
+    var  = opts.vars(infile)
+    field_plot = True
+except:
+    field_plot = False
+    var = infile.getvar('thk')
 if opts.options.times == None:
     times = range(0,len(infile.file.variables['time'][:]))
 else:
@@ -93,10 +98,11 @@ for time in times:
     area = PyCF.CFArea(bigarea,infile,pos=[0,starty],size=sizex-deltax)
     if opts.options.land:
         area.land(time)
-    area.image(var,time,clip = opts.options.clip)
-    area.coastline()
-    area.coordsystem()
-    area.printinfo(time)
+    if field_plot:
+        area.image(var,time,clip = opts.options.clip)
+        area.coastline()
+        area.coordsystem()
+        area.printinfo(time)
 
     if starty>0.:            
         area = PyCF.CFEISforcing(bigarea,pos=[.5,0.],size=force)

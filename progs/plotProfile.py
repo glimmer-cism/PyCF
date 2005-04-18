@@ -48,7 +48,7 @@ if dokey:
     key.num = [2,4]
     key.plot_line(infile.title,'1/%s'%PyCF.CFcolours[0])
 
-area = PyCF.CFProfileMArea(bigarea,pos=[0,3.5],size=[opts.options.width,opts.options.width/5.])
+area = PyCF.CFProfileMArea(bigarea,pos=[1.,3.5],size=[opts.options.width,opts.options.width/5.])
 varea = []
 for i in range(0,opts.nvars):
     profile = opts.profs(infile,i)
