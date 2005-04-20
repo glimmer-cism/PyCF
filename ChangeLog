@@ -1,3 +1,6 @@
+2005-04-20 Magnus Hagdorn
+ * added simple prog for plotting ice extent
+
 2005-04-18 Magnus Hagdorn
  * setup.py: bump version to 0.3
  * CF_area.py: change scaling of linear projections to 10km

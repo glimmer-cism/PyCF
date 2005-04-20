@@ -54,6 +54,7 @@ data_files = [('share/PyCF/',['data/ice.cpt',
 		      'progs/extractTS.py',
                       'progs/plotStreams.py',
                       'progs/plotCFdiff.py',
+                      'progs/plot_extent.py',
                       'progs/plotEISMINT2stats.py'])]
 
 setup (name = "PyCF",
