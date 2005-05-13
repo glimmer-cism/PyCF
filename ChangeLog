@@ -1,3 +1,10 @@
+2005-05-13 Magnus Hagdorn
+ * surf_temp.cpt: new colour map for air temperatures
+ * CF_colourmap.py: added surf_temp.cpt to list of known colour maps
+ * setup.py: install surf_temp.cpt:
+ * plot_extent.py: add profiles
+ * plotProfileTS.py: plot legend
+
 2005-04-20 Magnus Hagdorn
  * added simple prog for plotting ice extent
 

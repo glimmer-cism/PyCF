@@ -52,20 +52,22 @@ plot.defaults['ANOT_FONT_SIZE']='10p'
 
 bigarea = PyGMT.AreaXY(plot,size=opts.papersize)
 
+offset = 2.
+
 if opts.options.profvar != None:
-    areats = PyGMT.AreaXY(bigarea,size=[opts.papersize[0],opts.papersize[1]-2*SIZE_Y],pos=[0.,SIZE_Y])
+    areats = PyGMT.AreaXY(bigarea,size=[opts.papersize[0],opts.papersize[1]-2*SIZE_Y],pos=[0.,offset+SIZE_Y])
     areats.axis='Wesn'
 
     profile = infile.getprofile(opts.options.profvar)
-    area1 = PyCF.CFProfileArea(bigarea,profile,t0,size=[opts.papersize[0],SIZE_Y-.5])
+    area1 = PyCF.CFProfileArea(bigarea,profile,t0,size=[opts.papersize[0],SIZE_Y-.5],pos=[0.,offset])
     area1.finalise()
     area1.coordsystem()
-    area2 = PyCF.CFProfileArea(bigarea,profile,t1,pos=[0.,opts.papersize[1]-SIZE_Y+0.5],size=[opts.papersize[0],SIZE_Y-0.5])
+    area2 = PyCF.CFProfileArea(bigarea,profile,t1,pos=[0.,offset+opts.papersize[1]-SIZE_Y+0.5],size=[opts.papersize[0],SIZE_Y-0.5])
     area2.axis='Wesn'
     area2.finalise()
     area2.coordsystem()
 else:
-    areats = PyGMT.AreaXY(bigarea,size=opts.papersize)
+    areats = PyGMT.AreaXY(bigarea,size=opts.papersize,pos=[0.,offset])
     areats.axis='WeSn'
     areats.xlabel = 'distance along profile'
 
@@ -74,8 +76,6 @@ areats.ylabel = 'time'
 
 profile = opts.profs(infile)
 data = profile.getProfileTS(time=[t0,t1],level=level)
-
-
 
 clipped = False
 clip = opts.options.clip
@@ -95,4 +95,8 @@ areats.contour(cdata,[0.1],'-W1/0/0/0')
 
 areats.coordsystem()
 
+if opts.options.dolegend:
+    PyGMT.colourkey(areats,profile.colourmap.cptfile,title=profile.long_name,pos=[(opts.papersize[0]-10.)/2.,-2.8])
+
 plot.close()
+

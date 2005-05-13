@@ -42,7 +42,10 @@ if count > 1:
     sys.stderr.write('Error, can only have either more than one time slice or more than one variable or more than one file!\n')
     sys.exit(1)
 
-infile = opts.cffile()
+if opts.options.profname!=None:
+    infile = opts.cfprofile()
+else:
+    infile = opts.cffile()
 time = opts.times(infile)
 
 # get number of plots
@@ -66,7 +69,7 @@ for i in range(0,opts.nfiles):
     time = opts.times(infile)
     thk = infile.getvar('thk')
     area.contour(thk,[0.1],'-W2/%s'%PyCF.CFcolours[i],time)
-if parser.profile!=None:
+if opts.options.profname!=None:
     area.profile(args='-W5/0/0/0')
 area.coordsystem()
 

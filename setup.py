@@ -33,6 +33,7 @@ ext_modules = [
 data_files = [('share/PyCF/',['data/ice.cpt',
                               'data/mb.cpt',
                               'data/temp.cpt',
+                              'data/surf_temp.cpt',
                               'data/topo.cpt',
                               'data/velo.cpt',
                               'data/eismint2.data']),
