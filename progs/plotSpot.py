@@ -80,6 +80,7 @@ for f in range(0,opts.nfiles):
         time = None
 
     i = 0
+    colour=0
     for ij in opts.options.ij:
         if mspots and mfiles:
             area = marea[i]

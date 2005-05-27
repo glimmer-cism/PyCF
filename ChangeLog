@@ -1,3 +1,10 @@
+2005-05-27 Magnus Hagdorn
+ * CF_loadfile.py: add virtual variable pmp -- pressure melting point of ice
+ * CF_profile.py: add switch to show pmp when plotting temps
+ * CF_options.py: ditto
+ * CF_profilearea.py: optionally plot pmp when plotting temps
+ * plotSpot.py: minor bug fix
+
 2005-05-13 Magnus Hagdorn
  * surf_temp.cpt: new colour map for air temperatures
  * CF_colourmap.py: added surf_temp.cpt to list of known colour maps

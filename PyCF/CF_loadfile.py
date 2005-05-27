@@ -256,6 +256,9 @@ class CFvariable(object):
         if self.name=='is':
             if 'topg' not in self.file.variables.keys() or 'thk' not in self.file.variables.keys():
                 raise KeyError, 'Variable not in file'
+        elif self.name=='pmp':
+            if 'thk' not in self.file.variables.keys():
+                raise KeyError, 'Variable not in file'
         elif self.name=='vel':
             if 'uvel' not in self.file.variables.keys() or 'vvel' not in self.file.variables.keys():
                 raise KeyError, 'Variable not in file'
@@ -272,6 +275,8 @@ class CFvariable(object):
         try:
             if self.name == 'is':
                 return self.file.variables['topg'].units
+            elif self.name == 'pmp':
+                return 'degree_Celsius'
             elif self.name == 'vel':
                 return self.file.variables['uvel'].units
             elif self.name == 'bvel':
@@ -288,6 +293,8 @@ class CFvariable(object):
                 name = 'homologous %s'%self.file.variables[self.name].long_name
             elif self.name == 'is':
                 name =  'ice surface elevation'
+            elif self.name == 'pmp':
+                name = 'pressure melting point of ice'
             elif self.name == 'vel':
                 name = 'horizontal velocity'
             elif self.name == 'bvel':
@@ -311,6 +318,8 @@ class CFvariable(object):
     def __get_xdimension(self):
         if self.name=='is':
             return self.file.variables['topg'].dimensions[-1]
+        elif self.name == 'pmp':
+            return self.file.variables['thk'].dimensions[-1]
         elif self.name == 'vel':
             return self.file.variables['uvel'].dimensions[-1]
         elif self.name == 'bvel':
@@ -326,6 +335,8 @@ class CFvariable(object):
     def __get_ydim(self):
         if self.name=='is':
             return self.file.variables[self.file.variables['topg'].dimensions[-2]]
+        elif self.name == 'pmp':
+            return self.file.variables[self.file.variables['thk'].dimensions[-2]]
         elif self.name == 'vel':
             return self.file.variables[self.file.variables['uvel'].dimensions[-2]]
         elif self.name == 'bvel':
@@ -336,7 +347,7 @@ class CFvariable(object):
 
     def __is3d(self):
         is3d = False
-        if self.name != 'is' and self.name != 'bvel':
+        if self.name not in ['is', 'bvel', 'pmp']:
             if self.name == 'vel':
                 is3d = True
             elif 'level' in self.file.variables[self.name].dimensions :
@@ -353,6 +364,9 @@ class CFvariable(object):
     def __get_var(self):
         if self.name=='is':
             return self.file.variables['topg'][:,:,:]+self.file.variables['thk'][:,:,:]
+        elif self.name == 'pmp':
+            ih = Numeric.transpose(self.file.variables['thk'][time,:,:])
+            return calc_pmp(ih)
         elif self.name == 'vel':
             return Numeric.sqrt(self.file.variables['uvel'][:,:,:,:]*self.file.variables['uvel'][:,:,:,:] +
                                 self.file.variables['vvel'][:,:,:,:]*self.file.variables['vvel'][:,:,:,:])
@@ -409,6 +423,9 @@ class CFvariable(object):
         else:
             if self.name == 'is':
                 grid = Numeric.transpose(self.file.variables['topg'][time,:,:] + self.file.variables['thk'][time,:,:])
+            elif self.name == 'pmp':
+                ih = Numeric.transpose(self.file.variables['thk'][time,:,:])
+                grid = Numeric.transpose(calc_pmp(ih))
             elif self.name == 'bvel':
                 grid = Numeric.transpose(Numeric.sqrt(
                     self.file.variables['ubas'][time,:,:]*self.file.variables['ubas'][time,:,:]+
@@ -432,7 +449,7 @@ class CFvariable(object):
                         fact = 1.
                     else:
                         fact = self.file.variables['level'][level]
-                    grid = grid + 8.7e-4*ih*fact
+                    grid = grid - calc_pmp(ih,fact)
 
         if velogrid:
             if not self.isvelogrid:
@@ -520,3 +537,10 @@ class CFvariable(object):
 
         return self.get2Dfield(t,l)[node[0],node[1]]
         
+def calc_pmp(ice_thickness, sigma = 1.):
+    """Calculate pressure melting point of ice.
+
+    ice_thickness: thickness of ice
+    sigma: sigma level at which to calculate pmp"""
+
+    return -8.7e-4*ice_thickness*sigma

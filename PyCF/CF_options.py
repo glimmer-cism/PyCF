@@ -113,6 +113,7 @@ class CFOptParser(optparse.OptionParser):
         if vars:
             self.__var()
         self.profile_file()
+        self.add_option("--showpmp",action="store_true", dest="showpmp",default=False,help='Indicate pressure melting point of ice (only used for temperatures)')
         try:
             self.add_option("--colourmap",type="string",dest="colourmap",help="name of GMT cpt file to be used (autogenerate one when set to None)")
         except:
@@ -281,6 +282,10 @@ class CFOptions(object):
 
         prof = cffile.getprofile(self.options.vars[varn])
         prof.pmt = self.options.pmt
+        try:
+            prof.showpmp = self.options.showpmp
+        except:
+            pass
         try:
             if self.options.colourmap == 'None':
                 prof.colourmap = '.__auto.cpt'

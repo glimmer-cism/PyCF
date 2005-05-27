@@ -41,7 +41,7 @@ class CFloadprofile(CFloadfile):
         """
         
         CFloadfile.__init__(self,fname)
-
+        
         # caching profiles
         self.__profiles = {}
         
@@ -145,6 +145,7 @@ class CFprofile(CFvariable):
             raise ValueError, 'Not a profile file'
 
         CFvariable.__init__(self,cfprofile,var)
+        self.showpmp = False
 
         #cache profile data
         self.__data = {}

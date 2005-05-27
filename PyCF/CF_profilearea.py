@@ -74,6 +74,10 @@ class CFProfileArea(PyGMT.AutoXY):
             if profile.name == 'is':
                 rhdata = Numeric.array(profile.cffile.getprofile('topg').getProfile(time))
                 self.line('-W%s'%pen,profile.cffile.xvalues,rhdata)
+            if profile.name in ['btemp','temp']:
+                if not profile.pmt and profile.showpmp:
+                    pmp = Numeric.array(profile.cffile.getprofile('pmp').getProfile(time))
+                    self.line('-W%sta'%pen,profile.cffile.xvalues,pmp)
                 
     def stamp(self,text):
         """Print text in lower left corner."""
