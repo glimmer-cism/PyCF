@@ -1,3 +1,11 @@
+2005-05-31 Magnus Hagdorn
+ * gthf.cpt: new colourmap for geothermal heat flux
+ * CF_colourmap.py: registered gthf colourmap
+ * setup.py: install colourmap
+ * MANIFEST: ditto
+ * plotProfile.py: ignore missing variables when plotting more than
+   one file
+
 2005-05-27 Magnus Hagdorn
  * CF_loadfile.py: add virtual variable pmp -- pressure melting point of ice
  * CF_profile.py: add switch to show pmp when plotting temps

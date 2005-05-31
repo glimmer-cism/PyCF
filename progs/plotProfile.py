@@ -58,7 +58,11 @@ for i in range(0,opts.nvars):
 for f in range(1,opts.nfiles):
     infile = opts.cfprofile(f)
     for i in range(0,opts.nvars):
-        profile = opts.profs(infile,i)
+        try:
+            profile = opts.profs(infile,i)
+        except:
+            print 'Warning, file %s does not contain variable %s'%(opts.args[f],opts.options.vars[i])
+            continue
         time = opts.times(infile,0)
         varea[i].plot(profile,time,level=opts.options.level,pen='1/%s'%PyCF.CFcolours[f])
     if dokey:
