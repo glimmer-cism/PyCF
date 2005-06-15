@@ -19,9 +19,9 @@
 """Handling CF grid mappings"""
 
 __all__=['DummyProj','CFProj','CFProj_aea','CFProj_lcc','getCFProj','copyCFMap',
-         'CFProj_parse_GMTproj','CFProj_printGMThelp']
+         'CFProj_parse_GMTproj','CFProj_parse_ESRIprj','CFProj_printGMThelp']
 
-import Numeric
+import Numeric, string
 from PyCF import proj
 
 class DummyProj:
@@ -215,7 +215,7 @@ def copyCFMap(orig,copy):
         copy.false_northing = orig.false_northing
     if 'straight_vertical_longitude_from_pole' in dir(orig):
         copy.straight_vertical_longitude_from_pole = orig.straight_vertical_longitude_from_pole
-    if '' in dir(orig):
+    if 'scale_factor_at_projection_origin' in dir(orig):
         copy.scale_factor_at_projection_origin = orig.scale_factor_at_projection_origin
 
 def CFProj_parse_GMTproj(projstring):
@@ -270,6 +270,155 @@ def CFProj_parse_GMTproj(projstring):
         usage()
         sys.exit(1)
     return proj
+
+def CFProj_parse_ESRIprj(pFile):
+    """Parse an ESRI projection file.
+
+    pFile: file object."""
+
+    proj = DummyProj()
+
+    pName = pFile.readline()
+    pName=pName[14:]
+  
+    pStrip = string.strip(pName)
+      
+    if pStrip == 'ALBERS':
+        proj.grid_mapping_name='albers_conical_equal_area'
+        line = pFile.readline()
+        while line != '':
+            line = pFile.readline()
+            if string.strip(line) == 'Parameters':
+                standard1=DmsParse(pFile)
+                standard2=DmsParse(pFile)
+                proj.standard_parallel = [standard1,standard2]
+                long_central=DmsParse(pFile)
+                if long_central < 0:
+                    long_central = 360+long_central
+                    proj.longitude_of_central_meridian = [long_central]
+                else:
+                    proj.longitude_of_central_meridian = [long_central]
+                lat_proj_origin=DmsParse(pFile)
+                proj.latitude_of_projection_origin = [lat_proj_origin] 
+                proj.false_easting=0
+                proj.false_northing=0
+
+  
+    elif pStrip == 'LAMBERT':
+        proj.grid_mapping_name='lambert_conformal_conic'
+        line = pFile.readline()
+        while line != '':
+            line = pFile.readline()
+            if string.strip(line) == 'Parameters':
+                standard1=DmsParse(pFile)
+                standard2=DmsParse(pFile)
+                proj.standard_parallel = [standard1,standard2]
+                long_central=DmsParse(pFile)
+                if long_central < 0:
+                    long_central = 360+long_central
+                    proj.longitude_of_central_meridian = [long_central]
+                else:
+                    proj.longitude_of_central_meridian = [long_central]
+                lat_proj_origin=DmsParse(pFile)
+                proj.latitude_of_projection_origin = [lat_proj_origin]
+                proj.false_easting=0
+                proj.false_northing=0
+                  
+    elif pStrip == 'LAMBERT_AZIMUTHAL':
+        proj.grid_mapping_name='lambert_azimuthal_equal_area'
+        line = pFile.readline()
+        while line != '':
+            line = pFile.readline()
+            if line != '':
+          	first = string.split(line)
+          	if first[0] == 'Parameters':
+                    skip = pFile.readline() #skip a line as data not required
+                    long_central=DmsParse(pFile)
+                    if long_central < 0:
+                        long_central = 360+long_central
+                        proj.longitude_of_central_meridian = [long_central]
+                    else:
+                        proj.longitude_of_central_meridian = [long_central]
+                    lat_proj_origin=DmsParse(pFile)
+                    proj.latitude_of_projection_origin = [lat_proj_origin]
+                    proj.false_easting=0
+                    proj.false_northing=0
+
+
+
+    # Due to inconsistencies between ESRI projection files and the parameters required by CFProj, the stereographic
+    # projections may produce incorrect results so CHECK them carefully!. 
+    elif pStrip == 'STEREOGRAPHIC':
+      
+        line = pFile.readline()
+        while line != '':
+            line = pFile.readline()
+            if line != '':
+                first = string.split(line)
+                if first[0] == 'Parameters':
+
+                    l = string.split(pFile.readline())
+                    ptype = l[0]
+                    if ptype == '2':
+                        flag = 0
+                        if flag == 0:
+                            long_central=ProjParser.DmsParse(pFile)
+                            lat_proj_origin=DmsParse(pFile)
+                            proj.latitude_of_projection_origin = [lat_proj_origin]
+                            pol_v_eq = string.split(pFile.readline()) # get whether a polar or equatorial view.
+                            pol_v_eq = pol_v_eq[0]
+                            proj.false_easting=0
+                            proj.false_northing=0
+                            flag = 1
+                  	
+                        if flag == 1:
+                            if pol_v_eq == 'EQUATORIAL':
+                      		proj.grid_mapping_name='stereographic' # type 2 stereographic projection with equatorial
+                      		proj.longitude_of_central_meridian = [long_central] # long of cent projection
+                      		l = string.split(pFile.readline())
+                      		scale_factor=l[0]
+                      		proj.scale_factor_at_projection_origin = [scale_factor] # scale factor
+                            else:
+                      		proj.grid_mapping_name='polar_stereographic' # type 2 stereographic projection with north or southpole
+                      		proj.straight_vertical_longitude_from_pole = [long_central] # geotiff=central meridian arc=long of cent meridian. Not sure that this is the right parameter.
+                      		#l = string.split(pFile.readline())
+                      		#lat_std_par = int(float(l[0]))
+                      		lat_std_par = DmsParse(pFile)
+                      		proj.standard_parallel = [lat_std_par] # lat of standard parallel
+                      		
+              
+                    elif ptype == '1':
+                        proj.grid_mapping_name='stereographic'
+                        line=pFile.readline()
+                        long_central=DmsParse(pFile)
+                        proj.longitude_of_central_meridian = [long_central]
+                        lat_proj_origin=DmsParse(pFile)
+                        proj.latitude_of_projection_origin = [lat_proj_origin]
+                        scale_factor=1. #defaults to 1 as Arc projection files do not include scale factors
+                        proj.scale_factor_at_projection_origin = [scale_factor]
+                        #print proj.scale_factor_at_projection_origin
+                        false_easting=string.split(string.strip(pFile.readline()))
+                        false_easting=false_easting[0]
+                        proj.false_easting=0
+                        false_northing=string.split(string.strip(pFile.readline()))
+                        false_northing=false_northing[0]
+                        proj.false_northing=0
+    
+    else:
+        print 'Projection ',pStrip,' not recognized'
+        print 'This program will only recognise albers equal area, lambert, lambert azimuthal and stereographic projections.'
+        sys.exit(1)    
+
+    return proj
+
+def DmsParse(pFile): 
+    # This parses a string from the projection file
+    l = string.split(pFile.readline())
+    deg = float(l[0])
+    minute = float(l[1])/60
+    sec = float(l[2])/3600
+    dms=(deg)+(minute)+(sec)
+    return dms
 
 def CFProj_printGMThelp():
     print '  -Jspec\n\tGMT like projection specification'

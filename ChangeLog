@@ -1,3 +1,8 @@
+2005-06-15 Stewart Jamieson
+ * CF_proj.py: fixed bug, added function to parse ESRI projection files
+ * a2c.py: new program for converting ESRI ASCII files to netCDF
+ * setup.py: install a2c.py
+
 2005-05-31 Magnus Hagdorn
  * gthf.cpt: new colourmap for geothermal heat flux
  * CF_colourmap.py: registered gthf colourmap
