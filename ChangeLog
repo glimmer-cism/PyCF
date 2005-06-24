@@ -1,3 +1,8 @@
+2005-06-24 Magnus Hagdorn
+ * CF_colourmap.py: round min/max for auto-colourscale
+ * CF_loadfile.py: add basal shear stress, cache calculated variables, fix
+   minor bug
+
 2005-06-15 Stewart Jamieson
  * CF_proj.py: fixed bug, added function to parse ESRI projection files
  * a2c.py: new program for converting ESRI ASCII files to netCDF
