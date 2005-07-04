@@ -246,6 +246,16 @@ class CFRSL(object):
         
         return cu.fetchall()
 
+    def getDataset(self,did):
+        """Get dataset info.
+
+        did: dataset id."""
+
+        cu = self.db.cursor()
+        cu.execute('SELECT * FROM dataset WHERE data_id == %i',(did))
+
+        return cu.fetchone()
+
     def getLoc(self,lid):
         """Get location info.
 

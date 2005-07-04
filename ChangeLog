@@ -1,3 +1,10 @@
+2005-07-04 Magnus Hagdorn
+ * CF_IOrsl.py: add dataset selector
+ * CF_area.py: optionally plot legend when plotting rsl locs
+ * plotRSL.py: speed up RSL plotting
+ * plotRSLloc.py: new prog for plotting locations of RSL data
+ * setup.py: hook up plotRSLloc.py
+
 2005-06-24 Magnus Hagdorn
  * CF_colourmap.py: round min/max for auto-colourscale
  * CF_loadfile.py: add basal shear stress, cache calculated variables, fix

@@ -198,14 +198,22 @@ class CFArea(PyGMT.AreaXY):
         if hasattr(self.file,'interpolated'):
             self.line(args,self.file.interpolated[0,:].tolist(),self.file.interpolated[1,:].tolist())
 
-    def rsl_locations(self,rsldb,dataset=None):
+    def rsl_locations(self,rsldb,dataset=None, legend=None):
         """Plot RSL locations.
 
         rsldb: RSL database data set
         dataset: if not None, list of dataset ids to be plotted (when None, plot all)."""
 
         rsldata = rsldb.getLocationRange(self.file.minmax_long,self.file.minmax_lat)
+        if legend != None:
+            plot_locs = []
         for loc in rsldata:
+            if legend != None:
+                if loc[1] not in plot_locs:
+                    plot_locs.append(loc[1])
+                    ds = rsldb.getDataset(loc[1])
+                    legend.plot_symbol(ds[1],CFcolours[loc[1]],'a')
+                    
             self.geo.plotsymbol([loc[3]],[loc[4]],size=0.2,symbol='a',args='-G%s'%CFcolours[loc[1]])
 
 if __name__ == '__main__':

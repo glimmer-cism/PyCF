@@ -56,29 +56,33 @@ plot_sites = PyCF.CFRSLlocs[opts.options.rsl_selection]
 loc = [[7.5,17.5], [12,17], [12.5,13.5], [12.5,10.2], [11,7], [6,7], [1.5,8], [0,12], [1,15], [2.5,18]]
 con = [[7.5,17.5], [12,17], [12.5,13.5], [12.5,10.2], [11,7+ysize], [6,7+ysize], [1.5,8+ysize], [0+xsize,12], [1+xsize,15], [2.5+xsize,18]]
 
-# setup RSL plots
-rslareas = []
-for i in range(0,len(plot_sites)):
-    rslareas.append(PyCF.CFRSLArea(bigarea,rsl,plot_sites[i],pos=loc[i],size=[xsize,ysize]))
-
-# plot RSL curves
+# open netCDF files
+cffile = []
 for fnum in range(0,len(opts.args)-1):
-    cffile = opts.cffile(fnum)
-    key.plot_line(cffile.title,'1/%s'%PyCF.CFcolours[fnum])
-    for i in range(0,len(plot_sites)):
-        try:
-            rslareas[i].rsl_line(cffile,pen='-W1/%s'%PyCF.CFcolours[fnum])
-        except:
-            print cffile.title,plot_sites[i]
+    cffile.append(opts.cffile(fnum))
 
-# finish plots
+# setup RSL plots
 for i in range(0,len(plot_sites)):
-    rslareas[i].finalise(expandy=True)
-    rslareas[i].coordsystem()
-    rslareas[i].printinfo()
+    rslareas = PyCF.CFRSLArea(bigarea,rsl,plot_sites[i],pos=loc[i],size=[xsize,ysize])
+    
+    # plot RSL curves
+    for fnum in range(0,len(opts.args)-1):
+        try:
+            rslareas.rsl_line(cffile[fnum],pen='-W1/%s'%PyCF.CFcolours[fnum])
+        except:
+            print cffile[fnum].title,plot_sites[i]
+
+    # finish plots
+    rslareas.finalise(expandy=True)
+    rslareas.coordsystem()
+    rslareas.printinfo()
     # connect plots
     rloc = rsl.getLoc(plot_sites[i])
     rloc =  mapa.geo.project([rloc[3]],[rloc[4]])
     bigarea.line('-W',[con[i][0],rloc[0][0]+4.],[con[i][1],rloc[1][0]+10.])
+
+# plot RSL curves
+for fnum in range(0,len(opts.args)-1):
+    key.plot_line(cffile[fnum].title,'1/%s'%PyCF.CFcolours[fnum])
     
 plot.close()
