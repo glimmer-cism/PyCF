@@ -20,8 +20,8 @@
 
 __all__=['CFloadfile','CFvariable','CFchecklist']
 
-import Numeric, Scientific.IO.NetCDF,os
-from pygsl import spline
+import Numeric, PyGMT, Scientific.IO.NetCDF,os
+from pygsl import spline, histogram
 from PyGMT.PyGMTgrid import Grid
 from CF_proj import *
 from CF_colourmap import *
@@ -64,6 +64,8 @@ class CFloadfile(CFfile):
         self.reset_bb()
         # initialising variable dictionary
         self.__vars = {}
+        # RSL residuals
+        self.__rslres = {}
 
     def time(self,t):
         """Return selected time value."""
@@ -71,7 +73,7 @@ class CFloadfile(CFfile):
         (isar,sel) = CFchecklist(t,self.file.variables['time'])
 
         if isar:
-            return self.file.variables['time'][sel[0]:sel[1]]*self.timescale
+            return self.file.variables['time'][sel[0]:sel[1]+1]*self.timescale
         else:
             return self.file.variables['time'][sel]*self.timescale
 
@@ -210,6 +212,73 @@ class CFloadfile(CFfile):
 
         return data.spline(xyloc,t)
 
+    def getRSLresiduals(self,rsldb):
+        """Get RSL residuals.
+
+        rsldb: RSL data base"""
+
+        hnx = 50
+        hny = 50
+        
+        # get times
+        t = [self.timeslice(rsldb.mint*self.timescale,'d'),self.timeslice(0.)]
+        times = self.time(t)
+        
+        # loop over locations
+        res_times = []
+        residuals = []
+        for loc in rsldb.getLocationRange(self.minmax_long,self.minmax_lat):
+            try:
+                res = self.get_rslres(rsldb,loc[0])
+            except:
+                continue
+            for i in range(0,len(res[0])):
+                res_times.append(res[0][i])
+                residuals.append(res[1][i])
+        # create histogram
+        hist = histogram.histogram2d(hnx,hny)
+        hist.set_ranges_uniform(times[0],times[-1],PyGMT.round_down(min(residuals)),PyGMT.round_up(max(residuals)))
+        for i in range(0,len(residuals)):
+            hist.increment(res_times[i],residuals[i])
+        # turn into a grid
+        grid = PyGMT.Grid()
+        grid.x_minmax = [times[0],times[-1]]
+        grid.y_minmax = [PyGMT.round_down(min(residuals)),PyGMT.round_up(max(residuals))]
+        grid.data=Numeric.zeros([hnx,hny],Numeric.Float32)
+        for j in range(0,hny):
+            for i in range(0,hnx):
+                grid.data[i,j] = hist[i,j]
+        return grid
+
+    def get_rslres(self,rsldb,lid):
+        """Get RSL residual.
+
+        rsldb: RSL database
+        lid: location id."""
+
+        # check if residuals are cached
+        if lid not in self.__rslres:
+            # get coordinates
+            cu = rsldb.db.cursor()
+            cu.execute('SELECT longitude,latitude FROM location WHERE location_id == %i',(lid))
+            loc = cu.fetchone()
+
+            # get data
+            times = []
+            obs = []
+            cu.execute('SELECT time,rsl FROM measurement WHERE location_id == %i',(lid))
+            for o in cu.fetchall():
+                times.append(o[0]*self.timescale)
+                obs.append(o[1])
+            ti = [self.timeslice(min(times)-2.,'d'), self.timeslice(max(times),'u')]
+            ts = spline.cspline(ti[1]-ti[0]+1)
+            ts.init(self.time(ti),self.getRSL(list(loc),ti))
+            residuals = []
+            for i in range(0,len(times)):
+                residuals.append(obs[i]-ts.eval(times[i]))
+            self.__rslres[lid] = (times,residuals)
+        return self.__rslres[lid]
+
     def clone(self,fname):
         """Clone self.
 
@@ -234,7 +303,6 @@ class CFloadfile(CFfile):
             copyCFMap(self.file.variables[self.mapvarname],varmap)
 
         return newcf
-        
               
 class CFvariable(object):
     """Handling CF variables."""

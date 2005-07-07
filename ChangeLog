@@ -1,3 +1,12 @@
+2005-07-07 Magnus Hagdorn
+ * CF_IOrsl.py: add methods to return min and max time
+ * CF_file.py: fix small bug
+ * CF_loadfile.py: fix bug in time method, add methods to get RSL residuals
+   and 2D histogram of RSL residuals
+ * CF_rsl.py: new class for plotting temporal histogram of RSL residuals
+ * plotRSLhist.py: new program for plotting RSL histograms
+ * setup.py: hook up plotRSLhist.py
+
 2005-07-04 Magnus Hagdorn
  * CF_IOrsl.py: add dataset selector
  * CF_area.py: optionally plot legend when plotting rsl locs

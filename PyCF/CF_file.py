@@ -156,7 +156,7 @@ class CFfile(object):
     # get projection info
     def __get_projection(self):
         if self.__projection == None:
-            if self.mapvarname is not None:
+            if self.mapvarname != None:
                 try:
                     self.__projection = getCFProj(self.file.variables[self.mapvarname])
                 except:

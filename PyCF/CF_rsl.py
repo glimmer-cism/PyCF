@@ -20,7 +20,7 @@
 
 """Plotting RSL data."""
 
-__all__ = ['CFRSLArea','CFRSLlocs']
+__all__ = ['CFRSLArea','CFRSLlocs','CFRSLAreaHistT']
 
 import PyGMT,Numeric
 from CF_IOrsl import *
@@ -83,6 +83,128 @@ class CFRSLArea(PyGMT.AutoXY):
         loc = self.rsl.getLoc(self.lid)
         infoarea = PyGMT.AreaXY(self,pos=[0.,self.size[1]],size=[self.size[0],0.5])
         infoarea.text([self.size[0]/2.,0.25],loc[2],textargs='8 0 0 CM')
+
+class CFRSLAreaHistT(PyGMT.AreaXY):
+    """Plot 2D histogram of RSL time-residuals."""
+
+    def __init__(self,parent,rsldata,pos=[0.,0.],size=[15.,10.]):
+        """Initialise.
+
+        parent: can be either a Canvas or another Area.
+        rsldata: rsl residual histogram data
+        pos: position of area relative to the parent
+        size: size of GMT area
+        """
+
+        PyGMT.AreaXY.__init__(self,parent,pos=pos,size=size)
+        self.__rsldata = rsldata
+        self.__cmap = None
+
+        self.__plot_2dhist = True
+        self.__plot_1dhist = True
+        self.__plot_key = True
+        self.defaults['LABEL_FONT_SIZE']='12p'
+        self.defaults['ANOT_FONT_SIZE']='10p'
+
+    def __get_2dhist(self):
+        return self.__plot_2dhist
+    def __set_2dhist(self,value):
+        self.__plot_2dhist = bool(value)
+        self.__plot_key = self.__plot_2dhist
+    plot_2dhist = property(__get_2dhist,__set_2dhist)
+
+    def __get_1dhist(self):
+        return self.__plot_1dhist
+    def __set_1dhist(self,value):
+        self.__plot_1dhist = bool(value)
+    plot_1dhist = property(__get_1dhist,__set_1dhist)
+    
+    def __get_key(self):
+        if self.__plot_2dhist:
+            return self.__plot_key
+        else:
+            return False
+    def __set_key(self,value):
+        self.__plot_key = bool(value)
+    plot_key = property(__get_key,__set_key)
+
+    def setcolourmap(self,vmin=None,vmax=None):
+        """Set colourmap for residual plot.
+
+        vmin: minimum value
+        vmax: maximum value"""
+
+        if vmin==None:
+            v0 = 1
+        else:
+            v0 = vmin
+        if vmax==None:
+            v1 = max(Numeric.ravel((self.__rsldata.data)))
+        else:
+            v1 = vmax
+
+        self.__cmap = '.__auto.cpt'
+        PyGMT.command('makecpt','-Ccool -T%f/%f/%f -Z > %s'%(v0,v1,(v1-v0),self.__cmap))
+        cpt = open(self.__cmap,'a')
+        cpt.write('B       255     255     255\n')
+        cpt.close()
+            
+    def plot(self):
+        """Plot RSL histogram."""
+
+        if self.__cmap==None:
+            self.setcolourmap()
+
+        self.area2d = None
+        self.area1d = None
+
+        y = 0.
+        if self.plot_key:
+            PyGMT.colourkey(self,self.__cmap,pos=[self.size[0]/8.,0.],size=[3.*self.size[0]/4.,.5])
+            y = 2.
+
+        if self.plot_2dhist and self.__plot_1dhist:
+            self.area2d = PyGMT.AutoXY(self,pos=[0.,y],size=[3.*self.size[0]/4.,self.size[1]-y])
+            self.area1d = PyGMT.AutoXY(self,pos=[3.*self.size[0]/4.,y],size=[self.size[0]/4.,self.size[1]-y])
+        else:
+            if self.plot_2dhist:
+                self.area2d = PyGMT.AutoXY(self,pos=[0.,y],size=[self.size[0],self.size[1]-y])
+            if self.plot_1dhist:
+                self.area1d = PyGMT.AutoXY(self,pos=[0.,y],size=[self.size[0],self.size[1]-y])
+
+        if self.plot_2dhist:
+            self.area2d.axis='WSen'
+            self.area2d.xlabel = 'time [ka]'
+            self.area2d.ylabel = 'residuals [m]'
+            self.area2d.image(self.__rsldata,'.__auto.cpt')
+
+        if self.plot_1dhist:
+            counts = Numeric.sum(self.__rsldata.data,0)
+            dx = (self.__rsldata.y_minmax[1]-self.__rsldata.y_minmax[0])/(len(counts)-1)
+            bins = Numeric.arange(self.__rsldata.y_minmax[0],self.__rsldata.y_minmax[1]+dx,dx)
+
+            if self.plot_2dhist:
+                self.area1d.steps('-W1',counts,bins)
+                self.area1d.ur[0] = PyGMT.round_up(self.area1d.ur[0])
+                self.area1d.xlabel = 'count'
+                self.area1d.axis='wSen'
+            else:
+                self.area1d.steps('-W1',bins,counts)
+                self.area1d.ur[1] = PyGMT.round_up(self.area1d.ur[1])
+                self.area1d.xlabel = 'residuals [m]'
+                self.area1d.ylabel = 'count'
+                self.area1d.axis='WSen'
+
+    def finalise(self):
+        """Finalise plots."""
+
+        if self.plot_1dhist:
+            self.area1d.finalise()
+            self.area1d.coordsystem()
+        if self.plot_2dhist:
+            self.area2d.finalise()
+            self.area2d.coordsystem()
+
 
 if __name__ == '__main__':
     from CF_options import *

@@ -100,6 +100,9 @@ class CFRSL(object):
                 cu.execute(table)
             self.db.commit()
 
+        self.__mint = None
+        self.__maxt = None
+
     def addAuthor(self,name,firstname,address):
         """Add an author.
 
@@ -274,12 +277,35 @@ class CFRSL(object):
         cu = self.db.cursor()
         cu.execute('SELECT * FROM measurement WHERE location_id == %i',(lid))
 
-        return cu.fetchall()        
+        return cu.fetchall()
 
     def close(self):
         """Closing database."""
 
         self.db.close()
+
+    def __LoadRSLminmaxT(self):
+        """Find smallest and largest time observation."""
+
+        if self.__mint == None or self.__maxt == None:
+            cu = self.db.cursor()
+            cu.execute('SELECT MIN(time), MAX(time) FROM measurement')
+            tmp = cu.fetchall()
+            self.__mint = tmp[0][0]
+            self.__maxt = tmp[0][1]
+            
+    def __getRSLminT(self):
+        """Get smallest time."""
+
+        self.__LoadRSLminmaxT()
+        return self.__mint
+    mint = property(__getRSLminT)
+    def __getRSLmaxT(self):
+        """Get largest time."""
+
+        self.__LoadRSLminmaxT()
+        return self.__maxt
+    maxt = property(__getRSLmaxT)    
     
 # some private routines
 def rsl_options():
