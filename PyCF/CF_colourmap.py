@@ -63,6 +63,7 @@ class CFcolourmap(object):
                  'vel'  : 'velo.cpt',
                  'bvel'  : 'velo.cpt',
                  'bheatflx': 'gthf.cpt',
+                 'litho_temp' : 'litho_temp.cpt',
                  'temp' : 'temp.cpt'}
 
     def __init__(self,var,filename=None):

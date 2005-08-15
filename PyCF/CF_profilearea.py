@@ -52,7 +52,12 @@ class CFProfileArea(PyGMT.AutoXY):
         time: time slice
         level: level to be processed"""
         
-        if profile.is3d and level == None and not profile.average:
+        if profile.name == 'litho_temp':
+            self.ylabel = 'depth [m]'
+            
+            data = profile.getProfile2D_litho(time)
+            self.image(data,profile.colourmap.cptfile)
+        elif profile.is3d and level == None and not profile.average:
             self.ylabel = 'elevation [m]'
 
             data = profile.getProfile2D(time)

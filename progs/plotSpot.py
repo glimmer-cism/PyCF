@@ -26,6 +26,7 @@ import PyGMT,PyCF,sys
 parser = PyCF.CFOptParser()
 parser.spot()
 parser.time()
+parser.region1d()
 parser.plot()
 opts = PyCF.CFOptions(parser,-2)
 
@@ -70,7 +71,7 @@ for f in range(0,opts.nfiles):
         elif len(opts.options.level) == 1:
             dolevels = False
             level = opts.options.level[0]
-    if 'level' not in var.var.dimensions:
+    if 'level' not in var.var.dimensions and 'lithoz' not in var.var.dimensions:
         dolevels = False
         if level == None:
             level = 0
@@ -78,6 +79,14 @@ for f in range(0,opts.nfiles):
     if not dolevels and not dotimes:
         dotimes = True
         time = None
+
+    if dolevels:
+        if 'level' in var.var.dimensions:
+            ldata = infile.file.variables['level']
+            lname = infile.file.variables['level'].long_name
+        elif 'lithoz' in var.var.dimensions:
+            ldata = infile.file.variables['lithoz']
+            lname = infile.file.variables['lithoz'].long_name
 
     i = 0
     colour=0
@@ -94,9 +103,9 @@ for f in range(0,opts.nfiles):
             area.line('-W1/%s'%PyCF.CFcolours[colour],infile.time(time),data)
         elif dolevels:
             if mfiles and mspots:
-                area.line('-W1/%s'%PyCF.CFcolours[colour],infile.file.variables['level'],data)
+                area.line('-W1/%s'%PyCF.CFcolours[colour],ldata,data)
             else:
-                area.line('-W1/%s'%PyCF.CFcolours[colour],data,infile.file.variables['level'])
+                area.line('-W1/%s'%PyCF.CFcolours[colour],data,ldata)
         if mfiles and mspots:
             if i == 0:
                 key.plot_line(infile.title,'1/%s'%PyCF.CFcolours[colour])  
@@ -119,14 +128,37 @@ if mspots and mfiles:
     multi_area.finalise(expandy=True)
     multi_area.coordsystem()
 else:
+    expandx = None
+    expandy = None
+    if opts.options.noxauto==True:
+        expandx = False
+    if opts.options.noyauto==True:
+        expandy = False
+    if opts.options.xrange != None:
+        expandx = False
+        area.ll[0] = opts.options.xrange[0]
+        area.ur[0] = opts.options.xrange[1]
+    if opts.options.yrange != None:
+        expandy = False
+        area.ll[1] = opts.options.yrange[0]
+        area.ur[1] = opts.options.yrange[1]
+
     if dotimes:
+        if expandx == None:
+            expandx = False
+        if expandy == None:
+            expandy = True
         area.xlabel = 'time'
         area.ylabel = '%s [%s]'%(var.long_name,var.units)
-        area.finalise(expandy=True)
+        area.finalise(expandx=expandx,expandy=expandy)
     if dolevels:
+        if expandx == None:
+            expandx = True
+        if expandy == None:
+            expandy = False
         area.xlabel = '%s [%s]'%(var.long_name,var.units)
-        area.ylabel = 'normalised height'
-        area.finalise(expandx=True)
+        area.ylabel = lname
+        area.finalise(expandx=expandx,expandy=expandy)
     area.coordsystem()
 
 plot.close()

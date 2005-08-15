@@ -61,6 +61,17 @@ class CFOptParser(optparse.OptionParser):
         group.add_option("--urg",dest='urg',metavar="X Y",type="float",nargs=2,help="upper right corner in geographic coordinate system")
         self.add_option_group(group)
 
+    def region1d(self):
+        """Specifying axis ranges."""
+
+        group = optparse.OptionGroup(self,"Axis Options","These options are used to control the x and y axis.")
+        group.add_option("--noxauto",action="store_true", default="False",help="Don't expand x range to reasonable values.")
+        group.add_option("--noyauto",action="store_true", default="False",help="Don't expand x range to reasonable values.")
+        group.add_option("--xrange",type="float",nargs=2,metavar="X1 X2",help="set x-axis range to X1:X2")
+        group.add_option("--yrange",type="float",nargs=2,metavar="Y1 Y2",help="set y-axis range to Y1:Y2")
+        self.add_option_group(group)
+
+
     def eisforcing(self):
         """Options for handling EIS forcing time series."""
 
@@ -75,11 +86,10 @@ class CFOptParser(optparse.OptionParser):
         self.add_option("-v","--variable",metavar='NAME',action='append',type="string",dest='vars',help="variable to be processed (this option can be used more than once)")
         self.add_option("-l","--level",metavar="LEV",type='int',dest='level',help='level to be plotted')
         self.add_option("--pmt",action="store_true", dest="pmt",default=False,help='Correct temperature for temperature dependance on pressure')
-        
-    def variable(self):
-        """Variable option."""
 
-        self.__var()
+    def var_options(self):
+        """Extra variable stuff"""
+        
         self.add_option("-c","--clip",metavar='VAR',type="choice",dest='clip',choices=['thk','topg','usurf','is'],help="display variable only where ['thk','topg','usurf','is']>0.")
         self.add_option("-i","--illuminate",metavar='VAR',type="choice",dest='illuminate',choices=['thk','topg','usurf','is'],help="illuminate surface using gradient of ['thk','topg','usurf','is']")
         self.add_option("--land",action="store_true", dest="land",default=False,help="Indicate area above SL")
@@ -91,6 +101,12 @@ class CFOptParser(optparse.OptionParser):
             self.add_option("--legend",action="store_true", dest="dolegend",default=False,help="Plot a colour legend")
         except:
             pass
+            
+    def variable(self):
+        """Variable option."""
+
+        self.__var()
+        self.var_options()
         
     def spot(self):
         """Spot options."""

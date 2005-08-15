@@ -80,7 +80,7 @@ class CFArea(PyGMT.AreaXY):
         """Print a data name and time slice."""
 
         self.stamp('%s   %.2fka'%(self.file.title,self.file.time(time)))
-        
+
     def image(self,var,time,level=0,clip=None,mono=False,illuminate=None):
         """Plot a colour map.
 
@@ -91,10 +91,25 @@ class CFArea(PyGMT.AreaXY):
         mono: convert colour to mono
         illuminate: azimuth of light source (default None)
         """
+
+        self.raw_image(var.cffile,time,var.getGMTgrid(time,level=level),var.colourmap.cptfile,var.isvelogrid,clip,mono,illuminate)
         
+    def raw_image(self,cffile,time,grid,colourmap,isvelogrid=False,clip=None,mono=False,illuminate=None):
+        """Plot a GMT grid
+        
+        cffile: cffile
+        time: time slice
+        grid: is the GMT grid to be plotted
+        isvelogrid: boolean whether we are plotting on velogrid
+        colourmap: is the colourmap to be used
+        clip: only display data where clip>0.
+        mono: convert colour to mono
+        illuminate: azimuth of light source (default None)
+        """
+
         clipped = False
         if clip in ['topg','thk','usurf','is'] :
-            cvar = CFvariable(var.cffile,clip)
+            cvar = CFvariable(cffile,clip)
             self.clip(cvar.getGMTgrid(time),0.1)
             clipped = True
         if mono:
@@ -105,18 +120,18 @@ class CFArea(PyGMT.AreaXY):
         illu = False
         if illuminate in ['topg','thk','usurf','is'] :
             illu = True
-            illu_var = CFvariable(var.cffile,illuminate)
-            illu_grd = illu_var.getGMTgrid(time,velogrid=var.isvelogrid)
+            illu_var = CFvariable(cffile,illuminate)
+            illu_grd = illu_var.getGMTgrid(time,velogrid=isvelogrid)
             illu_arg = "=1 -G.__illu.grd -A0 -Ne0.6"
             gridcommand('grdgradient',illu_arg,illu_grd,verbose=self.verbose)
             args = "%s -I.__illu.grd"%args
             
-        PyGMT.AreaXY.image(self,var.getGMTgrid(time,level=level),var.colourmap.cptfile,args=args)
+        PyGMT.AreaXY.image(self,grid,colourmap,args=args)
         if clipped:
             self.unclip()
         if illu:
             os.remove('.__illu.grd')
-
+        
     def velocity_field(self,time,level=0,mins=10.):
         """Plot vectors of velocity field
 

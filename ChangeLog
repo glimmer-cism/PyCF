@@ -1,3 +1,16 @@
+2005-08-15 Magnus Hagdorn
+ * litho_temp.cpt: new colourmap for temperatures of lithosphere
+ * CF_colourmap.py: hooked up litho_temp.cpt
+ * setup.py: ditto
+ * CF_options.py: new options for specifying x and y axis, split up variable
+   options into two methods
+ * plotSpot.py: use options mentioned above and handle lithoz
+ * CF_area.py: split up method image into two methods
+ * CF_loadfile.py: add lithoz to check for 3Dness
+ * CF_profile.py: add 2D profile extraction for litho_temp
+ * CF_profilearea.py: option for plotting 2D litho_temp profile
+ * plotProfile.py: we can also plot multiple times
+ 
 2005-07-07 Magnus Hagdorn
  * CF_IOrsl.py: add methods to return min and max time
  * CF_file.py: fix small bug

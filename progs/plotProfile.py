@@ -50,23 +50,40 @@ if dokey:
 
 area = PyCF.CFProfileMArea(bigarea,pos=[1.,3.5],size=[opts.options.width,opts.options.width/5.])
 varea = []
-for i in range(0,opts.nvars):
-    profile = opts.profs(infile,i)
-    time = opts.times(infile,0)
-    varea.append(area.newprof(profile,time,level=opts.options.level,pen='1/%s'%PyCF.CFcolours[0]))
 
-for f in range(1,opts.nfiles):
-    infile = opts.cfprofile(f)
+if opts.nvars  > 1:
     for i in range(0,opts.nvars):
-        try:
-            profile = opts.profs(infile,i)
-        except:
-            print 'Warning, file %s does not contain variable %s'%(opts.args[f],opts.options.vars[i])
-            continue
+        profile = opts.profs(infile,i)
         time = opts.times(infile,0)
-        varea[i].plot(profile,time,level=opts.options.level,pen='1/%s'%PyCF.CFcolours[f])
-    if dokey:
-        key.plot_line(infile.title,'1/%s'%PyCF.CFcolours[f])
+        varea.append(area.newprof(profile,time,level=opts.options.level,pen='1/%s'%PyCF.CFcolours[0]))
+
+    for f in range(1,opts.nfiles):
+        infile = opts.cfprofile(f)
+        for i in range(0,opts.nvars):
+            try:
+                profile = opts.profs(infile,i)
+            except:
+                print 'Warning, file %s does not contain variable %s'%(opts.args[f],opts.options.vars[i])
+                continue
+            time = opts.times(infile,0)
+            varea[i].plot(profile,time,level=opts.options.level,pen='1/%s'%PyCF.CFcolours[f])
+        if dokey:
+            key.plot_line(infile.title,'1/%s'%PyCF.CFcolours[f])
+else:
+    for t in range(0,opts.ntimes):
+        profile = opts.profs(infile)
+        time = opts.times(infile,t)
+        varea.append(area.newprof(profile,time,level=opts.options.level,pen='1/%s'%PyCF.CFcolours[0]))
+        varea[t].stamp('%.2fka'%(infile.time(time)))
+
+    for f in range(1,opts.nfiles):
+        infile = opts.cfprofile(f)
+        for t in range(0,opts.ntimes):
+            profile = opts.profs(infile)
+            time = opts.times(infile,t)
+            varea[t].plot(profile,time,level=opts.options.level,pen='1/%s'%PyCF.CFcolours[f])
+        if dokey:
+            key.plot_line(infile.title,'1/%s'%PyCF.CFcolours[f])            
 
 area.finalise(expandy=True)
 area.coordsystem()

@@ -167,6 +167,46 @@ class CFprofile(CFvariable):
         var = self.getGMTgrid(time,level=level)
         return var.grdtrack(self.cffile.interpolated[0,:],self.cffile.interpolated[1,:])
 
+    def getProfile2D_litho(self,time):
+        """Get a 2D profile which is not in sigma coordsystem.
+
+        i.e. litho temperature.
+
+        time: time slice
+
+        returns a GMT grid"""
+
+        if 'lithoz' not in self.var.dimensions:
+            raise ValueError, 'Not a 3D variable'
+
+
+        ymin = self.file.variables['lithoz'][-1]
+        ymax = self.file.variables['lithoz'][0]
+        yres = 50.
+        y = self.file.variables['lithoz'][:].tolist()
+        y.reverse()
+
+        # load data
+        data = Numeric.zeros([len(self.file.variables['lithoz']), len(self.cffile.xvalues)], Numeric.Float32)
+        for i in range(0,len(self.file.variables['lithoz'])):
+            prof = self.getProfile(time,level=len(self.file.variables['lithoz'])-i-1)
+            data[i,:] = prof
+
+        # setup output grid
+        grid = Grid()
+        grid.x_minmax = [0,self.cffile.xvalues[-1]]
+        grid.y_minmax = [ymin,ymax]
+        numy=int((ymax-ymin)/yres)+1
+        grid.data = Numeric.zeros([len(self.cffile.xvalues),numy], Numeric.Float32)
+
+        # interpolate
+        pos = (Numeric.arange(numy)-numy+1)*yres
+        for j in range(0,len(self.cffile.xvalues)):
+            interpolated = CFinterpolate_linear(y,data[:,j],pos)
+            grid.data[j,:] = interpolated
+
+        return grid
+
     def getProfile2D(self,time):
         """Get a 2D profile.
 

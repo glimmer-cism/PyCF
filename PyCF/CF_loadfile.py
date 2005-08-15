@@ -432,6 +432,8 @@ class CFvariable(object):
                 is3d = True
             elif 'level' in self.file.variables[self.name].dimensions :
                 is3d = True
+            elif 'lithoz' in self.file.variables[self.name].dimensions :
+                is3d = True
         return is3d
     is3d = property(__is3d)
 
