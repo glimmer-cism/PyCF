@@ -153,15 +153,15 @@ cffile.createDimension('level',1)
 cffile.createDimension('time',None)
 # creating variables
 varx=cffile.createVariable('x0')
-varx[:] = (delta[0]*Numeric.arange(numx-1)).astype(Numeric.Float32)
+varx[:] = ((delta[0]*Numeric.arange(numx-1)+(delta[0]/2))+origin[0]).astype(Numeric.Float32)
 varx=cffile.createVariable('x1')
-varx[:] = (delta[0]*Numeric.arange(numx)).astype(Numeric.Float32)
+varx[:] = ((delta[0]*Numeric.arange(numx))+origin[0]).astype(Numeric.Float32)
 varlist=['varx'] #store information about which variables have already been created
 
 vary=cffile.createVariable('y0')
-vary[:] = (delta[1]*Numeric.arange(numy-1)).astype(Numeric.Float32)
+vary[:] = ((delta[1]*Numeric.arange(numy-1)+(delta[1]/2))+origin[1]).astype(Numeric.Float32)
 vary=cffile.createVariable('y1')
-vary[:] = (delta[1]*Numeric.arange(numy)).astype(Numeric.Float32)
+vary[:] = ((delta[1]*Numeric.arange(numy))+origin[1]).astype(Numeric.Float32)
 varlist.append('vary')
 
 varlevel=cffile.createVariable('level')
