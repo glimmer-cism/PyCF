@@ -69,13 +69,14 @@ for i in range(0,len(plot_sites)):
     for fnum in range(0,len(opts.args)-1):
         try:
             rslareas.rsl_line(cffile[fnum],pen='-W1/%s'%PyCF.CFcolours[fnum])
-        except:
+        except RuntimeError:
             print cffile[fnum].title,plot_sites[i]
 
     # finish plots
     rslareas.finalise(expandy=True)
     rslareas.coordsystem()
     rslareas.printinfo()
+    del rslareas
     # connect plots
     rloc = rsl.getLoc(plot_sites[i])
     rloc =  mapa.geo.project([rloc[3]],[rloc[4]])

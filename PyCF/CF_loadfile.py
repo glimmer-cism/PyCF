@@ -27,6 +27,7 @@ from CF_proj import *
 from CF_colourmap import *
 from CF_file import *
 from CF_createfile import *
+from TwoDspline import TwoDspline
 
 temperatures = ['btemp','temp']
 
@@ -569,16 +570,11 @@ class CFvariable(object):
         level: horizontal slice."""
 
         data = self.get2Dfield(time,level=level)
-        # interpolate along columns
-        r = []
-        for c in range(0,data.shape[0]):
-            col = spline.cspline(data.shape[1])
-            col.init(self.ydim[:],data[c,:])
-            r.append(col.eval(pos[1]))
-        # interpolate row
-        row = spline.cspline(data.shape[0])
-        row.init(self.xdim[:],r)
-        return row.eval(pos[0])
+        loc = Numeric.zeros((2,1),Numeric.Float32)
+        loc[0,0] = pos[0]
+        loc[1,0] = pos[1]
+        res = TwoDspline(self.xdim[:],self.ydim[:],data,loc)
+        return res[0] 
 
     def getGMTgrid(self,time,level=0,velogrid=False):
         """Get a GMT grid.

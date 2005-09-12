@@ -1,3 +1,13 @@
+2005-09-12 Magnus Hagdorn
+ * 2Dsplinemodule.c: pygsl wrapper for splines is badly leaking memory
+   and doesn't work on x86_64. Resurrected old implementation. It could 
+   be improved vastly, but hey it works
+ * setup.py: added function for looking for libraries, added extension
+   2Dsplinemodule
+ * __init__.py: added 2Dsplinemodule
+ * CF_loadfile.py: use TwoDspline for extracting RSL
+ * plotRSL.py: minor improvements
+
 2005-08-17 Stewart Jamieson
  * a2c.py: fix origins of velo grid
 
