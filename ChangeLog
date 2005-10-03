@@ -1,3 +1,9 @@
+2005-10-03 Magnus Hagdorn
+ * CF_options.py: improve help message somewhat
+ * plotCFstats.py: add option to plot average ice thickness
+ * plotStreams.py: we can plot more than 1 file, we can also plot
+   average basal velos
+
 2005-09-12 Magnus Hagdorn
  * 2Dsplinemodule.c: pygsl wrapper for splines is badly leaking memory
    and doesn't work on x86_64. Resurrected old implementation. It could 

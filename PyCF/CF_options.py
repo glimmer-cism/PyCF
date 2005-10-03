@@ -83,7 +83,7 @@ class CFOptParser(optparse.OptionParser):
 
     def __var(self):
         # variable options
-        self.add_option("-v","--variable",metavar='NAME',action='append',type="string",dest='vars',help="variable to be processed (this option can be used more than once)")
+        self.add_option("-v","--variable",metavar='NAME',action='append',type="string",dest='vars',help="variable to be processed (this option can be used more than once), append _avg to get the vertically integrated average")
         self.add_option("-l","--level",metavar="LEV",type='int',dest='level',help='level to be plotted')
         self.add_option("--pmt",action="store_true", dest="pmt",default=False,help='Correct temperature for temperature dependance on pressure')
 

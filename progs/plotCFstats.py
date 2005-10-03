@@ -20,7 +20,7 @@
 
 """plot statistics of an ice sheet."""
 
-import PyGMT,PyCF,sys
+import PyGMT,PyCF,sys, Numeric
 
 # creating option parser
 parser = PyCF.CFOptParser()
@@ -29,6 +29,7 @@ parser.profile(vars=False)
 parser.add_option("-e","--eismint",default=False,action="store_true",help="plot central thickness")
 parser.add_option("-f","--file",metavar='NAME',type="string",dest='dataname',help="name of file containing ice extent data")
 parser.add_option("-m","--meltfrac",default=False,action="store_true",help="extract fractional melt area.")
+parser.add_option("-i","--icethickness",default=False,action="store_true",help="plot average ice thickness")
 parser.plot()
 opts = PyCF.CFOptions(parser,-2)
 
@@ -62,7 +63,13 @@ if eismint:
     eis = tsarea.newts()
     eis.xlabel = 'time [ka]'
     eis.ylabel = 'divide and midpoint ice thickness [m]'
-
+if opts.options.icethickness:
+    ithick = tsarea.newts()
+    ithick.xlabel = 'time [ka]'
+    ithick.ylabel = 'average ice thickness [m]'
+else:
+    ithick = None
+    
 for fnum in range(0,len(opts.args)-1):
     if do_extent:
         cffile = opts.cfprofile(fnum)
@@ -84,6 +91,15 @@ for fnum in range(0,len(opts.args)-1):
     if mf != None:
         melt_data = cffile.getFracMelt()
         mf.line('-W1/%s'%PyCF.CFcolours[fnum],cffile.time(None),melt_data)
+
+    if ithick != None:
+        mthick =[]
+        for i in range(0,len(ice_area)):
+            if ice_area[i]>0:
+                mthick.append(ice_vol[i]/ice_area[i])
+            else:
+                mthick.append(0.)
+        ithick.line('-W1/%s'%PyCF.CFcolours[fnum],cffile.time(None),mthick)
 
     if eismint:
         thk = cffile.getvar('thk')

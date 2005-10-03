@@ -28,48 +28,98 @@ parser = PyCF.CFOptParser()
 parser.profile_file()
 parser.time()
 parser.add_option("--deltat",default=deltat,type="float",help="set integration interval (default %sa)"%deltat)
+parser.add_option("--velocity",default=False,action="store_true",help="plot basal velocities integrated over time interval")
+parser.var_options()
 parser.region()
 parser.plot()
-opts = PyCF.CFOptions(parser,2)
+opts = PyCF.CFOptions(parser,-2)
+
+numplots = opts.nfiles
 
 if opts.options.profname!=None:
     infile = opts.cfprofile()
 else:
     infile = opts.cffile()
 
-deltat = opts.options.deltat*infile.timescale
-time = opts.times(infile)
-time_start = infile.timeslice(infile.time(time)-0.5*deltat)
-time_end = infile.timeslice(infile.time(time)+0.5*deltat)
+# get number of plots
+deltax = 1.
+deltay = 1.
+sizex = opts.options.width+deltax
+sizey = infile.aspect_ratio*opts.options.width+deltay
 
-ubas = infile.getvar('ubas')
-vbas = infile.getvar('vbas')
+plot=None
+numx = int((opts.papersize[0])/(sizex))
+numy = int((opts.papersize[1])/(sizey))
+numpages = int(float(numplots-0.1)/float(numx*numy))
+p=-1
 
-data = Numeric.zeros((len(ubas.xdim), len(ubas.ydim)),Numeric.Float32)
+if opts.options.velocity:
+    bvel = infile.getvar('bvel')
+    colourmap = PyCF.CFcolourmap(bvel).cptfile
+    ctitle = "average velocity [m/a]"
+else:
+    # create a colour map
+    v0 = 0.1
+    v1 = 1.
+    PyGMT.command('makecpt','-Cjet -T%f/%f/%f > .__auto.cpt'%(v0,v1,(v1-v0)/10.))
+    cpt = open('.__auto.cpt','a')
+    cpt.write('B       255     255     255\n')
+    cpt.close()    
+    colourmap = '.__auto.cpt'
+    ctitle = "residency"
 
-# loop over time slices
-for t in range(time_start,time_end+1):
-    ugrid = ubas.get2Dfield(t)
-    vgrid = vbas.get2Dfield(t)
+for i in range(0,numplots):
+    if i%(numx*numy)==0:
+        # need to open a new plot file
+        if plot!=None:
+            plot.close()
+        if numpages>0:
+            p=p+1
+            plot = opts.plot(number=p)
+        else:
+            p=0
+            plot = opts.plot()
+        bigarea = PyGMT.AreaXY(plot,size=opts.papersize)
+        if opts.options.dolegend:
+            PyGMT.colourkey(bigarea,colourmap,args='-L',title=ctitle,pos=[0,opts.papersize[1]-(numy-1)*(sizey+deltay)])
 
-    data = data + Numeric.where(ugrid!=0. or vgrid!=0, 1,0)
-streams = ubas.getGMTgrid(time)
-streams.data = data
 
-# create a colour map
-v0 = 0.1
-v1 = max(Numeric.ravel(streams.data))
-PyGMT.command('makecpt','-Cjet -T%f/%f/%f > .__auto.cpt'%(v0,v1,(v1-v0)/10.))
-cpt = open('.__auto.cpt','a')
-cpt.write('B       255     255     255\n')
-cpt.close()
+    if opts.options.profname!=None:
+        infile = opts.cfprofile(i)
+    else:
+        infile = opts.cffile(i)
+        
+    deltat = opts.options.deltat*infile.timescale
+    time = opts.times(infile)
+    time_start = infile.timeslice(infile.time(time)-0.5*deltat)
+    time_end = infile.timeslice(infile.time(time)+0.5*deltat)
 
-plot = opts.plot()
-area = PyCF.CFArea(plot,infile,pos=[0.,3.])
-PyGMT.AreaXY.image(area,streams,'.__auto.cpt')
-thk = infile.getvar('thk')
-area.contour(thk,[0.1],'-W2/0/0/0',time)
-area.coastline()
-area.coordsystem()
-area.printinfo(time)
+    bvel = infile.getvar('bvel')
+    
+    data = Numeric.zeros((len(bvel.xdim), len(bvel.ydim)),Numeric.Float32)
+
+    # loop over time slices
+    for t in range(time_start,time_end+1):
+        vgrid = bvel.get2Dfield(t)
+
+        if opts.options.velocity:
+            data = data + vgrid
+        else:
+            data = data + Numeric.where(vgrid>0., 1,0)
+    streams = bvel.getGMTgrid(time)
+    streams.data = data/(time_end+1-time_start)
+    
+    x = i%numx
+    y = int((i-p*(numx*numy))/numx)
+    area = PyCF.CFArea(bigarea,infile,pos=[x*sizex,opts.papersize[1]-(y+1)*sizey],size=sizex-deltax)
+
+    PyGMT.AreaXY.image(area,streams,colourmap)
+    thk = infile.getvar('thk')
+    area.contour(thk,[0.1],'-W2/0/0/0',time)
+    area.coastline()
+    if numplots>1:
+        area.axis='wesn'
+    area.coordsystem()
+    area.printinfo(time)
+        
 plot.close()
