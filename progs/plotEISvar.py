@@ -49,7 +49,7 @@ if opts.options.slcfile != None:
 if opts.options.tempfile != None:
     numforce = numforce + 1
     try:
-        temp = PyCF.CFEIStemp(opts.options.tempfile)
+        temp = PyCF.CFEIStemp(opts.options.tempfile,temp_type=opts.options.type_temp,lat0=opts.options.lat0_temp)
     except:
         print 'Cannot load temperature file %s'%opts.options.tempfile
         sys.exit(1)

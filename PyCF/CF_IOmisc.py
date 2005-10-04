@@ -22,7 +22,7 @@
 
 __all__ = ['CFTimeSeries','CFEIStemp']
 
-import Numeric
+import Numeric, math
 
 class CFTimeSeries(object):
     """Handling time series."""
@@ -121,22 +121,29 @@ class CFTimeSeries(object):
 class CFEIStemp(CFTimeSeries):
     """Handling EIS temperature forcing."""
 
-    def __init__(self,fname,lat=60.,sep=None,timescale = 0.001):
+    def __init__(self,fname,lat=60.,sep=None,timescale = 0.001,temp_type='poly',lat0 = 44.95):
         """Initialise
 
         fname: name of file to read from.
         lat: latitude
         sep:   separator (whitespace if set to none
-        timescale: scale time"""
+        timescale: scale time
+        temp_type: select temp distribution function, can be poly (default) or exp
+        lat0: parameter used for exponential function (default: 44.95)"""
 
         CFTimeSeries.__init__(self,fname,sep=sep,timescale=timescale)
         sdata = []
         for j in range(0,len(self.data)):
             val = self.data[j]
             t = 0.
-            l = 1.
-            for i in range(0,len(val)):
-                t = t + l*val[i]
-                l = l*lat
+            if temp_type == 'poly':
+                l = 1.
+                for i in range(0,len(val)):
+                    t = t + l*val[i]
+                    l = l*lat
+            elif temp_type == 'exp':
+                t = val[0]+val[1]*math.exp(val[2]*(lat-lat0))
+            else:
+                raise RuntimeError, 'No handle for temperature calculations type=\'%s\''%temp_type
             sdata.append([t])
         self.data = Numeric.array(sdata)

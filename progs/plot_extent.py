@@ -31,16 +31,7 @@ parser.region()
 parser.plot()
 opts = PyCF.CFOptions(parser,-2)
 
-
-count = 0
-numplots = 0
-if opts.ntimes>1:
-    count = count + 1
-    numplots = opts.ntimes
-    
-if count > 1:
-    sys.stderr.write('Error, can only have either more than one time slice or more than one variable or more than one file!\n')
-    sys.exit(1)
+dokey = opts.nfiles > 1
 
 if opts.options.profname!=None:
     infile = opts.cfprofile()
@@ -55,10 +46,15 @@ sizex = opts.options.width+deltax
 sizey = infile.aspect_ratio*opts.options.width+deltay
 
 plot = opts.plot()
-area = PyCF.CFArea(plot,infile,pos=[0.,3.],size=sizex-deltax)
+bigarea = PyGMT.AreaXY(plot,size=opts.papersize)
+area = PyCF.CFArea(bigarea,infile,pos=[0.,3.],size=sizex-deltax)
 if opts.options.land:
     area.land(time)
 area.coastline()
+
+if dokey:
+    key = PyGMT.KeyArea(bigarea,pos=[-2.,0.],size=[opts.options.width+4,2])
+    key.num = [2,4]
 
 for i in range(0,opts.nfiles):
     if opts.options.profname!=None:
@@ -69,6 +65,8 @@ for i in range(0,opts.nfiles):
     time = opts.times(infile)
     thk = infile.getvar('thk')
     area.contour(thk,[0.1],'-W2/%s'%PyCF.CFcolours[i],time)
+    if dokey:
+            key.plot_line(infile.title,'1/%s'%PyCF.CFcolours[i])
 if opts.options.profname!=None:
     area.profile(args='-W5/0/0/0')
 area.coordsystem()

@@ -78,6 +78,8 @@ class CFOptParser(optparse.OptionParser):
         group = optparse.OptionGroup(self,"EIS forcing","Files containing time series used for forcing EIS.")
         group.add_option("--ela",dest='elafile',metavar="FILE",type="string",help="Name of file containing ELA forcing")
         group.add_option("--temp",dest='tempfile',metavar="FILE",type="string",help="Name of file containing temperature forcing")
+        group.add_option("--type_temp",type="choice",metavar="TYPE",choices=['poly','exp'],default="poly",help="Select temperature calculations (default: poly)")
+        group.add_option("--lat0_temp",type="float",metavar="LAT",default=44.95,help="Origin latitude for temperature calculations using exponential type (default: 44.95)")
         group.add_option("--slc",dest='slcfile',metavar="FILE",type="string",help="Name of file containing SLC forcing")
         self.add_option_group(group)
 
