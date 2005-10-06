@@ -1,3 +1,7 @@
+2006-10-06 Magnus Hagdorn
+ * setup.py: bump version
+ * update NEWS
+
 2006-10-04 Magnus Hagdorn
  * CF_IOmisc.py: add expontential temperature EIS forcing
  * CF_options.py: add options to handle expontential temperature EIS forcing

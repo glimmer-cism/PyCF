@@ -1,3 +1,20 @@
+Changes in Version 0.4
+======================
+* new program to plot ice extent
+* new program for converting ESRI ASCII files to netCDF
+* new program for plotting RSL histograms and RSL locations
+* new program for plotting ice streams
+* new colour maps for surface temperature, lithosphere temp  and GTHF
+* use our own wrapper for GSL spline routines to avoid memory leaks,
+  this works on x86_64 now as well
+* many bug fixes and minor improvements
+
+Changes in Version 0.3
+======================
+* can illuminate images to give impression of a 3D surface
+* can add velo glyphs to any image
+* many bug fixes and minor improvements
+
 Changes in Version 0.2
 ======================
 * new prog for taking differences between CF files 
