@@ -22,7 +22,7 @@
 
 __all__ = ['CFRSLArea','CFRSLlocs','CFRSLAreaHistT']
 
-import PyGMT,Numeric
+import PyGMT,Numeric, tempfile
 from CF_IOrsl import *
 
 CFRSLlocs = {'fenscan' : [74,70,103,105,95,214,219,107,89,77]}
@@ -143,11 +143,11 @@ class CFRSLAreaHistT(PyGMT.AreaXY):
         else:
             v1 = vmax
 
-        self.__cmap = '.__auto.cpt'
-        PyGMT.command('makecpt','-Ccool -T%f/%f/%f -Z > %s'%(v0,v1,(v1-v0),self.__cmap))
-        cpt = open(self.__cmap,'a')
-        cpt.write('B       255     255     255\n')
-        cpt.close()
+        self.__cmap = tempfile.NamedTemporaryFile(suffix='cpt')
+        PyGMT.command('makecpt','-Ccool -T%f/%f/%f -Z > %s'%(v0,v1,(v1-v0),self.__cmap.name))
+        self.__cmap.seek(0,2)
+        self.__cmap.write('B       255     255     255\n')
+        self.__cmap.flush()
             
     def plot(self):
         """Plot RSL histogram."""
@@ -160,7 +160,7 @@ class CFRSLAreaHistT(PyGMT.AreaXY):
 
         y = 0.
         if self.plot_key:
-            PyGMT.colourkey(self,self.__cmap,pos=[self.size[0]/8.,0.],size=[3.*self.size[0]/4.,.5])
+            PyGMT.colourkey(self,self.__cmap.name,pos=[self.size[0]/8.,0.],size=[3.*self.size[0]/4.,.5])
             y = 2.
 
         if self.plot_2dhist and self.__plot_1dhist:
@@ -176,7 +176,7 @@ class CFRSLAreaHistT(PyGMT.AreaXY):
             self.area2d.axis='WSen'
             self.area2d.xlabel = 'time [ka]'
             self.area2d.ylabel = 'residuals [m]'
-            self.area2d.image(self.__rsldata,'.__auto.cpt')
+            self.area2d.image(self.__rsldata,self.__cmap.name)
 
         if self.plot_1dhist:
             counts = Numeric.sum(self.__rsldata.data,0)

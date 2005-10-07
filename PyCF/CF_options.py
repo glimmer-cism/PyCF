@@ -283,11 +283,11 @@ class CFOptions(object):
         var = cffile.getvar(self.options.vars[varn])
         try:
             if self.options.colourmap == 'None':
-                var.colourmap = '.__auto.cpt'
+                var.colourmap = 'auto'
             elif self.options.colourmap != None:
                 var.colourmap = self.options.colourmap
         except:
-            var.colourmap = '.__auto.cpt'
+            var.colourmap = 'auto'
         var.pmt = self.options.pmt
         return var
 

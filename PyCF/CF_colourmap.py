@@ -20,7 +20,7 @@
 
 __all__=['CFcolourmap','CFcolours']
 
-import os, PyGMT,Numeric
+import os, PyGMT,Numeric, tempfile
 from CF_utils import CFdatadir
 
 CFcolours = ['255/0/0','0/255/0','0/0/255','0/255/255','255/0/255','255/255/0','127/0/0','0/127/0','0/0/127','0/127/127','127/0/127','127/127/0']
@@ -76,23 +76,26 @@ class CFcolourmap(object):
         self.name = var.name
         self.long_name = var.long_name
         self.units = var.units
+        self.__cptf = None
 
+        self.__cptfile = None
         if filename != None:
             self.__cptfile = filename
         else:
-            self.__cptfile = None
             if self.name in self.VARN_MAP:
                 self.__cptfile = os.path.join(CFdatadir,self.VARN_MAP[self.name])
             elif var.standard_name in self.STDN_MAP:
                 self.__cptfile = os.path.join(CFdatadir,self.STDN_MAP[var.standard_name])
-            else:
-                self.__cptfile = '.__auto.cpt'
+
+        if self.__cptfile == None or self.__cptfile == 'auto':
+            self.__cptf = tempfile.NamedTemporaryFile(suffix='.cpt')
+            self.__cptfile = self.__cptf.name
                 
     def __get_cptfile(self):
-        if self.__cptfile == '.__auto.cpt':
+        if self.__cptf != None:
             v0 = PyGMT.round_down(min(Numeric.ravel(self.var.var)))
             v1 = PyGMT.round_up(max(Numeric.ravel(self.var.var)))
-            PyGMT.command('makecpt','-Crainbow -T%f/%f/%f > .__auto.cpt'%(v0,v1,(v1-v0)/10.))
+            PyGMT.command('makecpt','-Crainbow -T%f/%f/%f > %s'%(v0,v1,(v1-v0)/10.,self.__cptfile))
         return self.__cptfile
     cptfile = property(__get_cptfile)
             

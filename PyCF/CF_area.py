@@ -22,7 +22,7 @@
 
 __all__ = ['CFArea']
 
-import PyGMT,Numeric,math,os
+import PyGMT,Numeric,math,tempfile
 from PyGMT import gridcommand
 from CF_loadfile import CFvariable
 from CF_colourmap import CFcolours
@@ -122,15 +122,16 @@ class CFArea(PyGMT.AreaXY):
             illu = True
             illu_var = CFvariable(cffile,illuminate)
             illu_grd = illu_var.getGMTgrid(time,velogrid=isvelogrid)
-            illu_arg = "=1 -G.__illu.grd -A0 -Ne0.6"
+            illu_file = tempfile.NamedTemporaryFile(suffix='.grd')
+            illu_arg = "=1 -G%s -A0 -Ne0.6"%illu_file.name
             gridcommand('grdgradient',illu_arg,illu_grd,verbose=self.verbose)
-            args = "%s -I.__illu.grd"%args
+            args = "%s -I%s"%(args,illu_file.name)
             
         PyGMT.AreaXY.image(self,grid,colourmap,args=args)
         if clipped:
             self.unclip()
         if illu:
-            os.remove('.__illu.grd')
+            illu_file.close()
         
     def velocity_field(self,time,level=0,mins=10.):
         """Plot vectors of velocity field
@@ -191,19 +192,20 @@ class CFArea(PyGMT.AreaXY):
         cvar = CFvariable(self.file,'topg')
         cvar_grd = cvar.getGMTgrid(time)
         if illuminate in ['topg','thk','is'] :
-            illu_arg = "=1 -G.__illu.grd -A0 -Ne0.6"
+            illu_file = tempfile.NamedTemporaryFile(suffix='.grd')
+            illu_arg = "=1 -G%s -A0 -Ne0.6"%(illu_file.name)
             gridcommand('grdgradient',illu_arg,cvar_grd,verbose=self.verbose)
-            args = "%s -I.__illu.grd"%args
+            args = "%s -I%s"%(args,illu_file.name)
 
         # create colour map
-        cmap = open('.__grey.cpt','w')
+        cmap = tempfile.NamedTemporaryFile(suffix='.cpt')
         cmap.write('-15000 255     255     255  0 255     255     255\n')
         cmap.write('0 %s %s %s 10000  %s %s %s \n'%(grey,grey,grey,grey,grey,grey))
-        cmap.close()
+        cmap.flush()
 
         
-        PyGMT.AreaXY.image(self,cvar_grd,'.__grey.cpt',args=args)
-        os.remove('.__grey.cpt')
+        PyGMT.AreaXY.image(self,cvar_grd,cmap.name,args=args)
+        cmap.close()
 
     def profile(self,args='-W1/0/0/0'):
         """Plot profile if present in file.

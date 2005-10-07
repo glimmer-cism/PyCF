@@ -18,7 +18,7 @@
 # along with GLIMMER; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import sys,getopt,PyCF,PyGMT,Numeric,datetime,os
+import sys,getopt,PyCF,PyGMT,Numeric,datetime,os, tempfile
 
 def usage():
     "print short help message"
@@ -135,12 +135,11 @@ if __name__ == '__main__':
         proj4.getGMTregion([0.,0.],[delta[0]*num[0],delta[1]*num[1]]),
         delta[0],delta[1])
 
-    PyGMT.command('grdproject','%s -G.__temp=1 %s'%(inname,proj_gmt))
+    projfile = tempfile.NamedTemporaryFile(suffix='.bin')
+    PyGMT.command('grdproject','%s -G%s=1 %s'%(inname,projfile.name,proj_gmt))
 
-    projfile = open('.__temp')
-    projtopo = PyGMT.read_grid(projfile)
+    projtopo = PyGMT.read_grid(projfile.file)
     projfile.close()
-    os.remove('.__temp')
 
     (numx,numy) = projtopo.data.shape    
     

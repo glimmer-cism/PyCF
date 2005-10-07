@@ -20,7 +20,7 @@
 
 __all__=['CFdiff']
 
-import PyGMT,sys, Numeric
+import PyGMT,sys, Numeric, tempfile
 import Scientific.Statistics.Histogram
 from CF_loadfile import CFchecklist
 from CF_timeseries import CFAreaTS
@@ -176,16 +176,18 @@ class CFdiff_base(PyGMT.AutoXY):
         # creating a colourmap
         min_h = PyGMT.round_down(min(Numeric.ravel(hist_grid)))
         max_h = PyGMT.round_up(max(Numeric.ravel(hist_grid)))
-        PyGMT.command('makecpt','-Crainbow -Z -T%f/%f/%f > .__auto.cpt'%(min_h,max_h,(max_h-min_h)/10.))
-        f = open('.__auto.cpt','a')
+        f = tempfile.NamedTemporaryFile(suffix='.cpt')
+        PyGMT.command('makecpt','-Crainbow -Z -T%f/%f/%f > %s'%(min_h,max_h,(max_h-min_h)/10.,f.name))
+        f.seek(0,2)
         f.write('B       255     255     255')
-        f.close()
+        f.flush()
 
         # plotting image
-        PyGMT.AutoXY.image(self,grid,'.__auto.cpt')
+        PyGMT.AutoXY.image(self,grid,f.name)
 
         # and a colourkey
-        cm = PyGMT.colourkey(self,'.__auto.cpt',pos=[self.size[0]+0.5,0],size=[.75,self.size[1]])
+        cm = PyGMT.colourkey(self,f.name,pos=[self.size[0]+0.5,0],size=[.75,self.size[1]])
+        f.close()
 
     def plotarea(self):
         """Plot difference between Ice Areas."""

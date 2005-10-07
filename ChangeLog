@@ -1,4 +1,13 @@
 2006-10-06 Magnus Hagdorn
+ * CF_area.py: use tempfile for temporary files
+ * CF_colourmap.py: ditto
+ * CF_diff.py: ditto
+ * CF_options.py: ditto
+ * CF_rsl.py: ditto
+ * create_topo.py: ditto
+ * plotStreams.py: ditto
+
+2006-10-06 Magnus Hagdorn
  * setup.py: bump version
  * update NEWS
 

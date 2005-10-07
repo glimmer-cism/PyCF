@@ -20,7 +20,7 @@
 
 "plot stream locations"
 
-import PyGMT,PyCF,sys, Numeric
+import PyGMT,PyCF,sys, Numeric, tempfile
 
 # creating option parser
 deltat = 1000.
@@ -61,11 +61,12 @@ else:
     # create a colour map
     v0 = 0.1
     v1 = 1.
-    PyGMT.command('makecpt','-Cjet -T%f/%f/%f > .__auto.cpt'%(v0,v1,(v1-v0)/10.))
-    cpt = open('.__auto.cpt','a')
-    cpt.write('B       255     255     255\n')
-    cpt.close()    
-    colourmap = '.__auto.cpt'
+    cmapfile = tempfile.NamedTemporaryFile(suffix='.cpt')
+    PyGMT.command('makecpt','-Cjet -T%f/%f/%f > %s'%(v0,v1,(v1-v0)/10.,cmapfile.name))
+    cmapfile.seek(0,2)
+    cmapfile.write('B       255     255     255\n')
+    cmapfile.flush()    
+    colourmap = cmapfile.name
     ctitle = "residency"
 
 for i in range(0,numplots):
