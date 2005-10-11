@@ -233,6 +233,41 @@ class CFArea(PyGMT.AreaXY):
                     
             self.geo.plotsymbol([loc[3]],[loc[4]],size=0.2,symbol='a',args='-G%s'%CFcolours[loc[1]])
 
+    def shapefile(self,fname,pen='2/0/0/0'):
+        """Plot a shape file.
+
+        fname: name of shape file
+        pen: GMT pen attributes.
+
+        This method uses the python interface to shapelib"""
+
+        try:
+            import shapelib
+        except:
+            print """Could not lot shapelib python module.
+
+            You need to install the shapelib and the python wrapper to be able to plot
+            shape files. Go and get it from here:
+            http://shapelib.maptools.org/"""
+
+            return
+
+        shp = shapelib.ShapeFile(fname)
+        (num_shapes,shp_type,shp_min,shp_max) = shp.info()
+
+        # loop over shapes
+        for i in range(0,num_shapes):
+            obj = shp.read_object(i)
+            posx = []
+            posy = []
+            # loop over vertices
+            for j in range(0,len(obj.vertices()[0])):
+                v = obj.vertices()[0][j]
+                posx.append(v[0])
+                posy.append(v[1])
+            self.geo.line('-W%s'%pen,posx,posy)            
+        
+
 if __name__ == '__main__':
     from CF_options import *
     from CF_IOrsl import *

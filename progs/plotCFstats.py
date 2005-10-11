@@ -76,21 +76,27 @@ for fnum in range(0,len(opts.args)-1):
     else:
         cffile = opts.cffile(fnum)
 
+    times = cffile.time(None)
+
     key.plot_line(cffile.title,'1/%s'%PyCF.CFcolours[fnum])
 
     ice_area = cffile.getIceArea()
     ice_vol = cffile.getIceVolume()
 
-    iv.line('-W1/%s'%PyCF.CFcolours[fnum],cffile.time(None),ice_vol)
-    ia.line('-W1/%s'%PyCF.CFcolours[fnum],cffile.time(None),ice_area)
+    iv.line('-W1/%s'%PyCF.CFcolours[fnum],times,ice_vol)
+    ia.line('-W1/%s'%PyCF.CFcolours[fnum],times,ice_area)
 
     if do_extent:
-        ice_extent = cffile.getExtent()
-        ie.line('-W1/%s'%PyCF.CFcolours[fnum],cffile.time(None),ice_extent)
+        interval = int(PyGMT.round_down(len(times)/100.))
+        if interval == 0:
+            interval = 1
+        
+        ice_extent = cffile.getExtent(interval=interval)
+        ie.line('-W1/%s'%PyCF.CFcolours[fnum],times[::interval],ice_extent)
 
     if mf != None:
         melt_data = cffile.getFracMelt()
-        mf.line('-W1/%s'%PyCF.CFcolours[fnum],cffile.time(None),melt_data)
+        mf.line('-W1/%s'%PyCF.CFcolours[fnum],times,melt_data)
 
     if ithick != None:
         mthick =[]
@@ -99,14 +105,14 @@ for fnum in range(0,len(opts.args)-1):
                 mthick.append(ice_vol[i]/ice_area[i])
             else:
                 mthick.append(0.)
-        ithick.line('-W1/%s'%PyCF.CFcolours[fnum],cffile.time(None),mthick)
+        ithick.line('-W1/%s'%PyCF.CFcolours[fnum],times,mthick)
 
     if eismint:
         thk = cffile.getvar('thk')
         divide   = [len(cffile.file.variables['x1'][:])/2,len(cffile.file.variables['y1'][:])/2]
         midpoint = [3*len(cffile.file.variables['x1'][:])/4,len(cffile.file.variables['y1'][:])/2]
-        eis.line('-W1/%s'%PyCF.CFcolours[fnum],cffile.time(None),thk.getSpotIJ(divide,time=None))
-        eis.line('-W1/%s'%PyCF.CFcolours[fnum],cffile.time(None),thk.getSpotIJ(midpoint,time=None))
+        eis.line('-W1/%s'%PyCF.CFcolours[fnum],times,thk.getSpotIJ(divide,time=None))
+        eis.line('-W1/%s'%PyCF.CFcolours[fnum],times,thk.getSpotIJ(midpoint,time=None))
 
     cffile.close()
 

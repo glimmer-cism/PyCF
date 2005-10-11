@@ -26,6 +26,7 @@ import PyGMT,PyCF,sys
 parser = PyCF.CFOptParser()
 parser.variable()
 parser.add_option("-g","--glyph",metavar='VAR',type="choice",dest='glyph',choices=['vel','vel_avg','bvel'],help="Add velocity glyphs to plot, VAR can be one of [vel,vel_avg,bvel]")
+parser.add_option("--shapefile",metavar='FNAME',help="plot a shape file, e.g. LGM extent....")
 parser.profile_file()
 parser.time()
 parser.region()
@@ -111,6 +112,8 @@ if numplots > 1:
             area.contour(thk,[0.1],'-W2/0/0/0',time)
         except:
             pass
+        if opts.options.shapefile != None:
+            area.shapefile(opts.options.shapefile)
         if parser.profile!=None:
             area.profile(args='-W5/0/0/0')
         area.axis='wesn'
@@ -135,6 +138,8 @@ else:
         area.contour(var,[500,1000,2500,3000],'-W1/255/255/255',time)
     if parser.profile!=None:
         area.profile(args='-W5/0/0/0')
+    if opts.options.shapefile != None:
+        area.shapefile(opts.options.shapefile)
     area.coordsystem()
     area.printinfo(time)
     if opts.options.dolegend:

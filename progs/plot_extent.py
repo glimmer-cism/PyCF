@@ -26,6 +26,7 @@ import PyGMT,PyCF,sys
 parser = PyCF.CFOptParser()
 parser.profile_file()
 parser.add_option("--land",action="store_true", dest="land",default=False,help="Indicate area above SL")
+parser.add_option("--shapefile",metavar='FNAME',help="plot a shape file, e.g. LGM extent....")
 parser.time()
 parser.region()
 parser.plot()
@@ -70,6 +71,9 @@ for i in range(0,opts.nfiles):
 if opts.options.profname!=None:
     area.profile(args='-W5/0/0/0')
 area.coordsystem()
+
+if opts.options.shapefile != None:
+    area.shapefile(opts.options.shapefile)
 
 
 #if opts.options.dolegend:

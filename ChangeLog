@@ -1,4 +1,14 @@
-2006-10-06 Magnus Hagdorn
+2005-10-11 Magnus Hagdorn
+ * fix ChangeLog dates
+ * CF_area.py: add support for plotting shapefiles using the python interface
+   to shapelib
+ * CF_profile.py: in getExent we can now specify an interval to avoid 
+   getting into memory problems
+ * plotCFstats.py: extract about 100 profiles for extent plots
+ * plotCFvar.py: optionally plot a shapefile
+ * plot_extent.py: ditto
+
+2005-10-06 Magnus Hagdorn
  * CF_area.py: use tempfile for temporary files
  * CF_colourmap.py: ditto
  * CF_diff.py: ditto
@@ -7,11 +17,11 @@
  * create_topo.py: ditto
  * plotStreams.py: ditto
 
-2006-10-06 Magnus Hagdorn
+2005-10-06 Magnus Hagdorn
  * setup.py: bump version
  * update NEWS
 
-2006-10-04 Magnus Hagdorn
+2005-10-04 Magnus Hagdorn
  * CF_IOmisc.py: add expontential temperature EIS forcing
  * CF_options.py: add options to handle expontential temperature EIS forcing
  * plotEISvar.py: use new temperature forcing
