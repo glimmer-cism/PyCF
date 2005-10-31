@@ -189,13 +189,14 @@ class CFloadfile(CFfile):
         else:
             return 0.
 
-    def getRSL(self,loc,time):
+    def getRSL(self,loc,time,clip=True):
         """Get RSL data.
 
         loc: array,list,tuple containing longitude and latitude of RSL location
         time: if None, return data for all time slices
               if list/etc of size two, interpret as array selection
-              if single value, get only this time slice"""
+              if single value, get only this time slice
+        clip: if set to true only extract RSL for ice free locations"""
 
         # get times
         (tarray,t) = CFchecklist(time,self.file.variables['time'])
@@ -207,8 +208,17 @@ class CFloadfile(CFfile):
         # extract data
         values = []
         if tarray:
-            for i in range(t[0],t[1]+1):
-                values.append(data.spline(xyloc,i))
+            if clip:
+                ih_data = self.getvar('thk')
+                for i in range(t[0],t[1]+1):
+                    ih = ih_data.spline(xyloc,i)
+                    if ih>0.:
+                        values.append('nan')
+                    else:
+                        values.append(data.spline(xyloc,i))
+            else:
+                for i in range(t[0],t[1]+1):
+                    values.append(data.spline(xyloc,i))
             return values
 
         return data.spline(xyloc,t)

@@ -28,6 +28,7 @@ ysize = 2.
 # creating option parser
 parser = PyCF.CFOptParser()
 parser.rsl()
+parser.add_option("--ice_free",action="store_true",default=False,help='Only extract RSL for ice free areas')
 parser.timeint()
 parser.region()
 parser.plot()
@@ -68,7 +69,7 @@ for i in range(0,len(plot_sites)):
     # plot RSL curves
     for fnum in range(0,len(opts.args)-1):
         try:
-            rslareas.rsl_line(cffile[fnum],pen='-W1/%s'%PyCF.CFcolours[fnum])
+            rslareas.rsl_line(cffile[fnum],pen='-W1/%s'%PyCF.CFcolours[fnum],clip=opts.options.ice_free)
         except RuntimeError:
             print cffile[fnum].title,plot_sites[i]
 

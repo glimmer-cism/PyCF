@@ -1,3 +1,8 @@
+2005-10-31 Magnus Hagdorn
+ * CF_loadfile.py: add option to extract RSL curve only for ice-free areas
+ * CF_rsl.py: ditto
+ * plotRSL.py: ditto
+
 2005-10-11 Magnus Hagdorn
  * fix ChangeLog dates
  * CF_area.py: add support for plotting shapefiles using the python interface

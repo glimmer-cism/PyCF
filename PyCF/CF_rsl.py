@@ -50,7 +50,7 @@ class CFRSLArea(PyGMT.AutoXY):
         self.timescale = 0.001
         self.time = time
 
-    def rsl_line(self,cffile,pen='-W1/255/0/0'):
+    def rsl_line(self,cffile,pen='-W1/255/0/0',clip=False):
         """Plot RSL curve from CF file.
 
         cffile: CF file object
@@ -59,7 +59,7 @@ class CFRSLArea(PyGMT.AutoXY):
         t = [cffile.timeslice(self.time[0]*cffile.timescale,round='d'),
              cffile.timeslice(self.time[1]*cffile.timescale,round='u')]
         times = cffile.file.variables['time'][t[0]:t[1]+1]*self.timescale
-        data = cffile.getRSL([self.location[3],self.location[4]],t)
+        data = cffile.getRSL([self.location[3],self.location[4]],t,clip=clip)
         self.line(pen,times,data)
 
     def finalise(self,expandy=False):
