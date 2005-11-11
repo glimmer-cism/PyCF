@@ -142,7 +142,7 @@ else:
         area.shapefile(opts.options.shapefile)
     area.coordsystem()
     area.printinfo(time)
-    if opts.options.dolegend:
-        PyGMT.colourkey(area,var.colourmap.cptfile,title=var.long_name,pos=[0,-2])
+if opts.options.dolegend:
+    PyGMT.colourkey(area,var.colourmap.cptfile,title=var.long_name,args='-L',pos=[0,-2])
     
 plot.close()

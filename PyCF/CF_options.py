@@ -150,6 +150,10 @@ class CFOptParser(optparse.OptionParser):
         """Time interval options."""
         self.add_option("-t","--time",metavar='T0 T1',type="float",nargs=2,dest='times',help="specify time interval T0 T1, if none process entire file.")
 
+    def epoch(self):
+        """Glacial Stages."""
+        self.add_option("-e","--epoch",metavar='NAME',type="string",help='load glacial stages from file and plot them on time axis')
+
     def rsl(self):
         """RSL options."""
         self.add_option("-r","--rsldb",metavar='DB',type="string",default=self.rsldb,help="name of RSL database file [%s]"%self.rsldb)
@@ -164,17 +168,17 @@ class CFOptions(object):
         parser: Option parser.
         numargs: the number of arguments expected. A negative numargs implies the minimum number of arguments."""
 
-        (self.options, self.args) = parser.parse_args()
+        self.parser = parser
+
+        (self.options, self.args) = self.parser.parse_args()
 
         if numargs != None:
             if numargs>=0:
                 if len(self.args)!=numargs:
-                    sys.stderr.write('Error, expected %d arguments and got %d arguments\n'%(numargs,len(self.args)))
-                    sys.exit(1)
+                    self.parser.error('Error, expected %d arguments and got %d arguments\n'%(numargs,len(self.args)))
             else:
                 if len(self.args)<-numargs:
-                    sys.stderr.write('Error, expected at least %d arguments and got %d arguments\n'%(-numargs,len(self.args)))
-                    sys.exit(1)
+                    self.parser.error('Error, expected at least %d arguments and got %d arguments\n'%(-numargs,len(self.args)))
                     
     def __get_nfiles(self):
         return len(self.args)-1
@@ -280,7 +284,10 @@ class CFOptions(object):
         varn: variable number
         """
 
-        var = cffile.getvar(self.options.vars[varn])
+        try:
+            var = cffile.getvar(self.options.vars[varn])
+        except KeyError:
+            self.parser.error("Cannot find variable %s in file %s"%(self.options.vars[varn],cffile.fname))
         try:
             if self.options.colourmap == 'None':
                 var.colourmap = 'auto'

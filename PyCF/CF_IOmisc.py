@@ -20,9 +20,28 @@
 
 """Miscellaneous I/O operations."""
 
-__all__ = ['CFTimeSeries','CFEIStemp']
+__all__ = ['CFreadlines','CFTimeSeries','CFEIStemp','CFEpoch']
 
 import Numeric, math
+
+def CFreadlines(fobject, comment='#'):
+    """Strip files from comments.
+
+    fobject: file object to be read
+    comment: string indicating comment.
+    """
+
+    lines = []
+    for l in fobject.readlines():
+        # ignore comments and empty lines
+        l = l.strip()
+        pos = l.find(comment)
+        if pos>-1:
+            l = l[:pos]
+        if len(l)==0:
+            continue
+        lines.append(l)
+    return lines
 
 class CFTimeSeries(object):
     """Handling time series."""
@@ -147,3 +166,53 @@ class CFEIStemp(CFTimeSeries):
                 raise RuntimeError, 'No handle for temperature calculations type=\'%s\''%temp_type
             sdata.append([t])
         self.data = Numeric.array(sdata)
+
+class CFEpoch(object):
+    """Handle epochs."""
+
+    def __init__(self,fname):
+        """Initialise epoch data from file.
+
+        fname: name of file containing epoch data.
+
+        file format: comments start with #
+        each row contains 4 columns separate by commas: name, start time, end time and GMT RGB string."""
+
+        self.data = []
+        self.timescale = 0.001
+        f = open(fname,'r')
+        for l in CFreadlines(f):
+            l = l.split(',')
+            self.data.append({'name' : l[0], 'start':float(l[1]), 'end':float(l[2]),'colour':l[3].strip()})
+        f.close()
+
+        self.__current = 0
+
+    def get_epoch(self,t):
+        """Return the name of the epoch given a time.
+
+        t: time in ka"""
+
+        time = t/self.timescale
+
+        # first try if current points to the right epoch
+        if self.data[self.__current]['start']<=time and self.data[self.__current]['end']>=time:
+            return self.__current
+
+        for c in range(0,len(self.data)):
+            if self.data[c]['start']<=time and self.data[c]['end']>=time:
+                self.__current = c
+                return self.__current
+
+        return None
+
+    def get_colour(self,t):
+        """Return the RGB string associated with time.
+
+        t: time in ka"""
+
+        c = self.get_epoch(t)
+        if c != None:
+            return self.data[c]['colour']
+        else:
+            return '255/255/255'

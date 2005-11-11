@@ -1,3 +1,12 @@
+2005-11-11 Magnus Hagdorn
+ * CF_IOmisc.py: new function to read file with comments, new class for
+   handling glacial stages
+ * CF_options.py: new option for glacial stages, handle errors
+ * CF_profilearea.py: new class for time-distance diagrams
+ * CF_proj.py: change integer constants to floats
+ * plotCFvar.py: make legend boxes constant sized
+ * plotProfileTS.py: use new class
+
 2005-10-31 Magnus Hagdorn
  * CF_loadfile.py: add option to extract RSL curve only for ice-free areas
  * CF_rsl.py: ditto

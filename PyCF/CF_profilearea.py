@@ -20,7 +20,7 @@
 
 """Class for plotting profiles extracted from CF files."""
 
-__all__ = ['CFProfileArea','CFProfileMArea']
+__all__ = ['CFProfileArea','CFProfileMArea','CFProfileAreaTS']
 
 import PyGMT,Numeric
 
@@ -184,3 +184,140 @@ class CFProfileMArea(PyGMT.AreaXY):
         # loop over plots
         for ts in self.plots:
             ts.coordsystem(grid=grid)
+
+class CFProfileAreaTS(PyGMT.AreaXY):
+    """Plot time--distance diagram."""
+
+    def __init__(self,parent,profile,time=None,clip=None,level=None,pos=[0.,0.],size=[18.,25.]):
+        """Initialise.
+
+        parent: can be either a Canvas or another Area.
+        profile: CF profile
+        var: name of variable to be plotted
+        time: if None, return data for all time slices
+              if list/etc of size two, interpret as array selection
+        clip:
+        level: level to be processed
+        pos: position of area relative to the parent
+        size: size of GMT area
+        """
+
+        self.mainarea = None
+        self.upper_area = None
+        self.lower_area = None
+        self.epoch_area = None
+
+        self.dy = 0.5
+        self.dx = 0.
+        self.finalised = False
+        self.__main = {'clip':clip,'level':level}
+        self.__profile = profile
+        self.__profs = None
+        self.__epoch = None
+        self.__time = time
+
+        self = PyGMT.AreaXY.__init__(self,parent,pos=pos,size=size)
+
+    def plot_profs(self,var,height=4.):
+        """Plot profiles above and below main area.
+
+        var: name of variable to be plotted
+        height: height of profile."""
+
+        self.__profs = {'var':var,'height' : height}
+
+    def plot_epoch(self,epoch,width=.6):
+        """Plot epochs.
+
+        epoch: epoch data
+        widht: width of plot."""
+
+        self.__epoch = {'epoch':epoch, 'width' :width}
+
+    def finalise(self):
+        """Finalise plot.
+
+        i.e. set up region and do all the actual plotting."""
+
+        if self.__epoch != None:
+            width = self.size[0]-self.__epoch['width']-self.dx
+        else:
+            width = self.size[0]
+
+        y = 0.
+        
+        if self.__profs != None:
+            if self.__profs['var'] != None:
+                profile = self.__profile.cffile.getprofile(self.__profs['var'])
+            else:
+                profile = self.__profile
+            self.lower_area = CFProfileArea(self,profile,self.__time[0],size=[width,self.__profs['height']-self.dy],pos=[0.,0.])
+            self.lower_area.finalise()
+
+            self.upper_area = CFProfileArea(self,profile,self.__time[1],size=[width,self.__profs['height']-self.dy],pos=[0.,self.size[1]+self.dy-self.__profs['height']])
+            self.upper_area.finalise()
+            self.upper_area.axis='Wesn'
+
+            height = self.size[1]-2*self.__profs['height']
+            y = self.__profs['height']
+            self.mainarea = PyGMT.AreaXY(self,size=[width,height],pos=[0.,y])
+            self.mainarea.axis='Wesn'
+        else:
+            height = self.size[1]
+            self.mainarea = PyGMT.AreaXY(self,size=[width,height],pos=[0.,0.])
+            self.mainarea.axis='WeSn'
+            self.mainarea.xlabel = 'distance along profile'
+
+        self.mainarea.setregion([0,self.__profile.cffile.time(self.__time[0])],[self.__profile.cffile.xvalues[-1],self.__profile.cffile.time(self.__time[1])])
+        self.mainarea.ylabel = 'time'
+
+        data = self.__profile.getProfileTS(time=self.__time,level=self.__main['level'])
+
+        clipped = False
+        if self.__main['clip'] in ['topg','thk','usurf'] :
+            cvar = self.__profile.cffile.getprofile(self.__main['clip'])
+            cdata = cvar.getProfileTS(time=self.__time)
+            self.mainarea.clip(cdata,0.1)
+            clipped = True
+
+        self.mainarea.image(data,self.__profile.colourmap.cptfile)
+        if clipped:
+            self.mainarea.unclip()
+
+        if self.__main['clip'] != 'thk':
+            cvar = self.__profile.cffile.getprofile('thk')
+            cdata = cvar.getProfileTS(time=self.__time)
+        self.mainarea.contour(cdata,[0.1],'-W1/0/0/0')
+
+        if self.__epoch != None:
+            self.epoch_area = PyGMT.AreaXY(self,size=[self.__epoch['width'],height],pos=[width,y])
+            self.epoch_area.axis='wesn'
+            self.epoch_area.setregion([0,self.__profile.cffile.time(self.__time[0])],[1,self.__profile.cffile.time(self.__time[1])])
+            self.epoch_area.coordsystem()
+
+           # plot boxes
+            e = self.__epoch['epoch'].data
+            for c in range(0,len(e)):
+                t0 = e[c]['start']*self.__epoch['epoch'].timescale
+                t1 = e[c]['end']*self.__epoch['epoch'].timescale
+                x = [0.,1.,1.,0.]
+                y = [t0,t0,t1,t1]
+                self.epoch_area.line('-L -G%s -W1/0/0/0'%e[c]['colour'],x,y)
+                self.epoch_area.text([0.5,(t0+t1)/2.],e[c]['name'],'10 90 0 CM')
+                self.mainarea.line('-L -W1/0/0/0',[0.,self.__profile.cffile.xvalues[-1]],[t0,t0])
+                self.mainarea.line('-L -W1/0/0/0',[0.,self.__profile.cffile.xvalues[-1]],[t1,t1])
+
+        self.finalised = True
+
+    def coordsystem(self):
+        """Draw coordinate system."""
+
+        if not self.finalised:
+            self.finalise()
+
+        if self.lower_area != None:
+            self.lower_area.coordsystem()
+        if self.upper_area != None:
+            self.upper_area.coordsystem()
+        if self.mainarea != None:
+            self.mainarea.coordsystem()

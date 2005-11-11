@@ -293,8 +293,8 @@ def CFProj_parse_ESRIprj(pFile):
                 standard2=DmsParse(pFile)
                 proj.standard_parallel = [standard1,standard2]
                 long_central=DmsParse(pFile)
-                if long_central < 0:
-                    long_central = 360+long_central
+                if long_central < 0.:
+                    long_central = 360.+long_central
                     proj.longitude_of_central_meridian = [long_central]
                 else:
                     proj.longitude_of_central_meridian = [long_central]
@@ -314,8 +314,8 @@ def CFProj_parse_ESRIprj(pFile):
                 standard2=DmsParse(pFile)
                 proj.standard_parallel = [standard1,standard2]
                 long_central=DmsParse(pFile)
-                if long_central < 0:
-                    long_central = 360+long_central
+                if long_central < 0.:
+                    long_central = 360.+long_central
                     proj.longitude_of_central_meridian = [long_central]
                 else:
                     proj.longitude_of_central_meridian = [long_central]
@@ -334,8 +334,8 @@ def CFProj_parse_ESRIprj(pFile):
           	if first[0] == 'Parameters':
                     skip = pFile.readline() #skip a line as data not required
                     long_central=DmsParse(pFile)
-                    if long_central < 0:
-                        long_central = 360+long_central
+                    if long_central < 0.:
+                        long_central = 360.+long_central
                         proj.longitude_of_central_meridian = [long_central]
                     else:
                         proj.longitude_of_central_meridian = [long_central]
@@ -415,8 +415,8 @@ def DmsParse(pFile):
     # This parses a string from the projection file
     l = string.split(pFile.readline())
     deg = float(l[0])
-    minute = float(l[1])/60
-    sec = float(l[2])/3600
+    minute = float(l[1])/60.
+    sec = float(l[2])/3600.
     dms=(deg)+(minute)+(sec)
     return dms
 

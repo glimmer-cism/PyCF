@@ -29,11 +29,13 @@ parser = PyCF.CFOptParser()
 parser.width=15.
 parser.variable()
 parser.add_option("--profvar",metavar='NAME',type="string",dest='profvar',help="plot variable NAME at beginning and end of time interval")
+parser.epoch()
 parser.profile_file()
 parser.timeint()
 parser.plot()
 opts = PyCF.CFOptions(parser,2)
 infile = opts.cfprofile()
+profile = opts.profs(infile)
 try:
     t0 = opts.times(infile,0)
     t1 = opts.times(infile,1)
@@ -50,53 +52,16 @@ plot = opts.plot()
 plot.defaults['LABEL_FONT_SIZE']='12p'
 plot.defaults['ANOT_FONT_SIZE']='10p'
 
-bigarea = PyGMT.AreaXY(plot,size=opts.papersize)
-
-offset = 2.
-
+area = PyCF.CFProfileAreaTS(plot,profile,time=[t0,t1],clip=opts.options.clip,level=level)
 if opts.options.profvar != None:
-    areats = PyGMT.AreaXY(bigarea,size=[opts.papersize[0],opts.papersize[1]-2*SIZE_Y],pos=[0.,offset+SIZE_Y])
-    areats.axis='Wesn'
-
-    profile = infile.getprofile(opts.options.profvar)
-    area1 = PyCF.CFProfileArea(bigarea,profile,t0,size=[opts.papersize[0],SIZE_Y-.5],pos=[0.,offset])
-    area1.finalise()
-    area1.coordsystem()
-    area2 = PyCF.CFProfileArea(bigarea,profile,t1,pos=[0.,offset+opts.papersize[1]-SIZE_Y+0.5],size=[opts.papersize[0],SIZE_Y-0.5])
-    area2.axis='Wesn'
-    area2.finalise()
-    area2.coordsystem()
-else:
-    areats = PyGMT.AreaXY(bigarea,size=opts.papersize,pos=[0.,offset])
-    areats.axis='WeSn'
-    areats.xlabel = 'distance along profile'
-
-areats.setregion([0,infile.time(t0)],[infile.xvalues[-1],infile.time(t1)])
-areats.ylabel = 'time'
-
-profile = opts.profs(infile)
-data = profile.getProfileTS(time=[t0,t1],level=level)
-
-clipped = False
-clip = opts.options.clip
-if clip in ['topg','thk','usurf'] :
-    cvar = infile.getprofile(clip)
-    cdata = cvar.getProfileTS(time=[t0,t1])
-    areats.clip(cdata,0.1)
-    clipped = True
-areats.image(data,profile.colourmap.cptfile)
-if clipped:
-    areats.unclip()
-
-if clip != 'thk':
-    cvar = infile.getprofile('thk')
-    cdata = cvar.getProfileTS(time=[t0,t1])
-areats.contour(cdata,[0.1],'-W1/0/0/0')
-
-areats.coordsystem()
+    area.plot_profs(opts.options.profvar)
+if opts.options.epoch != None:
+    epoch = PyCF.CFEpoch(opts.options.epoch)
+    area.plot_epoch(epoch)
+area.coordsystem()
 
 if opts.options.dolegend:
-    PyGMT.colourkey(areats,profile.colourmap.cptfile,title=profile.long_name,pos=[(opts.papersize[0]-10.)/2.,-2.8])
+    PyGMT.colourkey(areats,profile.colourmap.cptfile,title=profile.long_name,args='-L',pos=[(opts.papersize[0]-10.)/2.,-2.8])
 
 plot.close()
 
