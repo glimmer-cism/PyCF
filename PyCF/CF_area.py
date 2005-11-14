@@ -207,13 +207,28 @@ class CFArea(PyGMT.AreaXY):
         PyGMT.AreaXY.image(self,cvar_grd,cmap.name,args=args)
         cmap.close()
 
-    def profile(self,args='-W1/0/0/0'):
+    def profile(self,args='-W1/0/0/0', prof=None, slabel=None, elabel=None):
         """Plot profile if present in file.
 
-        args: pen arguments default -W1/0/0/0"""
+        args: pen arguments default -W1/0/0/0
+        prof: instance of CFprofile class
+        slabel: label to be printed at d=0
+        elabel: label to be printed at d=-1"""
 
-        if hasattr(self.file,'interpolated'):
-            self.line(args,self.file.interpolated[0,:].tolist(),self.file.interpolated[1,:].tolist())
+        if prof==None:
+            if hasattr(self.file,'profiledata'):
+                p = self.file.profiledata
+            else:
+                return
+        else:
+            p = prof
+            
+        self.line(args, p.interpolated[0,:].tolist(),p.interpolated[1,:].tolist())
+        if slabel!=None:
+            self.text(p.interpolated[:,0].tolist(),slabel,textargs='8 0 0 LB')
+        if elabel!=None:
+            self.text(p.interpolated[:,-1].tolist(),elabel,textargs='8 0 0 LB')
+            
 
     def rsl_locations(self,rsldb,dataset=None, legend=None):
         """Plot RSL locations.

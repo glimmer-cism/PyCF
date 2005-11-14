@@ -20,14 +20,14 @@
 
 """A simple plot of CF fields."""
 
-import PyGMT,PyCF,sys
+import PyGMT,PyCF,sys,string
 
 # creating option parser
 parser = PyCF.CFOptParser()
 parser.variable()
 parser.add_option("-g","--glyph",metavar='VAR',type="choice",dest='glyph',choices=['vel','vel_avg','bvel'],help="Add velocity glyphs to plot, VAR can be one of [vel,vel_avg,bvel]")
 parser.add_option("--shapefile",metavar='FNAME',help="plot a shape file, e.g. LGM extent....")
-parser.profile_file()
+parser.profile_file(plist=True)
 parser.time()
 parser.region()
 parser.plot()
@@ -54,10 +54,7 @@ if count > 1:
     sys.stderr.write('Error, can only have either more than one time slice or more than one variable or more than one file!\n')
     sys.exit(1)
 
-if opts.options.profname!=None:
-    infile = opts.cfprofile()
-else:
-    infile = opts.cffile()
+infile = opts.cffile()
 var  = opts.vars(infile)
 time = opts.times(infile)
 # get number of plots
@@ -86,10 +83,7 @@ if numplots > 1:
             bigarea = PyGMT.AreaXY(plot,size=opts.papersize)
 
         if opts.nfiles>1:
-            if opts.options.profname!=None:
-                infile = opts.cfprofile(i)
-            else:
-                infile = opts.cffile(i)
+            infile = opts.cffile(i)
         if opts.nvars>1:
             var  = opts.vars(infile,i)
         else:
@@ -114,8 +108,12 @@ if numplots > 1:
             pass
         if opts.options.shapefile != None:
             area.shapefile(opts.options.shapefile)
-        if parser.profile!=None:
-            area.profile(args='-W5/0/0/0')
+        i=0
+        for pn in opts.options.profname:
+            pdata = PyCF.CFprofile(infile,interval=opts.options.interval)
+            pdata.coords_file(pn,opts.options.prof_is_projected)
+            area.profile(args='-W5/0/0/0',prof=pdata,slabel=string.ascii_uppercase[i])
+            i=i+1
         area.axis='wesn'
         area.coordsystem()
         area.printinfo(time)
@@ -136,8 +134,12 @@ else:
         pass
     if var.name == 'is' or var.name == 'thk':
         area.contour(var,[500,1000,2500,3000],'-W1/255/255/255',time)
-    if parser.profile!=None:
-        area.profile(args='-W5/0/0/0')
+    i=0
+    for pn in opts.options.profname:
+        pdata = PyCF.CFprofile(infile,interval=opts.options.interval)
+        pdata.coords_file(pn,opts.options.prof_is_projected)
+        area.profile(args='-W5/0/0/0',prof=pdata,slabel=string.ascii_uppercase[i])
+        i=i+1
     if opts.options.shapefile != None:
         area.shapefile(opts.options.shapefile)
     area.coordsystem()

@@ -20,11 +20,11 @@
 
 """A simple plot of CF fields."""
 
-import PyGMT,PyCF,sys
+import PyGMT,PyCF,sys,string
 
 # creating option parser
 parser = PyCF.CFOptParser()
-parser.profile_file()
+parser.profile_file(plist=True)
 parser.add_option("--land",action="store_true", dest="land",default=False,help="Indicate area above SL")
 parser.add_option("--shapefile",metavar='FNAME',help="plot a shape file, e.g. LGM extent....")
 parser.time()
@@ -34,10 +34,7 @@ opts = PyCF.CFOptions(parser,-2)
 
 dokey = opts.nfiles > 1
 
-if opts.options.profname!=None:
-    infile = opts.cfprofile()
-else:
-    infile = opts.cffile()
+infile = opts.cffile()
 time = opts.times(infile)
 
 # get number of plots
@@ -58,18 +55,20 @@ if dokey:
     key.num = [2,4]
 
 for i in range(0,opts.nfiles):
-    if opts.options.profname!=None:
-        infile = opts.cfprofile(i)
-    else:
-        infile = opts.cffile(i)
+    infile = opts.cffile(i)
 
     time = opts.times(infile)
     thk = infile.getvar('thk')
     area.contour(thk,[0.1],'-W2/%s'%PyCF.CFcolours[i],time)
     if dokey:
             key.plot_line(infile.title,'1/%s'%PyCF.CFcolours[i])
-if opts.options.profname!=None:
-    area.profile(args='-W5/0/0/0')
+i=0
+for pn in opts.options.profname:
+    pdata = PyCF.CFprofile(infile,interval=opts.options.interval)
+    pdata.coords_file(pn,opts.options.prof_is_projected)
+    area.profile(args='-W5/0/0/0',prof=pdata,slabel=string.ascii_uppercase[i])
+    i=i+1
+            
 area.coordsystem()
 
 if opts.options.shapefile != None:

@@ -1,3 +1,11 @@
+2005-11-14 Magnus Hagdorn
+ * CF_options.py: allow lists of profiles
+ * CF_profile.py: rename CFprofile to CFprofvar, new class CFprofile
+   for handling profile lines
+ * CF_area.py: profile plotter can use profiles given by CFprofile instances
+ * plotCFvar.py: plot any number of profiles
+ * plot_extent.py: ditto
+
 2005-11-11 Magnus Hagdorn
  * CF_IOmisc.py: new function to read file with comments, new class for
    handling glacial stages

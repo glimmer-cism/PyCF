@@ -116,10 +116,15 @@ class CFOptParser(optparse.OptionParser):
         self.__var()
         self.add_option("--ij",dest='ij',metavar="I J",type="int",nargs=2,action='append',help="node to be plotted (this option can be used more than once)")
 
-    def profile_file(self):
-        """Options for profile files."""
+    def profile_file(self,plist=False):
+        """Options for profile files.
 
-        self.add_option("-p","--profile",metavar='PROFILE',type='string',dest='profname',help="name of file containing profile control points")
+        plist: set to True if a number of profiles can be specified"""
+
+        if plist:
+            self.add_option("-p","--profile",action="append",metavar='PROFILE',type='string',dest='profname',help="name of file containing profile control points (this option can be used more than once)")
+        else:
+            self.add_option("-p","--profile",metavar='PROFILE',type='string',dest='profname',help="name of file containing profile control points")
         self.add_option("--not_projected",action="store_false",default=True,dest="prof_is_projected",help="Set this flag if the profile data is not projected.")        
         self.add_option("--interval",type="float",metavar='INTERVAL',default=10000.,help="set interval to INTERVAL (default = 10000.m)")
 
