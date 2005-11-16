@@ -25,7 +25,8 @@ __all__ = ['CFRSLArea','CFRSLlocs','CFRSLAreaHistT']
 import PyGMT,Numeric, tempfile
 from CF_IOrsl import *
 
-CFRSLlocs = {'fenscan' : [74,70,103,105,95,214,219,107,89,77]}
+CFRSLlocs = {'fenscan-pelt' : [74,70,103,105,95,214,219,107,89,77],
+             'fenscan'      : [321,317,53,62,42,41,3,0,33,20] }
 
 class CFRSLArea(PyGMT.AutoXY):
     """CF RSL plotting area."""
@@ -49,6 +50,8 @@ class CFRSLArea(PyGMT.AutoXY):
         self.axis='WS'
         self.timescale = 0.001
         self.time = time
+        self.errors = True
+        self.symbolsize=0.1
 
     def rsl_line(self,cffile,pen='-W1/255/0/0',clip=False):
         """Plot RSL curve from CF file.
@@ -71,7 +74,9 @@ class CFRSLArea(PyGMT.AutoXY):
 
         data = self.rsl.getRSLobs(self.lid)
         for obs in data:
-            self.point([obs[2]*self.timescale],[obs[3]],[obs[5]*self.timescale],[obs[7]])
+            if self.errors:
+                self.point([obs[2]*self.timescale],[obs[3]],[obs[5]*self.timescale],[obs[7]])
+            self.plotsymbol([obs[2]*self.timescale],[obs[3]],size=self.symbolsize)
 
         self.ll[0] = self.time[0]*self.timescale
         self.ur[0] = self.time[1]*self.timescale
@@ -211,6 +216,8 @@ if __name__ == '__main__':
     from CF_IOrsl import *
     
     parser = CFOptParser()
+    parser.rsl()
+    parser.add_option("--id",default=1,metavar="ID",type="int",help="select RSL ID")
     parser.time()
     parser.region()
     parser.plot()
@@ -219,9 +226,9 @@ if __name__ == '__main__':
     #infile = opts.cffile()
     plot = opts.plot()
 
-    rsl = CFRSL('/home/magi/Development/src/PyCF/pelt.dat')
+    rsl = CFRSL(opts.options.rsldb)
 
-    rslplot = CFRSLArea(plot,rsl,1)
+    rslplot = CFRSLArea(plot,rsl,opts.options.id)
     rslplot.finalise(expandx=True,expandy=True)
     rslplot.coordsystem()
     rslplot.printinfo()

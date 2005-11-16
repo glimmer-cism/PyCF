@@ -23,6 +23,7 @@ __all__ = ['CFOptParser','CFOptions']
 import optparse, sys, PyGMT, os.path
 from CF_loadfile import *
 from CF_profile import *
+from CF_rsl import CFRSLlocs
 
 class CFOptParser(optparse.OptionParser):
     """Handle options."""
@@ -162,7 +163,7 @@ class CFOptParser(optparse.OptionParser):
     def rsl(self):
         """RSL options."""
         self.add_option("-r","--rsldb",metavar='DB',type="string",default=self.rsldb,help="name of RSL database file [%s]"%self.rsldb)
-        self.add_option("--rsl_selection",type="choice",choices=['fenscan'],default='fenscan',help="Change selection of RSL locations to be plotted, can be one of [\"fenscan\"] (default: fenscan)")
+        self.add_option("--rsl_selection",type="choice",choices=CFRSLlocs.keys(),default='fenscan',help="Change selection of RSL locations to be plotted, can be one of %s (default: fenscan)"%str(CFRSLlocs.keys()))
 
 class CFOptions(object):
     """Do some option/argument massaging."""

@@ -1,3 +1,12 @@
+2005-11-16 Magnus Hagdorn
+ * CF_rsl.py: new default set of observations for full data base, plot circles
+ * CF_options.py: get possible values for rsl selection from keys()
+ * CF_loadfile.py: fix minor bug where RSL res are clipped
+ * plotRSLloc.py: add option to print RSL location IDs, coords and number of
+   observations
+ * plotRSLdata.py: new prog for plotting individual RSL observation
+ * setup.py: hook up
+
 2005-11-14 Magnus Hagdorn
  * CF_options.py: allow lists of profiles
  * CF_profile.py: rename CFprofile to CFprofvar, new class CFprofile

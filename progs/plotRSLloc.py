@@ -24,24 +24,47 @@ import PyGMT,PyCF,sys
 
 parser = PyCF.CFOptParser()
 parser.rsl()
+parser.add_option("--print_ids",default=False,action="store_true",help="print ids of RSL observations")
 parser.region()
 parser.plot()
 
 opts = PyCF.CFOptions(parser,2)
 
 infile = opts.cffile()
+rsl = PyCF.CFRSL(opts.options.rsldb)
 plot = opts.plot()
 
 bigarea = PyGMT.AreaXY(plot,size=opts.papersize)
 sizex=opts.options.width
 
-key = PyGMT.KeyArea(bigarea,size=[sizex,2.])
+data = []
+id_dx = 3.75
+id_dy = 0.25
+if opts.options.print_ids:
+    rsldata = rsl.getLocationRange(infile.minmax_long,infile.minmax_lat)
+    
+    idysize=opts.papersize[1]-14.
+    idarea = PyGMT.AreaXY(bigarea,size=[opts.papersize[0],idysize],pos=[-2.,0.])
+    for i in range(0,len(rsldata)):
+        loc = rsldata[i]
+        if infile.inside(infile.project([loc[3],loc[4]])):
+            data.append("%d: (%.2fE %.2fN) %d"%(loc[0],loc[3],loc[4],loc[5]))
+
+    ysize=(len(data)/5+1)*id_dy
+    for i in range(0,len(data)):
+        y = ysize-(i/5)*id_dy
+        x = (i%5)*id_dx
+        idarea.text([x,y],data[i],textargs='8 0 0 BL')
+
+
+y=(len(data)/5)*id_dy
+key = PyGMT.KeyArea(bigarea,size=[sizex,2.],pos=[-1,y+.5])
 key.num=[2,4]
 
-area = PyCF.CFArea(bigarea,infile,pos=[0,3.],size=sizex)
+area = PyCF.CFArea(bigarea,infile,pos=[-1,y+3.5],size=sizex)
 area.land(0)
 area.coastline()
-rsl = PyCF.CFRSL(opts.options.rsldb)
 area.rsl_locations(rsl,legend=key)
 area.coordsystem()
+
 plot.close()

@@ -249,6 +249,7 @@ class CFloadfile(CFfile):
         # create histogram
         hist = histogram.histogram2d(hnx,hny)
         hist.set_ranges_uniform(times[0],times[-1],PyGMT.round_down(min(residuals)),PyGMT.round_up(max(residuals)))
+
         for i in range(0,len(residuals)):
             hist.increment(res_times[i],residuals[i])
         # turn into a grid
@@ -283,7 +284,7 @@ class CFloadfile(CFfile):
                 obs.append(o[1])
             ti = [self.timeslice(min(times)-2.,'d'), self.timeslice(max(times),'u')]
             ts = spline.cspline(ti[1]-ti[0]+1)
-            ts.init(self.time(ti),self.getRSL(list(loc),ti))
+            ts.init(self.time(ti),self.getRSL(list(loc),ti,clip=False))
             residuals = []
             for i in range(0,len(times)):
                 residuals.append(obs[i]-ts.eval(times[i]))
