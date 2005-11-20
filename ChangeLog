@@ -1,3 +1,10 @@
+2005-11-20 Magnus Hagdorn
+ * CF_area.py: add method to plot averageRSL residuals on map
+ * CF_loadfile.py: when loading RSL residuals can also get time average
+ * plotRSLres.py: new program to plot RSL residuals on map
+ * rsl_res.cpt: new colour map for RSL residuals
+ * setup.py: hook up new files
+
 2005-11-16 Magnus Hagdorn
  * CF_rsl.py: new default set of observations for full data base, plot circles
  * CF_options.py: get possible values for rsl selection from keys()

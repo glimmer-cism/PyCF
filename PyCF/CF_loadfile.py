@@ -262,11 +262,12 @@ class CFloadfile(CFfile):
                 grid.data[i,j] = hist[i,j]
         return grid
 
-    def get_rslres(self,rsldb,lid):
+    def get_rslres(self,rsldb,lid,avg=False):
         """Get RSL residual.
 
         rsldb: RSL database
-        lid: location id."""
+        lid: location id.
+        avg: set to True to get average"""
 
         # check if residuals are cached
         if lid not in self.__rslres:
@@ -289,7 +290,13 @@ class CFloadfile(CFfile):
             for i in range(0,len(times)):
                 residuals.append(obs[i]-ts.eval(times[i]))
             self.__rslres[lid] = (times,residuals)
-        return self.__rslres[lid]
+        if avg:
+            r = 0.
+            if len(self.__rslres[lid][1])>0:
+                r = sum(self.__rslres[lid][1])/float(len(self.__rslres[lid][1]))
+            return r
+        else:
+            return self.__rslres[lid]
 
     def clone(self,fname):
         """Clone self.

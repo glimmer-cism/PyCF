@@ -22,11 +22,12 @@
 
 __all__ = ['CFArea']
 
-import PyGMT,Numeric,math,tempfile
+import PyGMT,Numeric,math,tempfile, os.path
 from PyGMT import gridcommand
 from CF_loadfile import CFvariable
 from CF_colourmap import CFcolours
 from StringIO import StringIO
+from CF_utils import CFdatadir
 
 class CFArea(PyGMT.AreaXY):
     """CF grid plotting area."""
@@ -247,6 +248,33 @@ class CFArea(PyGMT.AreaXY):
                     legend.plot_symbol(ds[1],CFcolours[loc[1]],'a')
                     
             self.geo.plotsymbol([loc[3]],[loc[4]],size=0.2,symbol='a',args='-G%s'%CFcolours[loc[1]])
+
+    def rsl_res(self,rsldb):
+        """Plot RSL residuals on map.
+
+        rsldb: RSL database data set
+        returns colourmap file"""
+
+        # get data
+        rsldata = rsldb.getLocationRange(self.file.minmax_long,self.file.minmax_lat)
+        avgs = []
+        mina =  10000.
+        maxa = -10000.
+        for loc in rsldata:
+            xyloc = self.file.project([loc[3],loc[4]])
+            if self.file.inside(xyloc):
+                try:
+                    a = self.file.get_rslres(rsldb,loc[0],avg=True)
+                except:
+                    continue
+                if (mina>a): mina = a
+                if (maxa<a): maxa = a
+                avgs.append({'x': loc[3],'y':loc[4], 'a': a})
+
+        # plot data
+        for a in avgs:
+            self.geo.plotsymbol([a['x']], [a['y']],size='%f 0.2'%a['a'],symbol='a',args='-C%s'%os.path.join(CFdatadir,'rsl_res.cpt'))
+            
 
     def shapefile(self,fname,pen='2/0/0/0'):
         """Plot a shape file.
