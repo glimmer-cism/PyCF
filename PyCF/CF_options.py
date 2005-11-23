@@ -62,14 +62,16 @@ class CFOptParser(optparse.OptionParser):
         group.add_option("--urg",dest='urg',metavar="X Y",type="float",nargs=2,help="upper right corner in geographic coordinate system")
         self.add_option_group(group)
 
-    def region1d(self):
+    def region1d(self,onlyx=False,onlyy=False):
         """Specifying axis ranges."""
 
         group = optparse.OptionGroup(self,"Axis Options","These options are used to control the x and y axis.")
-        group.add_option("--noxauto",action="store_true", default="False",help="Don't expand x range to reasonable values.")
-        group.add_option("--noyauto",action="store_true", default="False",help="Don't expand x range to reasonable values.")
-        group.add_option("--xrange",type="float",nargs=2,metavar="X1 X2",help="set x-axis range to X1:X2")
-        group.add_option("--yrange",type="float",nargs=2,metavar="Y1 Y2",help="set y-axis range to Y1:Y2")
+        if not onlyy:
+            group.add_option("--noxauto",action="store_true", default="False",help="Don't expand x range to reasonable values.")
+            group.add_option("--xrange",type="float",nargs=2,metavar="X1 X2",help="set x-axis range to X1:X2")
+        if not onlyx:
+            group.add_option("--noyauto",action="store_true", default="False",help="Don't expand x range to reasonable values.")
+            group.add_option("--yrange",type="float",nargs=2,metavar="Y1 Y2",help="set y-axis range to Y1:Y2")
         self.add_option_group(group)
 
 
@@ -279,7 +281,13 @@ class CFOptions(object):
             xdata.append(float(l[0]))
             ydata.append(float(l[1]))                         
         infile.close()
-        profile = CFloadprofile(self.args[argn],xdata,ydata,projected=self.options.prof_is_projected,interval=self.options.interval)
+        try:
+            xrange=self.options.xrange
+        except:
+            xrange=None
+        if xrange==None:
+            xrange=[None,None]
+        profile = CFloadprofile(self.args[argn],xdata,ydata,projected=self.options.prof_is_projected,interval=self.options.interval,xrange=xrange)
 
         return profile
 

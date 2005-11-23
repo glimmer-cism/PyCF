@@ -129,6 +129,14 @@ class CFProfileMArea(PyGMT.AreaXY):
         self.finalised = False
         self.plots = []
 
+    def empty(self):
+        """Create an empty autoxy area."""
+
+        newpr = PyGMT.AutoXY(self.pt,pos=[0,self.numplots*(self.size[1]+self.dy)],size=self.size)
+        self.plots.append(newpr)
+        self.numplots = self.numplots + 1
+        return newpr
+
     def newprof(self,profile,time,level=None,pen='1/0/0/0'):
         """Create a new profile plot.
 

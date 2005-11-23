@@ -1,3 +1,14 @@
+2005-11-23 Magnus Hagdorn
+ * CF_options.py: when loading profile, select honour xrange settings
+ * CF_profile.py: scale xrange properly
+ * CF_profilearea.py: we can now also create an empty AutoXY area
+ * plotProfile.py: add xrange settings to options
+ * plotCFvar.py: handle a number of profiles
+ * plot_extent.py: ditto
+ * construct_field.py: new program for setting variable values inside and
+   outside a polygon
+ * setup.py: hook up construct_field.py
+
 2005-11-20 Magnus Hagdorn
  * CF_area.py: add method to plot averageRSL residuals on map
  * CF_loadfile.py: when loading RSL residuals can also get time average

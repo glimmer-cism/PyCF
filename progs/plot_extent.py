@@ -62,12 +62,14 @@ for i in range(0,opts.nfiles):
     area.contour(thk,[0.1],'-W2/%s'%PyCF.CFcolours[i],time)
     if dokey:
             key.plot_line(infile.title,'1/%s'%PyCF.CFcolours[i])
-i=0
-for pn in opts.options.profname:
-    pdata = PyCF.CFprofile(infile,interval=opts.options.interval)
-    pdata.coords_file(pn,opts.options.prof_is_projected)
-    area.profile(args='-W5/0/0/0',prof=pdata,slabel=string.ascii_uppercase[i])
-    i=i+1
+
+if opts.options.profname!=None:
+    i = 0
+    for pn in opts.options.profname:
+        pdata = PyCF.CFprofile(infile,interval=opts.options.interval)
+        pdata.coords_file(pn,opts.options.prof_is_projected)
+        area.profile(args='-W5/0/0/0',prof=pdata,slabel=string.ascii_uppercase[i])
+        i=i+1
             
 area.coordsystem()
 

@@ -64,6 +64,7 @@ class CFprofile(object):
                 
         self.interpolated = CFinterpolate_xy([self.xloc,self.yloc],self.interval)
         
+        self.interval = self.interval*self.xscale
         if self.xrange[0] == None:
             start = 0
         else:
@@ -73,7 +74,6 @@ class CFprofile(object):
         else:
             end = int(self.xrange[1]/self.interval+0.9999)
         self.interpolated = self.interpolated[:,start:end]
-        self.interval = self.interval*self.xscale
         self.xrange = [start*self.interval, end*self.interval]
         self.xvalues = []
         for i in range(0,len(self.interpolated[1,:])):

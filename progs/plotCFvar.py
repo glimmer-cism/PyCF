@@ -108,12 +108,13 @@ if numplots > 1:
             pass
         if opts.options.shapefile != None:
             area.shapefile(opts.options.shapefile)
-        i=0
-        for pn in opts.options.profname:
-            pdata = PyCF.CFprofile(infile,interval=opts.options.interval)
-            pdata.coords_file(pn,opts.options.prof_is_projected)
-            area.profile(args='-W5/0/0/0',prof=pdata,slabel=string.ascii_uppercase[i])
-            i=i+1
+        if opts.options.profname !=None:
+            i=0
+            for pn in opts.options.profname:
+                pdata = PyCF.CFprofile(infile,interval=opts.options.interval)
+                pdata.coords_file(pn,opts.options.prof_is_projected)
+                area.profile(args='-W5/0/0/0',prof=pdata,slabel=string.ascii_uppercase[i])
+                i=i+1
         area.axis='wesn'
         area.coordsystem()
         area.printinfo(time)
@@ -134,12 +135,13 @@ else:
         pass
     if var.name == 'is' or var.name == 'thk':
         area.contour(var,[500,1000,2500,3000],'-W1/255/255/255',time)
-    i=0
-    for pn in opts.options.profname:
-        pdata = PyCF.CFprofile(infile,interval=opts.options.interval)
-        pdata.coords_file(pn,opts.options.prof_is_projected)
-        area.profile(args='-W5/0/0/0',prof=pdata,slabel=string.ascii_uppercase[i])
-        i=i+1
+    if opts.options.profname !=None:
+        i=0
+        for pn in opts.options.profname:
+            pdata = PyCF.CFprofile(infile,interval=opts.options.interval)
+            pdata.coords_file(pn,opts.options.prof_is_projected)
+            area.profile(args='-W5/0/0/0',prof=pdata,slabel=string.ascii_uppercase[i])
+            i=i+1
     if opts.options.shapefile != None:
         area.shapefile(opts.options.shapefile)
     area.coordsystem()

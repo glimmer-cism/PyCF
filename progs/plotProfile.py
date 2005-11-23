@@ -27,6 +27,7 @@ parser = PyCF.CFOptParser()
 parser.width=15.
 parser.profile()
 parser.time()
+parser.region1d(onlyx=True)
 parser.plot()
 opts = PyCF.CFOptions(parser,-2)
 infile = opts.cfprofile()
