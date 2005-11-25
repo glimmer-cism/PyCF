@@ -82,7 +82,7 @@ for i in range(0,numplots):
             plot = opts.plot()
         bigarea = PyGMT.AreaXY(plot,size=opts.papersize)
         if opts.options.dolegend:
-            PyGMT.colourkey(bigarea,colourmap,args='-L',title=ctitle,pos=[0,opts.papersize[1]-(numy-1)*(sizey+deltay)])
+            PyGMT.colourkey(bigarea,colourmap,args='-L',title=ctitle,pos=[0,opts.papersize[1]-(numy-1)*(sizey+deltay)-1.])
 
 
     if opts.options.profname!=None:

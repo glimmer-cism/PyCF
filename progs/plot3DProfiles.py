@@ -41,7 +41,6 @@ for i in range(0,opts.nfiles):
     profile = opts.profs(infile)
     time = opts.times(infile,0)
     prof_area = area.newprof(profile,time)
-    prof_area.ur=[prof_area.ur[0],4000.]
     prof_area.printinfo(time)
 
 area.finalise(expandy=True)

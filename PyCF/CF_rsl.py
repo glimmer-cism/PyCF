@@ -25,8 +25,8 @@ __all__ = ['CFRSLArea','CFRSLlocs','CFRSLAreaHistT']
 import PyGMT,Numeric, tempfile
 from CF_IOrsl import *
 
-CFRSLlocs = {'fenscan-pelt' : [74,70,103,105,95,214,219,107,89,77],
-             'fenscan'      : [321,317,53,62,42,41,3,0,33,20] }
+CFRSLlocs = {'fenscan' : [74,70,103,105,95,214,219,107,89,77],
+             'fenscan-full'      : [321,317,53,62,42,41,3,0,33,20] }
 
 class CFRSLArea(PyGMT.AutoXY):
     """CF RSL plotting area."""

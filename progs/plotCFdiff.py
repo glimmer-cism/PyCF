@@ -22,7 +22,7 @@ import PyCF,PyGMT
 DIFF_VARS=['bvel','bmlt','btemp','topg','thk']
 DONT_CLIP=['topg']
 
-def compare(inname1,inname2,outname,timeint):
+def compare(inname1,inname2,plot,timeint):
     """Compare two CF files and produce graphical output."""
 
     cf1 = PyCF.CFloadfile(inname1)
@@ -33,7 +33,6 @@ def compare(inname1,inname2,outname,timeint):
     else:
         times = None
 
-    plot = PyGMT.Canvas(outname)
     plot.defaults['LABEL_FONT_SIZE']='12p'
     plot.defaults['ANOT_FONT_SIZE']='10p'
     bigarea = PyGMT.AreaXY(plot,size=[20,30])
@@ -59,6 +58,9 @@ if __name__ == '__main__':
 
     parser = PyCF.CFOptParser(usage = "usage: %prog [options] infile1 infile2 outfile")
     parser.timeint()
+    parser.plot()
     opts = PyCF.CFOptions(parser,3)
 
-    compare(opts.args[0],opts.args[1],opts.args[2],opts.options.times)
+    plot=opts.plot()
+
+    compare(opts.args[0],opts.args[1],plot,opts.options.times)

@@ -1,3 +1,11 @@
+2005-11-15 Magnus Hagdorn
+ * CF_options.py: use reasonable font sizes for plots
+ * CF_rsl.py: change default RSL data base
+ * plot3DProfiles.py: minor improvement
+ * plotStreams.py: slightly move colour legend
+ * make_anim.py: new script for animating PyCF output
+ * setup.py: hook up new script
+ 
 2005-11-23 Magnus Hagdorn
  * CF_options.py: when loading profile, select honour xrange settings
  * CF_profile.py: scale xrange properly
