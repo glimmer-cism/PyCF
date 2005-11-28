@@ -95,7 +95,10 @@ for i in range(0,numplots):
     time_start = infile.timeslice(infile.time(time)-0.5*deltat)
     time_end = infile.timeslice(infile.time(time)+0.5*deltat)
 
-    bvel = infile.getvar('bvel')
+    try:
+        bvel = infile.getvar('bvel_tavg')
+    except:
+        bvel = infile.getvar('bvel')
     
     data = Numeric.zeros((len(bvel.xdim), len(bvel.ydim)),Numeric.Float32)
 

@@ -62,6 +62,7 @@ class CFcolourmap(object):
                  'wvel' : 'velo.cpt',
                  'vel'  : 'velo.cpt',
                  'bvel'  : 'velo.cpt',
+                 'bvel_tavg'  : 'velo.cpt',
                  'bheatflx': 'gthf.cpt',
                  'litho_temp' : 'litho_temp.cpt',
                  'temp' : 'temp.cpt'}

@@ -1,3 +1,10 @@
+2005-11-28 Magnus Hagdorn
+ * CF_loadfile.py: add bvel_tavg to calculated variables
+ * CF_colourmap.py: add colourmap for bvel_tavg
+ * CF_area.py: add velo components for bvel_tavg
+ * plotCFvar.py: add glyphs for bvel_tavg
+ * plotStreams.py: use bvel_tavg if available
+
 2005-11-15 Magnus Hagdorn
  * CF_options.py: use reasonable font sizes for plots
  * CF_rsl.py: change default RSL data base

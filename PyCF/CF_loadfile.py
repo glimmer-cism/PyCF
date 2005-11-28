@@ -352,6 +352,9 @@ class CFvariable(object):
         elif self.name=='bvel':
             if 'ubas' not in self.file.variables.keys() or 'vbas' not in self.file.variables.keys():
                 raise KeyError, 'Variable not in file'
+        elif self.name=='bvel_tavg':
+            if 'ubas_tavg' not in self.file.variables.keys() or 'vbas_tavg' not in self.file.variables.keys():
+                raise KeyError, 'Variable not in file'
         elif self.name=='tau':
             if 'taux' not in self.file.variables.keys() or 'tauy' not in self.file.variables.keys():
                 raise KeyError, 'Variable not in file'
@@ -372,6 +375,8 @@ class CFvariable(object):
                 return self.file.variables['uvel'].units
             elif self.name == 'bvel':
                 return self.file.variables['ubas'].units
+            elif self.name == 'bvel_tavg':
+                return self.file.variables['ubas_tavg'].units
             elif self.name == 'tau':
                 return self.file.variables['taux'].units
             else:
@@ -392,6 +397,8 @@ class CFvariable(object):
                 name = 'horizontal velocity'
             elif self.name == 'bvel':
                 name = 'horizontal basal velocity'
+            elif self.name == 'bvel_tavg':
+                name = 'horizontal basal velocity (time average)'
             elif self.name == 'tau':
                 name = 'basal shear stress'
             else:
@@ -419,6 +426,8 @@ class CFvariable(object):
             return self.file.variables['uvel'].dimensions[-1]
         elif self.name == 'bvel':
             return self.file.variables['ubas'].dimensions[-1]
+        elif self.name == 'bvel_tavg':
+            return self.file.variables['ubas_tavg'].dimensions[-1]
         elif self.name == 'tau':
             return self.file.variables['taux'].dimensions[-1]
         else:
@@ -438,6 +447,8 @@ class CFvariable(object):
             return self.file.variables[self.file.variables['uvel'].dimensions[-2]]
         elif self.name == 'bvel':
             return self.file.variables[self.file.variables['ubas'].dimensions[-2]]
+        elif self.name == 'bvel_tavg':
+            return self.file.variables[self.file.variables['ubas_tavg'].dimensions[-2]]
         elif self.name == 'tau':
             return self.file.variables[self.file.variables['taux'].dimensions[-2]]
         else:
@@ -446,7 +457,7 @@ class CFvariable(object):
 
     def __is3d(self):
         is3d = False
-        if self.name not in ['is', 'bvel', 'pmp', 'tau']:
+        if self.name not in ['is', 'bvel', 'bvel_tavg','pmp', 'tau']:
             if self.name == 'vel':
                 is3d = True
             elif 'level' in self.file.variables[self.name].dimensions :
@@ -484,6 +495,12 @@ class CFvariable(object):
             if self.__varcache == None:
                 self.__varcache = Numeric.sqrt(self.file.variables['ubas'][:,:,:]*self.file.variables['ubas'][:,:,:]+
                                                self.file.variables['vbas'][:,:,:]*self.file.variables['vbas'][:,:,:])
+            return self.__varcache
+
+        elif self.name == 'bvel_tavg':
+            if self.__varcache == None:
+                self.__varcache = Numeric.sqrt(self.file.variables['ubas_tavg'][:,:,:]*self.file.variables['ubas_tavg'][:,:,:]+
+                                               self.file.variables['vbas_tavg'][:,:,:]*self.file.variables['vbas_tavg'][:,:,:])
             return self.__varcache
 
         elif self.name == 'tau':
@@ -549,6 +566,10 @@ class CFvariable(object):
                 grid = Numeric.transpose(Numeric.sqrt(
                     self.file.variables['ubas'][time,:,:]*self.file.variables['ubas'][time,:,:]+
                     self.file.variables['vbas'][time,:,:]*self.file.variables['vbas'][time,:,:]))
+            elif self.name == 'bvel_tavg':
+                grid = Numeric.transpose(Numeric.sqrt(
+                    self.file.variables['ubas_tavg'][time,:,:]*self.file.variables['ubas_tavg'][time,:,:]+
+                    self.file.variables['vbas_tavg'][time,:,:]*self.file.variables['vbas_tavg'][time,:,:]))
             elif self.name == 'tau':
                 grid = Numeric.transpose(Numeric.sqrt(
                     self.file.variables['taux'][time,:,:]*self.file.variables['taux'][time,:,:]+

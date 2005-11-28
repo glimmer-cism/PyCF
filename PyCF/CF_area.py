@@ -147,10 +147,15 @@ class CFArea(PyGMT.AreaXY):
             velx = self.file.getvar('uvel')
             vely  = self.file.getvar('vvel')
             vel = self.file.getvar('vel')
-        else:
+        elif 'ubas' in self.file.file.variables and 'vbas' in self.file.file.variables:
             velx = self.file.getvar('ubas')
             vely  = self.file.getvar('vbas')
             vel = self.file.getvar('bvel')
+        elif 'ubas_tavg' in self.file.file.variables and 'vbas_tavg' in self.file.file.variables:
+            velx = self.file.getvar('ubas_tavg')
+            vely  = self.file.getvar('vbas_tavg')
+            vel = self.file.getvar('bvel_tavg')
+            
 
         data = vel.get2Dfield(time,level=level)
         datax = velx.get2Dfield(time,level=level)

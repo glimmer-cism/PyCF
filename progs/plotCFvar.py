@@ -25,7 +25,7 @@ import PyGMT,PyCF,sys,string
 # creating option parser
 parser = PyCF.CFOptParser()
 parser.variable()
-parser.add_option("-g","--glyph",metavar='VAR',type="choice",dest='glyph',choices=['vel','vel_avg','bvel'],help="Add velocity glyphs to plot, VAR can be one of [vel,vel_avg,bvel]")
+parser.add_option("-g","--glyph",metavar='VAR',type="choice",dest='glyph',choices=['vel','vel_avg','bvel','bvel_tavg'],help="Add velocity glyphs to plot, VAR can be one of [vel,vel_avg,bvel,bvel_tavg]")
 parser.add_option("--shapefile",metavar='FNAME',help="plot a shape file, e.g. LGM extent....")
 parser.profile_file(plist=True)
 parser.time()
@@ -98,7 +98,7 @@ if numplots > 1:
         if opts.options.land:
             area.land(time,illuminate=opts.options.illuminate)
         area.image(var,time,clip = opts.options.clip,level=level,mono=opts.options.mono,illuminate=opts.options.illuminate)
-        if opts.options.glyph!=None or var.name in ["vel","bvel","vel_avg"]: 
+        if opts.options.glyph!=None or var.name in ["vel","bvel","vel_avg","bvel_tavg"]: 
             area.velocity_field(time,level=level)
         area.coastline()
         try:
@@ -124,7 +124,7 @@ else:
     if opts.options.land:
         area.land(time,illuminate=opts.options.illuminate)
     area.image(var,time,clip = opts.options.clip,level=level,mono=opts.options.mono,illuminate=opts.options.illuminate)
-    if opts.options.glyph!=None or var.name in ["vel","bvel","vel_avg"]: 
+    if opts.options.glyph!=None or var.name in ["vel","bvel","vel_avg","bvel_tavg"]: 
         area.velocity_field(time,level=level)
     
     area.coastline()
