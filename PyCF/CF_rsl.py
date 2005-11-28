@@ -20,7 +20,7 @@
 
 """Plotting RSL data."""
 
-__all__ = ['CFRSLArea','CFRSLlocs','CFRSLAreaHistT']
+__all__ = ['CFRSLArea','CFRSLlocs','CFRSLAreaHist1D','CFRSLAreaHistT']
 
 import PyGMT,Numeric, tempfile
 from CF_IOrsl import *
@@ -88,6 +88,37 @@ class CFRSLArea(PyGMT.AutoXY):
         loc = self.rsl.getLoc(self.lid)
         infoarea = PyGMT.AreaXY(self,pos=[0.,self.size[1]],size=[self.size[0],0.5])
         infoarea.text([self.size[0]/2.,0.25],loc[2],textargs='8 0 0 CM')
+
+class CFRSLAreaHist1D(PyGMT.AutoXY):
+    """Plot a 1D histogram of RSL residuals."""
+    def __init__(self,parent,rsldata,pos=[0.,0.], size=[15.,10.]):
+        """Initialise.
+
+        parent: can be either a Canvas or another Area.
+        rsldata: rsl residual histogram data
+        pos: position of area relative to the parent
+        size: size of GMT area
+        """
+
+        PyGMT.AutoXY.__init__(self,parent,pos=pos,size=size)
+        self.__rsldata = rsldata
+        self.axis='WSen'
+        self.xlabel = 'residuals [m]'
+        self.ylabel = 'count'
+
+    def plot(self,colourmap=None):
+        """Plot RSL residuals.
+
+        colourmap: if not None, use colourmap to indicate residuals"""
+
+        counts = Numeric.sum(self.__rsldata.data,0)
+        dx = (self.__rsldata.y_minmax[1]-self.__rsldata.y_minmax[0])/(len(counts)-1)
+        bins = Numeric.arange(self.__rsldata.y_minmax[0],self.__rsldata.y_minmax[1]+dx,dx)
+        if colourmap==None:
+            self.steps('-W1',bins,counts)
+        else:
+            for i in range(0,min(len(counts),len(bins))):
+                self.plotsymbol([bins[i]],[counts[i]],size="%f %f"%(float(bins[i]),dx),symbol="b%fu"%dx,args="-W1 -C%s"%colourmap)
 
 class CFRSLAreaHistT(PyGMT.AreaXY):
     """Plot 2D histogram of RSL time-residuals."""

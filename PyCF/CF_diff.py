@@ -176,18 +176,17 @@ class CFdiff_base(PyGMT.AutoXY):
         # creating a colourmap
         min_h = PyGMT.round_down(min(Numeric.ravel(hist_grid)))
         max_h = PyGMT.round_up(max(Numeric.ravel(hist_grid)))
-        f = tempfile.NamedTemporaryFile(suffix='.cpt')
-        PyGMT.command('makecpt','-Crainbow -Z -T%f/%f/%f > %s'%(min_h,max_h,(max_h-min_h)/10.,f.name))
-        f.seek(0,2)
-        f.write('B       255     255     255')
-        f.flush()
+        self.colourmap = tempfile.NamedTemporaryFile(suffix='.cpt')
+        PyGMT.command('makecpt','-Crainbow -Z -T%f/%f/%f > %s'%(min_h,max_h,(max_h-min_h)/10.,self.colourmap.name))
+        self.colourmap.seek(0,2)
+        self.colourmap.write('B       255     255     255')
+        self.colourmap.flush()
 
         # plotting image
-        PyGMT.AutoXY.image(self,grid,f.name)
+        PyGMT.AutoXY.image(self,grid,self.colourmap.name)
 
         # and a colourkey
-        cm = PyGMT.colourkey(self,f.name,pos=[self.size[0]+0.5,0],size=[.75,self.size[1]])
-        f.close()
+        cm = PyGMT.colourkey(self,self.colourmap.name,pos=[self.size[0]+0.5,0],size=[.75,self.size[1]])
 
     def plotarea(self):
         """Plot difference between Ice Areas."""
@@ -218,3 +217,16 @@ class CFdiff_base(PyGMT.AutoXY):
         self.ylabel = 'melt fraction'
 
         PyGMT.AutoXY.line(self,'-W1/0/0/0',self.cffile1.time(self.t1),diff)
+
+    def finalise(self,expandx=False,expandy=False):
+        """Finalise autoXY plot.
+
+        i.e. set up region and do all the actual plotting.
+        expandx, expandy: when set to True expand region to sensible value.
+        """
+
+        PyGMT.AutoXY.finalise(self,expandx=expandx,expandy=expandy)
+        try:
+            self.colourmap.close()
+        except:
+            pass

@@ -23,7 +23,6 @@
 import PyGMT,PyCF,sys, Numeric, os.path
 
 parser = PyCF.CFOptParser()
-parser.add_option("--legend",action="store_true", dest="dolegend",default=False,help="Plot a colour legend")
 parser.rsl()
 parser.plot()
 
@@ -40,12 +39,14 @@ rsldata = infile.getRSLresiduals(rsl)
 
 bigarea = PyGMT.AreaXY(plot,size=opts.papersize)
 
-maparea = PyCF.CFArea(bigarea,infile,pos=[0.,4.],size=opts.options.width)
+maparea = PyCF.CFArea(bigarea,infile,pos=[0.,opts.options.width/3.+1.],size=opts.options.width)
 maparea.land(0)
-cpt = maparea.rsl_res(rsl)
+maparea.rsl_res(rsl)
 maparea.coastline()
 maparea.coordsystem()
-if opts.options.dolegend:
-    PyGMT.colourkey(maparea,os.path.join(PyCF.CFdatadir,'rsl_res.cpt'),title='RSL residuals [meter]',args='-L',pos=[0,-2])
+
+histarea = PyCF.CFRSLAreaHist1D(bigarea,rsldata,size=[opts.options.width,opts.options.width/3.])
+histarea.plot(colourmap=os.path.join(PyCF.CFdatadir,'rsl_res.cpt'))
+histarea.coordsystem()
 
 plot.close()
