@@ -55,6 +55,7 @@ if __name__ == '__main__':
     parser.add_option("-v","--variable",default='cony',metavar='NAME',type="string",help="variable to be processed")
     parser.add_option("-t","--time",metavar='TIME',type="float",dest='times',help="time to be processed (this option can be used more than once)")
     parser.add_option("-T","--timeslice",metavar='N',type="int",help="time slice to be processed (this option can be used more than once)")
+    parser.add_option("-f","--file",metavar='NAME',help="read contours from file")
     parser.add_option("-p","--vertex",metavar="LON LAT",nargs=2,action="append",type="float",help="Coordinates of point on line, this option can be used more than once.")
     parser.add_option("-i","--inside",metavar="VAL",type="float",help="Set field to VAL inside polygon")
     parser.add_option("-o","--outside",metavar="VAL",type="float",help="Set field to VAL outside polygon")
@@ -112,35 +113,45 @@ if __name__ == '__main__':
     else:
         outvar[0,:,:] = 0.
 
-    # construct polygon
+    # construct polygon from vertecies
+    poly = []
+    inside = []
     if options.vertex!=None:
         points = options.vertex
         # project points into cartesian coords
         for i in range(0,len(points)):
             points[i] = outfile.project(list(points[i]))
-
-        segments = []    
-        a = points[0]
-        for i in range(1,len(points)):
-            b = points[i]
-            segments.append((a,b))
-            a=b
             
         # close polygon
         points.append(points[0])
         # create polygon
-        poly = Polygon.Polygon(points)
+        poly.append(Polygon.Polygon(points))
+        inside.append(options.inside)
+        
 
+    if options.file!=None:
+        cntrs = PyCF.CFcontours(open(options.file,'r'))
+        for k in range(0,len(cntrs)):
+            points = cntrs[k]['vert']
+            for i in range(0,len(points)):
+                points[i] = outfile.project(list(points[i]))
+            points.append(points[0])
+            poly.append(Polygon.Polygon(points))
+            inside.append(cntrs[k]['val'])
+
+    if len(poly)>0:
         #loop over region
         for j in range(0,len(ydim[:])):
             for i in range(0,len(xdim[:])):
-                if poly.isInside(xdim[i],ydim[j]):
-                    if options.inside!=None:
-                        outvar[0,j,i] = options.inside
-                else:
+                p_is_outside=True
+                for k in range(0,len(poly)):
+                    if poly[k].isInside(xdim[i],ydim[j]):
+                        if inside[k]!=None:
+                            outvar[0,j,i] = inside[k]
+                        p_is_outside=False
+                if p_is_outside:
                     if options.outside!=None:
                         outvar[0,j,i] = options.outside
-                        
 
     # check if we should smooth results
     if options.smooth != None:

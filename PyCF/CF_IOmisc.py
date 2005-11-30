@@ -20,7 +20,7 @@
 
 """Miscellaneous I/O operations."""
 
-__all__ = ['CFreadlines','CFTimeSeries','CFEIStemp','CFEpoch']
+__all__ = ['CFreadlines','CFcontours','CFTimeSeries','CFEIStemp','CFEpoch']
 
 import Numeric, math
 
@@ -42,6 +42,35 @@ def CFreadlines(fobject, comment='#'):
             continue
         lines.append(l)
     return lines
+
+class CFcontours(list):
+    """Read an ASCII file containing contours and store them in a list."""
+
+    def __init__(self,fobject):
+        """initialise.
+
+        fobject: file object to be read
+        """
+
+        list.__init__(self)
+
+        # read data
+        cur=None
+        for l in CFreadlines(fobject):
+            pos = l.find(':')
+            if pos>-1:
+                cur = float(l[:pos])
+                vertices = []
+                self.append({'val':cur,'vert':vertices})
+                continue
+            if cur==None:
+                raise RuntimeError, 'No contour value selected'
+            values = l.split()
+            try:
+                values = [float(values[0]), float(values[1])]
+            except:
+                raise RuntimeError, 'Cannot read line:\n%s'%l
+            vertices.append(values)
 
 class CFTimeSeries(object):
     """Handling time series."""

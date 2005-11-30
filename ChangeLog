@@ -1,3 +1,7 @@
+2005-11-30 Magnus Hagdorn
+ * CF_IOmisc.py: new class for reading contours
+ * construct_field.py: can read polygons from file
+
 2005-11-28 Magnus Hagdorn
  * CF_diff.py: fix bug where colourmap file got deleted to early
  * CF_rsl.py: add class for plotting colour histogram of RSL residuals
