@@ -1,3 +1,11 @@
+2005-12-09 Magnus Hagdorn
+ * CF_area.py: add option to annotate contours
+ * CF_loadfile.py: make error somewhat more verbose
+ * CF_rsl.py: add selection for Britain
+ * construct_field.py: minor optimisation
+ * plotCFvar.py: can plot custom contours (which can also be annotated)
+ * plotRSL.py: autolayout plot
+
 2005-11-30 Magnus Hagdorn
  * CF_IOmisc.py: new class for reading contours
  * construct_field.py: can read polygons from file

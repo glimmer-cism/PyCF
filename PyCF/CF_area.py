@@ -175,16 +175,17 @@ class CFArea(PyGMT.AreaXY):
 
         self.canvascom('psxy',' -G0 -Sv0.01/0.1/0.1',indata=outstring.getvalue())
         
-    def contour(self,var,contours,args,time,level=0):
+    def contour(self,var,contours,args,time,level=0,cntrtype='c'):
         """Plot a contour map.
 
         var: CFvariable
         contours: list of contour intervals
         args: further arguments
         time: time slice
-        level: horizontal slice."""
+        level: horizontal slice
+        cntrtype: contourtype, c for normal contour, a for annotated"""
 
-        PyGMT.AreaXY.contour(self,var.getGMTgrid(time,level=level),contours,args)
+        PyGMT.AreaXY.contour(self,var.getGMTgrid(time,level=level),contours,args,cntrtype)
 
     def land(self,time,grey='180',illuminate=None):
         """Plot area above sea level.

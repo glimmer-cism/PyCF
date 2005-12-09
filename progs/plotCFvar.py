@@ -20,11 +20,34 @@
 
 """A simple plot of CF fields."""
 
-import PyGMT,PyCF,sys,string
+import PyGMT,PyCF,sys,string, Numeric
 
+def contour(area,data,contours,time):
+    """Contour data.
+
+    area: CF area
+    data: CF field to be contoured
+    contours: contour string.
+    time: time slice"""
+
+    if contours!=None:
+        cntrs=contours.split('/')
+        if len(cntrs)==3:
+            c = Numeric.arange(float(cntrs[0]), float(cntrs[1]), float(cntrs[2])).tolist()
+            area.contour(data,c,'-W2/0/0/0',time)
+        elif len(cntrs)==4:
+            c = Numeric.arange(float(cntrs[0]), float(cntrs[1]), float(cntrs[2])).tolist()
+            area.contour(data,c,'-W2/0/0/0to',time)
+            c = Numeric.arange(float(cntrs[0]), float(cntrs[1]), float(cntrs[3])).tolist()
+            area.contour(data,c,'-W2/0/0/0 -At',time,cntrtype='a')
+        else:
+            print 'Warning, cannot parse contour settings, %s.'%contours
+            return
+        
 # creating option parser
 parser = PyCF.CFOptParser()
 parser.variable()
+parser.add_option("--contours",metavar='CONT',help="Set contour start, end value and interval with CONT=start/end/interval[/annotated interval]")
 parser.add_option("-g","--glyph",metavar='VAR',type="choice",dest='glyph',choices=['vel','vel_avg','bvel','bvel_tavg'],help="Add velocity glyphs to plot, VAR can be one of [vel,vel_avg,bvel,bvel_tavg]")
 parser.add_option("--shapefile",metavar='FNAME',help="plot a shape file, e.g. LGM extent....")
 parser.profile_file(plist=True)
@@ -115,6 +138,7 @@ if numplots > 1:
                 pdata.coords_file(pn,opts.options.prof_is_projected)
                 area.profile(args='-W5/0/0/0',prof=pdata,slabel=string.ascii_uppercase[i])
                 i=i+1
+        contour(area,var,opts.options.contours,time)
         area.axis='wesn'
         area.coordsystem()
         area.printinfo(time)
@@ -133,7 +157,7 @@ else:
         area.contour(thk,[0.1],'-W2/0/0/0',time)
     except:
         pass
-    if var.name == 'is' or var.name == 'thk':
+    if (var.name == 'is' or var.name == 'thk') and opts.options.contours == None:
         area.contour(var,[500,1000,2500,3000],'-W1/255/255/255',time)
     if opts.options.profname !=None:
         i=0
@@ -144,6 +168,7 @@ else:
             i=i+1
     if opts.options.shapefile != None:
         area.shapefile(opts.options.shapefile)
+    contour(area,var,opts.options.contours,time)
     area.coordsystem()
     area.printinfo(time)
 if opts.options.dolegend:

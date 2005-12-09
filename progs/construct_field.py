@@ -111,7 +111,10 @@ if __name__ == '__main__':
     if invar!=None:
         outvar[0,:,:] = Numeric.transpose(invar[:,:])
     else:
-        outvar[0,:,:] = 0.
+        if options.outside!=None:
+            outvar[0,:,:] = options.outside
+        else:
+            outvar[0,:,:] = 0.
 
     # construct polygon from vertecies
     poly = []
@@ -149,9 +152,6 @@ if __name__ == '__main__':
                         if inside[k]!=None:
                             outvar[0,j,i] = inside[k]
                         p_is_outside=False
-                if p_is_outside:
-                    if options.outside!=None:
-                        outvar[0,j,i] = options.outside
 
     # check if we should smooth results
     if options.smooth != None:

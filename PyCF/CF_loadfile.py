@@ -92,7 +92,7 @@ class CFloadfile(CFfile):
         t0 = 0
         t1 = len(self.file.variables['time'][:])-1
         if time < self.time(t0) or time > self.time(t1):
-            raise ValueError, 'Selected time slice [%f] is outside file: [%f, %f]'%(time,self.time(t0),self.time(t1))
+            raise ValueError, 'Selected time slice [%f] is outside file %s: [%f, %f]'%(time,self.fname,self.time(t0),self.time(t1))
         if time == self.time(t0): return t0
         if time == self.time(t1): return t1
         # use Newton bisection

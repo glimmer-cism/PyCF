@@ -26,7 +26,8 @@ import PyGMT,Numeric, tempfile
 from CF_IOrsl import *
 
 CFRSLlocs = {'fenscan' : [74,70,103,105,95,214,219,107,89,77],
-             'fenscan-full'      : [321,317,53,62,42,41,3,0,33,20] }
+             'fenscan-full'      : [321,317,53,62,42,41,3,0,33,20],
+             'britain' : [115, 120, 121, 124, 222, 125, 129, 123, 122, 137, 133, 116] }
 
 class CFRSLArea(PyGMT.AutoXY):
     """CF RSL plotting area."""
