@@ -223,16 +223,20 @@ class CFloadfile(CFfile):
 
         return data.spline(xyloc,t)
 
-    def getRSLresiduals(self,rsldb):
+    def getRSLresiduals(self,rsldb,time=None):
         """Get RSL residuals.
 
-        rsldb: RSL data base"""
+        rsldb: RSL data base
+        time: time interval to be processed"""
 
         hnx = 50
         hny = 50
         
         # get times
-        t = [self.timeslice(rsldb.mint*self.timescale,'d'),self.timeslice(0.)]
+        if time==None:
+            t = [self.timeslice(rsldb.mint*self.timescale,'d'),self.timeslice(0.)]
+        else:
+            t = [self.timeslice(time[0],'d'),self.timeslice(time[1],'u')]
         times = self.time(t)
         
         # loop over locations

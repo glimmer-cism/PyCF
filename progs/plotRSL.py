@@ -94,7 +94,7 @@ w = opts.options.width
 h = infile.aspect_ratio*w
 x = (plot.papersize[0]-w)/2.
 y = (plot.papersize[1]-h)/2.
-mapa_pos = [x-1.,y-1.]
+mapa_pos = [x-1.,y+1.]
 
 mapa = PyCF.CFArea(bigarea,infile,pos=mapa_pos,size=opts.options.width)
 mapa.axis='wesn'
@@ -129,7 +129,7 @@ for fnum in range(0,len(opts.args)-1):
 
 # setup RSL plots
 for i in range(0,len(plot_sites)):
-    rslareas = PyCF.CFRSLArea(bigarea,rsl,plot_sites[i],pos=loc[i],size=[xsize,ysize])
+    rslareas = PyCF.CFRSLArea(bigarea,rsl,plot_sites[i],time=opts.options.times,pos=loc[i],size=[xsize,ysize])
     
     # plot RSL curves
     for fnum in range(0,len(cffile)):

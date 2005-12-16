@@ -1,3 +1,13 @@
+2005-12-16 Magnus Hagdorn
+ * CF_loadfile.py: optionally specify time interval when calculating
+   RSL residuals
+ * CF_options.py: use CFreadlines for reading profiles
+ * CF_rsl.py: time interval is assumed to be scaled
+ * make_anim.py: add option to pass options to convert
+ * plotRSL.py: optionally specify time interval to be processed
+ * plotRSLhist.py: ditto
+ * plotRSLres.py: ditto
+
 2005-12-09 Magnus Hagdorn
  * CF_area.py: add option to annotate contours
  * CF_loadfile.py: make error somewhat more verbose

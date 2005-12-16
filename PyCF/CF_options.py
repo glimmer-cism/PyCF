@@ -24,6 +24,7 @@ import optparse, sys, PyGMT, os.path
 from CF_loadfile import *
 from CF_profile import *
 from CF_rsl import CFRSLlocs
+from CF_IOmisc import CFreadlines
 
 class CFOptParser(optparse.OptionParser):
     """Handle options."""
@@ -278,7 +279,7 @@ class CFOptions(object):
         xdata = []
         ydata = []
         infile = file(self.options.profname)
-        for line in infile.readlines():
+        for line in CFreadlines(infile):
             l = line.split()
             xdata.append(float(l[0]))
             ydata.append(float(l[1]))                         

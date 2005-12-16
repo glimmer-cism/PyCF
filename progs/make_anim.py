@@ -14,6 +14,7 @@ parser.add_option("-c", "--codec",metavar='CODEC',type="choice",choices=CODECS.s
 parser.add_option("-s", "--size", metavar = "SIZE", help="scale animation to SIZE, use convert options for specifying size")
 parser.add_option("-t", "--time", metavar = "S E", nargs=2, type="int", help="start and end time")
 parser.add_option("-o", "--output", default="anim.avi", metavar="FILE", help="write output to FILE (default: anim.avi)")
+parser.add_option("--convert_options",default="",help="options for convert")
 
 (options, args) = parser.parse_args()
 
@@ -32,7 +33,7 @@ for t in range(options.time[0],options.time[1]):
     pngfile = '%s.%06d.png'%(os.path.join(frame_dir,'tmp'),t)
     plot_command = '%s %s -T%d'%(string.join(args),psfile,t)
     if options.size!=None:
-        convert_command = 'convert -trim -size %s %s -resize %s %s'%(options.size,psfile,options.size,pngfile)
+        convert_command = 'convert %s -trim -size %s %s -resize %s %s'%(options.convert_options,options.size,psfile,options.size,pngfile)
     else:
         convert_command = 'convert -trim %s %s'%(psfile,pngfile)
     

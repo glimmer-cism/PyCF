@@ -23,6 +23,7 @@
 import PyGMT,PyCF,sys, Numeric
 
 parser = PyCF.CFOptParser()
+parser.timeint()
 parser.rsl()
 parser.add_option("--nohist1d",action="store_false", dest="hist1d",default=True,help="Don't plot the 1D histogram")
 parser.add_option("--nohist2d",action="store_false", dest="hist2d",default=True,help="Don't plot the 2D histogram")
@@ -36,7 +37,7 @@ p= infile.minmax_long
 plot = opts.plot()
 
 rsl = PyCF.CFRSL(opts.options.rsldb)
-rsldata = infile.getRSLresiduals(rsl)
+rsldata = infile.getRSLresiduals(rsl,time=opts.options.times)
 
 area = PyCF.CFRSLAreaHistT(plot,rsldata,size=[opts.options.width,opts.options.width*2./3.])
 area.plot_1dhist = opts.options.hist1d

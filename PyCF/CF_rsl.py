@@ -32,7 +32,7 @@ CFRSLlocs = {'fenscan' : [74,70,103,105,95,214,219,107,89,77],
 class CFRSLArea(PyGMT.AutoXY):
     """CF RSL plotting area."""
 
-    def __init__(self,parent,rsl,lid,time=[-20000.,0.],pos=[0.,0.],size=[15.,10.]):
+    def __init__(self,parent,rsl,lid,time=[-20.,0.],pos=[0.,0.],size=[15.,10.]):
         """Initialising GMT area.
 
         parent: can be either a Canvas or another Area.
@@ -60,8 +60,8 @@ class CFRSLArea(PyGMT.AutoXY):
         cffile: CF file object
         pen: pen attributes for line."""
 
-        t = [cffile.timeslice(self.time[0]*cffile.timescale,round='d'),
-             cffile.timeslice(self.time[1]*cffile.timescale,round='u')]
+        t = [cffile.timeslice(self.time[0],round='d'),
+             cffile.timeslice(self.time[1],round='u')]
         times = cffile.file.variables['time'][t[0]:t[1]+1]*self.timescale
         data = cffile.getRSL([self.location[3],self.location[4]],t,clip=clip)
         self.line(pen,times,data)
@@ -79,8 +79,8 @@ class CFRSLArea(PyGMT.AutoXY):
                 self.point([obs[2]*self.timescale],[obs[3]],[obs[5]*self.timescale],[obs[7]])
             self.plotsymbol([obs[2]*self.timescale],[obs[3]],size=self.symbolsize)
 
-        self.ll[0] = self.time[0]*self.timescale
-        self.ur[0] = self.time[1]*self.timescale
+        self.ll[0] = self.time[0]
+        self.ur[0] = self.time[1]
         PyGMT.AutoXY.finalise(self,expandy=expandy)
 
     def printinfo(self):

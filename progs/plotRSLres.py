@@ -23,6 +23,7 @@
 import PyGMT,PyCF,sys, Numeric, os.path
 
 parser = PyCF.CFOptParser()
+parser.timeint()
 parser.rsl()
 parser.plot()
 
@@ -35,7 +36,7 @@ plot.defaults['LABEL_FONT_SIZE']='12p'
 plot.defaults['ANOT_FONT_SIZE']='10p'
 
 rsl = PyCF.CFRSL(opts.options.rsldb)
-rsldata = infile.getRSLresiduals(rsl)
+rsldata = infile.getRSLresiduals(rsl,time=opts.options.times)
 
 bigarea = PyGMT.AreaXY(plot,size=opts.papersize)
 
