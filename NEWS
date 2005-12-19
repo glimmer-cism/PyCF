@@ -1,3 +1,10 @@
+Changes in Version 0.5
+======================
+* Use tempfile for temporary files
+* new programs: plotRSLres.py, construct_field.py
+* new program for generating AVI animations
+* many bug fixes and minor improvements
+
 Changes in Version 0.4
 ======================
 * new program to plot ice extent

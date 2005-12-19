@@ -50,7 +50,10 @@ class CFRSLArea(PyGMT.AutoXY):
         self.location = self.rsl.getLoc(self.lid)
         self.axis='WS'
         self.timescale = 0.001
-        self.time = time
+        if time==None:
+            self.time = [-20.,0.]
+        else:
+            self.time = time
         self.errors = True
         self.symbolsize=0.1
 
