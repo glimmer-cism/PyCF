@@ -204,7 +204,7 @@ class CFloadfile(CFfile):
         xyloc = self.project(loc)
         if not self.inside(xyloc):
             raise RuntimeError, 'Point outside grid'
-        data = self.getvar('slc')
+        data = self.getvar('isobase')
         # extract data
         values = []
         if tarray:
@@ -347,6 +347,9 @@ class CFvariable(object):
         if self.name=='is':
             if 'topg' not in self.file.variables.keys() or 'thk' not in self.file.variables.keys():
                 raise KeyError, 'Variable not in file'
+        elif self.name=='isobase':
+            if 'slc' not in self.file.variables.keys():
+                raise KeyError, 'Variable not in file'
         elif self.name=='pmp':
             if 'thk' not in self.file.variables.keys():
                 raise KeyError, 'Variable not in file'
@@ -366,13 +369,14 @@ class CFvariable(object):
             raise KeyError, 'Variable not in file'
         self.__colourmap = CFcolourmap(self)
         self.pmt = False
-        self.slc_eus = True
         self.__varcache = None
 
     def __get_units(self):
         try:
             if self.name == 'is':
                 return self.file.variables['topg'].units
+            elif self.name=='isobase':
+                return self.file.variables['slc'].units
             elif self.name == 'pmp':
                 return 'degree_Celsius'
             elif self.name == 'vel':
@@ -395,6 +399,8 @@ class CFvariable(object):
                 name = 'homologous %s'%self.file.variables[self.name].long_name
             elif self.name == 'is':
                 name =  'ice surface elevation'
+            elif self.name=='isobase':
+                name = 'isobase'
             elif self.name == 'pmp':
                 name = 'pressure melting point of ice'
             elif self.name == 'vel':
@@ -424,6 +430,8 @@ class CFvariable(object):
     def __get_xdimension(self):
         if self.name=='is':
             return self.file.variables['topg'].dimensions[-1]
+        elif self.name=='isobase':
+            return self.file.variables['slc'].dimensions[-1]
         elif self.name == 'pmp':
             return self.file.variables['thk'].dimensions[-1]
         elif self.name == 'vel':
@@ -445,6 +453,8 @@ class CFvariable(object):
     def __get_ydim(self):
         if self.name=='is':
             return self.file.variables[self.file.variables['topg'].dimensions[-2]]
+        elif self.name=='isobase':
+            return self.file.variables[self.file.variables['slc'].dimensions[-2]]
         elif self.name == 'pmp':
             return self.file.variables[self.file.variables['thk'].dimensions[-2]]
         elif self.name == 'vel':
@@ -461,7 +471,7 @@ class CFvariable(object):
 
     def __is3d(self):
         is3d = False
-        if self.name not in ['is', 'bvel', 'bvel_tavg','pmp', 'tau']:
+        if self.name not in ['is', 'isobase', 'bvel', 'bvel_tavg','pmp', 'tau']:
             if self.name == 'vel':
                 is3d = True
             elif 'level' in self.file.variables[self.name].dimensions :
@@ -563,6 +573,8 @@ class CFvariable(object):
         else:
             if self.name == 'is':
                 grid = Numeric.transpose(self.file.variables['topg'][time,:,:] + self.file.variables['thk'][time,:,:])
+            elif self.name=='isobase':
+                grid = Numeric.transpose(self.file.variables['slc'][time,:,:])
             elif self.name == 'pmp':
                 ih = Numeric.transpose(self.file.variables['thk'][time,:,:])
                 grid = Numeric.transpose(calc_pmp(ih))
@@ -583,8 +595,8 @@ class CFvariable(object):
         if self.name in ['topg','is']:
             if 'eus' in self.file.variables.keys():
                 grid = grid - self.file.variables['eus'][time]
-        if self.name == 'slc':
-            if 'eus' in self.file.variables.keys() and self.slc_eus:
+        if self.name=='isobase':
+            if 'eus' in self.file.variables.keys():
                 grid = grid + self.file.variables['eus'][time]
         # correct temperature
         if self.name in temperatures:

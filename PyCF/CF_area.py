@@ -63,12 +63,15 @@ class CFArea(PyGMT.AreaXY):
         self.geo.axis = self.axis
         self.geo.coordsystem(grid=grid)
 
-    def coastline(self,args='-W -A0/1/1'):
+    def coastline(self,args='-W -A0/1/1',resolution='l'):
         """Plot coastline.
 
-        args: arguments passed on to pscoast."""
+        args: arguments passed on to pscoast.
+        resolution: resolution of coastline data to be used, can be f,h,l,c"""
+
+        a = '%s -D%s'%(args,resolution)
         try:
-            self.geo.coastline(args)
+            self.geo.coastline(a)
         except:
             pass
 
@@ -186,6 +189,19 @@ class CFArea(PyGMT.AreaXY):
         cntrtype: contourtype, c for normal contour, a for annotated"""
 
         PyGMT.AreaXY.contour(self,var.getGMTgrid(time,level=level),contours,args,cntrtype)
+
+    def extent(self,args,time,cffile=None,cntrtype='c'):
+        """Plot ice extent.
+
+        args: further arguments
+        time: time slice
+        cntrtype: contourtype, c for normal contour, a for annotated"""
+
+        if cffile == None:
+            cffile = self.file
+        extent = CFvariable(cffile,'thk').getGMTgrid(time)
+        extent.data = extent.data - 0.1 + cffile.time(time)
+        PyGMT.AreaXY.contour(self,extent,[cffile.time(time)],args,cntrtype)
 
     def land(self,time,grey='180',illuminate=None):
         """Plot area above sea level.

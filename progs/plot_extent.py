@@ -22,12 +22,51 @@
 
 import PyGMT,PyCF,sys,string
 
+def parse_time(infile,opts):
+    time = None
+    times = []
+    annotated_times = []
+    if opts.options.times != None:
+        tstring = opts.options.times.split('/')
+        if len(tstring)==1:
+            time = infile.timeslice(float(opts.options.times))
+        elif len(tstring)>2 and len(tstring)<5:
+            ts = infile.timeslice(float(tstring[0]),round='d')
+            te = infile.timeslice(float(tstring[1]),round='u')
+            dt = infile.timeslice(float(tstring[0])+float(tstring[2]),round='u')-ts
+            if len(tstring) == 4:
+                da = infile.timeslice(float(tstring[0])+float(tstring[3]),round='u')-ts
+            else:
+                da = None    
+    else:
+        tstring = opts.options.timeslice.split('/')
+        if len(tstring)==1:
+            time = int(opts.options.timeslice)
+        elif len(tstring)>2 and len(tstring)<5:
+            ts = int(tstring[0])
+            te = int(tstring[1])
+            dt = int(tstring[2])
+            if len(tstring) == 4:
+                da = int(tstring[3])
+            else:
+                da = None
+        else:
+            parser.error('Cannot parse timeslice string %s'%opts.options.timeslice)
+    if time == None:
+        times = range(ts,te,dt)
+        if da!=None:
+            annotated_times = range(ts,te,da)
+    return (time,times,annotated_times)
+    
+
+
 # creating option parser
 parser = PyCF.CFOptParser()
 parser.profile_file(plist=True)
 parser.add_option("--land",action="store_true", dest="land",default=False,help="Indicate area above SL")
 parser.add_option("--shapefile",metavar='FNAME',help="plot a shape file, e.g. LGM extent....")
-parser.time()
+parser.add_option("-t","--time",metavar='TIME',dest="times",help="either time to be processed, or TIME=start/end/interval[/annotated interval]")
+parser.add_option("-T","--timeslice",metavar='TIME',dest="timeslice",help="either time slice to be processed, or TIME=start/end/interval[/annotated interval]")
 parser.region()
 parser.plot()
 opts = PyCF.CFOptions(parser,-2)
@@ -35,8 +74,9 @@ opts = PyCF.CFOptions(parser,-2)
 dokey = opts.nfiles > 1
 
 infile = opts.cffile()
-time = opts.times(infile)
 
+# setup times
+(time,times,annotated_times) = parse_time(infile,opts)
 # get number of plots
 deltax = 1.
 deltay = 1.
@@ -56,10 +96,15 @@ if dokey:
 
 for i in range(0,opts.nfiles):
     infile = opts.cffile(i)
-
-    time = opts.times(infile)
-    thk = infile.getvar('thk')
-    area.contour(thk,[0.1],'-W2/%s'%PyCF.CFcolours[i],time)
+    (time,times,annotated_times) = parse_time(infile,opts)
+    if time != None:
+        area.extent('-W2/%s'%PyCF.CFcolours[i],time,cffile=infile)
+    else:
+        for t in times:
+            if t not in annotated_times:
+                area.extent('-W2/%s'%PyCF.CFcolours[i],t,cffile=infile)
+        for t in annotated_times:
+            area.extent('-W2/%s'%PyCF.CFcolours[i],t,cffile=infile,cntrtype='a')
     if dokey:
             key.plot_line(infile.title,'1/%s'%PyCF.CFcolours[i])
 

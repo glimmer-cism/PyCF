@@ -1,3 +1,11 @@
+2005-12-31 Magnus Hagdorn
+ * CF_area.py: add option to change resolution of coastline DB
+               new method for plotting ice extent
+ * CF_loadfile.py: add new virtual variable isobase
+ * plotCFvar.py: add option to plot no image, add option to change
+   resolution of coastline DB
+ * plot_extent.py: add option to plot multiple times
+
 2005-12-19 Magnus Hagdorn
  * CF_rsl.py: fix minor bug
  * setup.py: bump version to 0.5

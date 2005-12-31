@@ -48,8 +48,10 @@ def contour(area,data,contours,time):
 parser = PyCF.CFOptParser()
 parser.variable()
 parser.add_option("--contours",metavar='CONT',help="Set contour start, end value and interval with CONT=start/end/interval[/annotated interval]")
+parser.add_option("--no_image",action="store_true",default=False,help="do not plot image")
 parser.add_option("-g","--glyph",metavar='VAR',type="choice",dest='glyph',choices=['vel','vel_avg','bvel','bvel_tavg'],help="Add velocity glyphs to plot, VAR can be one of [vel,vel_avg,bvel,bvel_tavg]")
 parser.add_option("--shapefile",metavar='FNAME',help="plot a shape file, e.g. LGM extent....")
+parser.add_option("--coastlines",metavar="RES",type="choice",default='l',choices=['c','l','h','f'],help="set resolution of coastline data to be used, can be one of (c)rude, (l)ow, (h)igh, (f)ull. Default = l")
 parser.profile_file(plist=True)
 parser.time()
 parser.region()
@@ -120,10 +122,11 @@ if numplots > 1:
         area = PyCF.CFArea(bigarea,infile,pos=[x*sizex,opts.papersize[1]-(y+1)*sizey],size=sizex-deltax)
         if opts.options.land:
             area.land(time,illuminate=opts.options.illuminate)
-        area.image(var,time,clip = opts.options.clip,level=level,mono=opts.options.mono,illuminate=opts.options.illuminate)
+        if not opts.options.no_image:
+            area.image(var,time,clip = opts.options.clip,level=level,mono=opts.options.mono,illuminate=opts.options.illuminate)
         if opts.options.glyph!=None or var.name in ["vel","bvel","vel_avg","bvel_tavg"]: 
             area.velocity_field(time,level=level)
-        area.coastline()
+        area.coastline(resolution=opts.options.coastlines)
         try:
             thk = infile.getvar('thk')
             area.contour(thk,[0.1],'-W2/0/0/0',time)
@@ -147,11 +150,12 @@ else:
     area = PyCF.CFArea(plot,infile,pos=[0.,3.],size=sizex-deltax)
     if opts.options.land:
         area.land(time,illuminate=opts.options.illuminate)
-    area.image(var,time,clip = opts.options.clip,level=level,mono=opts.options.mono,illuminate=opts.options.illuminate)
+    if not opts.options.no_image:
+        area.image(var,time,clip = opts.options.clip,level=level,mono=opts.options.mono,illuminate=opts.options.illuminate)
     if opts.options.glyph!=None or var.name in ["vel","bvel","vel_avg","bvel_tavg"]: 
         area.velocity_field(time,level=level)
     
-    area.coastline()
+    area.coastline(resolution=opts.options.coastlines)
     try:
         thk = infile.getvar('thk')
         area.contour(thk,[0.1],'-W2/0/0/0',time)
