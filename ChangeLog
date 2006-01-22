@@ -1,3 +1,6 @@
+2006-01-22 Magnus Hagdorn
+ * CF_proj.py: fix bug #170 - no CF-compilance of projection mapping
+
 2006-01-02 Magnus Hagdorn
  * extractProfileTS.py: new prog for extracting profile time series 
    from CF file.

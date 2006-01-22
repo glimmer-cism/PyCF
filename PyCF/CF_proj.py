@@ -109,7 +109,7 @@ class CFProj_stere(CFProj):
                 self.params['k_0'] = var.scale_factor_at_projection_origin[0]
         else: # others
             self.params['lat_0'] = var.latitude_of_projection_origin[0]
-            self.params['lon_0'] = var.longitude_of_central_meridian[0]
+            self.params['lon_0'] = var.longitude_of_projection_origin[0]
             self.params['k_0'] = var.scale_factor_at_projection_origin[0]
         self.gmt_type = 's'
 
@@ -209,6 +209,8 @@ def copyCFMap(orig,copy):
         copy.longitude_of_central_meridian = orig.longitude_of_central_meridian
     if 'latitude_of_projection_origin' in dir(orig):
         copy.latitude_of_projection_origin = orig.latitude_of_projection_origin
+    if 'longitude_of_projection_origin' in dir(orig):
+        copy.longitude_of_projection_origin = orig.longitude_of_projection_origin
     if 'false_easting' in dir(orig):
         copy.false_easting = orig.false_easting
     if 'false_northing' in dir(orig):
@@ -259,7 +261,7 @@ def CFProj_parse_GMTproj(projstring):
                 proj.standard_parallel = [float(ps[2])]
             else:
                 proj.grid_mapping_name='stereographic'
-                proj.longitude_of_central_meridian = [float(ps[0])]
+                proj.longitude_of_projection_origin = [float(ps[0])]
                 proj.scale_factor_at_projection_origin = [1.]
         else:
             print 'Error, wrong number of projection arguments'
@@ -391,7 +393,7 @@ def CFProj_parse_ESRIprj(pFile):
                         proj.grid_mapping_name='stereographic'
                         line=pFile.readline()
                         long_central=DmsParse(pFile)
-                        proj.longitude_of_central_meridian = [long_central]
+                        proj.longitude_of_projection_origin = [long_central]
                         lat_proj_origin=DmsParse(pFile)
                         proj.latitude_of_projection_origin = [lat_proj_origin]
                         scale_factor=1. #defaults to 1 as Arc projection files do not include scale factors
