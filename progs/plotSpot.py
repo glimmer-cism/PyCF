@@ -35,7 +35,7 @@ mspots = len(opts.options.ij)>1
 
 plot = opts.plot()
 plot.defaults['LABEL_FONT_SIZE']='12p'
-plot.defaults['ANOT_FONT_SIZE']='10p'
+plot.defaults['ANNOT_FONT_SIZE']='10p'
 bigarea = PyGMT.AreaXY(plot,size=opts.papersize)
 if mspots and mfiles:
     multi_area = PyCF.CFAreaTS(bigarea,pos=[0,3.5],size=[opts.options.width,opts.options.width/2.])

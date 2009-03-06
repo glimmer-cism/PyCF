@@ -34,7 +34,7 @@ def compare(inname1,inname2,plot,timeint):
         times = None
 
     plot.defaults['LABEL_FONT_SIZE']='12p'
-    plot.defaults['ANOT_FONT_SIZE']='10p'
+    plot.defaults['ANNOT_FONT_SIZE']='10p'
     bigarea = PyGMT.AreaXY(plot,size=[20,30])
 
     area = PyCF.CFdiff(bigarea,cf1,cf2,times)

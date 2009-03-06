@@ -153,7 +153,7 @@ if __name__ == '__main__':
     opts = CFOptions(parser,1)
     plot = opts.plot()
     plot.defaults['LABEL_FONT_SIZE']='14p'
-    plot.defaults['ANOT_FONT_SIZE']='12p'    
+    plot.defaults['ANNOT_FONT_SIZE']='12p'    
     area = CFEISforcing(plot)
     if opts.options.slcfile != None:
         try:

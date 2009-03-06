@@ -47,7 +47,7 @@ for i in range(0,len(spots)):
 
 plot = opts.plot()
 plot.defaults['LABEL_FONT_SIZE']='12p'
-plot.defaults['ANOT_FONT_SIZE']='10p'
+plot.defaults['ANNOT_FONT_SIZE']='10p'
 bigarea = PyGMT.AreaXY(plot,size=opts.papersize,pos=[0,0])
 
 ypos = 26.

@@ -33,7 +33,7 @@ infile = opts.cffile()
 p= infile.minmax_long
 plot = opts.plot()
 plot.defaults['LABEL_FONT_SIZE']='12p'
-plot.defaults['ANOT_FONT_SIZE']='10p'
+plot.defaults['ANNOT_FONT_SIZE']='10p'
 
 rsl = PyCF.CFRSL(opts.options.rsldb)
 rsldata = infile.getRSLresiduals(rsl,time=opts.options.times)

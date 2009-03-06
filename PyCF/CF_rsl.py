@@ -144,7 +144,7 @@ class CFRSLAreaHistT(PyGMT.AreaXY):
         self.__plot_1dhist = True
         self.__plot_key = True
         self.defaults['LABEL_FONT_SIZE']='12p'
-        self.defaults['ANOT_FONT_SIZE']='10p'
+        self.defaults['ANNOT_FONT_SIZE']='10p'
 
     def __get_2dhist(self):
         return self.__plot_2dhist

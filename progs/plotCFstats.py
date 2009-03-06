@@ -38,7 +38,7 @@ eismint = opts.options.eismint
 
 plot = opts.plot()
 plot.defaults['LABEL_FONT_SIZE']='12p'
-plot.defaults['ANOT_FONT_SIZE']='10p'
+plot.defaults['ANNOT_FONT_SIZE']='10p'
 bigarea = PyGMT.AreaXY(plot,size=opts.papersize)
 tsarea = PyCF.CFAreaTS(bigarea,pos=[0.,4.5],size=[opts.options.width,opts.options.width/4])
 key = PyGMT.KeyArea(bigarea,size=[opts.options.width,3.])

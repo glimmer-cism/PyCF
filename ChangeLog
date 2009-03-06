@@ -1,3 +1,18 @@
+2009-03-06 Magnus Hagdorn
+ * PyCF/CF_options.py: update to GMT 4
+ * PyCF/CF_rsl.py: update to GMT 4
+ * PyCF/CF_timeseries.py: update to GMT 4
+ * progs/plot3DProfiles.py: update to GMT 4
+ * progs/plotCFdiff.py: update to GMT 4
+ * progs/plotCFstats.py: update to GMT 4
+ * progs/plotEISMINT2stats.py: update to GMT 4
+ * progs/plotEISMINT.py: update to GMT 4
+ * progs/plotProfile.py: update to GMT 4
+ * progs/plotProfileTS.py: update to GMT 4
+ * progs/plotRSL.py: update to GMT 4
+ * progs/plotRSLres.py: update to GMT 4
+ * progs/plotSpot.py: update to GMT 4
+
 2007-05-03 Felix Hebeler / Stewart Jamieson
  * a2c.py: updated version - better projection handling, added functionality 
  	   for creating and altering variables on the fly (supports multiple variables per file)
