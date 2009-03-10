@@ -22,7 +22,7 @@
 
 __all__ = ['CFreadlines','CFcontours','CFTimeSeries','CFEIStemp','CFEpoch']
 
-import Numeric, math
+import numpy, math
 
 def CFreadlines(fobject, comment='#'):
     """Strip files from comments.
@@ -106,8 +106,8 @@ class CFTimeSeries(object):
                 data.append(d)
             sdata.append(data)
             self.numt = self.numt + 1
-        self.time = Numeric.array(stime)
-        self.data = Numeric.array(sdata)
+        self.time = numpy.array(stime)
+        self.data = numpy.array(sdata)
 
     def get_index(self,time):
         """Find index i so that t[i] <= time < t[i+1].
@@ -163,7 +163,7 @@ class CFTimeSeries(object):
             data = []
             for j in range(0,len(d1)):
                 data.append(d1[j]+factor*(d2[j]-d1[j]))
-        return Numeric.array(data)
+        return numpy.array(data)
 
 
 class CFEIStemp(CFTimeSeries):
@@ -194,7 +194,7 @@ class CFEIStemp(CFTimeSeries):
             else:
                 raise RuntimeError, 'No handle for temperature calculations type=\'%s\''%temp_type
             sdata.append([t])
-        self.data = Numeric.array(sdata)
+        self.data = numpy.array(sdata)
 
 class CFEpoch(object):
     """Handle epochs."""

@@ -20,7 +20,7 @@
 
 """Plotting a RSL residuals"""
 
-import PyGMT,PyCF,sys, Numeric, os.path
+import PyGMT,PyCF,sys, numpy, os.path
 
 parser = PyCF.CFOptParser()
 parser.timeint()

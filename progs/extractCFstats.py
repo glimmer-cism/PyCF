@@ -20,7 +20,7 @@
 
 """get some statistics of an ice sheet."""
 
-import PyCF,sys, Numeric
+import PyCF,sys, numpy
 
 if __name__ == '__main__':
     # creating option parser

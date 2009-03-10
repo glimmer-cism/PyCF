@@ -20,7 +20,7 @@
 
 __all__=['CFcolourmap','CFcolours']
 
-import os, PyGMT,Numeric, tempfile
+import os, PyGMT,numpy, tempfile
 from CF_utils import CFdatadir
 
 CFcolours = ['255/0/0','0/255/0','0/0/255','0/255/255','255/0/255','255/255/0','127/0/0','0/127/0','0/0/127','0/127/127','127/0/127','127/127/0']
@@ -94,8 +94,8 @@ class CFcolourmap(object):
                 
     def __get_cptfile(self):
         if self.__cptf != None:
-            v0 = PyGMT.round_down(min(Numeric.ravel(self.var.var)))
-            v1 = PyGMT.round_up(max(Numeric.ravel(self.var.var)))
+            v0 = PyGMT.round_down(min(numpy.ravel(self.var.var)))
+            v1 = PyGMT.round_up(max(numpy.ravel(self.var.var)))
             PyGMT.command('makecpt','-Crainbow -T%f/%f/%f > %s'%(v0,v1,(v1-v0)/10.,self.__cptfile))
         return self.__cptfile
     cptfile = property(__get_cptfile)

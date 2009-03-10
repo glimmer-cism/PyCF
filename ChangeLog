@@ -1,3 +1,39 @@
+2009-03-10 Magnus Hagdorn
+ * setup.py: find numpy include directory
+ * PyCF/CF_IOmisc.py: port to numpy
+ * PyCF/CF_IOrsl.py: ditto
+ * PyCF/CF_area.py: ditto
+ * PyCF/CF_colourmap.py: ditto
+ * PyCF/CF_createfile.py: ditto
+ * PyCF/CF_diff.py: ditto
+ * PyCF/CF_loadfile.py: ditto
+ * PyCF/CF_profile.py: ditto
+ * PyCF/CF_profilearea.py: ditto
+ * PyCF/PyCF/CF_rsl.py: ditto
+ * PyCF/CF_timeseries.py: ditto
+ * PyCF/CF_utils.py: ditto
+ * progs/a2c.py: ditto
+ * progs/construct_field.py: ditto
+ * progs/create_topo.py: ditto
+ * progs/extract3DProfile.py: ditto
+ * progs/extractCFstats.py: ditto
+ * progs/extractProfile.py: ditto
+ * progs/extractProfileTS.py: ditto
+ * progs/plot3DProfiles.py: ditto
+ * progs/plotCFstats.py: ditto
+ * progs/plotCFvar.py: ditto
+ * progs/plotEISMINT.py: ditto
+ * progs/plotProfile.py: ditto
+ * progs/plotProfileTS.py: ditto
+ * progs/plotRSL.py: ditto
+ * progs/plotRSLhist.py: ditto
+ * progs/plotRSLres.py: ditto
+ * progs/plotStreams.py: ditto
+ * progs/ran_topo.py: ditto
+ * src/2Dsplinemodule.c: ditto
+ * src/projmodule.c: ditto
+ * PyCF/CF_proj.py: set default ellipsoid to WGS84
+
 2009-03-06 Magnus Hagdorn
  * PyCF/CF_options.py: update to GMT 4
  * PyCF/CF_rsl.py: update to GMT 4

@@ -21,7 +21,7 @@
 __all__=['DummyProj','CFProj','CFProj_aea','CFProj_lcc','getCFProj','copyCFMap',
          'CFProj_parse_GMTproj','CFProj_parse_ESRIprj','CFProj_printGMThelp']
 
-import Numeric, string
+import numpy, string
 from PyCF import proj
 
 class DummyProj:
@@ -35,6 +35,7 @@ class CFProj:
         var: CF grid mapping variable."""
         self.params = {}
         self.params['proj'] = None
+        self.params['ellps'] = 'WGS84' # set default ellipsoid
         try:
             self.params['x_0'] = var.false_easting[0]
         except:

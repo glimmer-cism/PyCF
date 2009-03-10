@@ -22,7 +22,7 @@
 
 __all__ = ['CFProfileArea','CFProfileMArea','CFProfileAreaTS']
 
-import PyGMT,Numeric
+import PyGMT,numpy
 
 class CFProfileArea(PyGMT.AutoXY):
     """CF profile plotting area."""
@@ -62,12 +62,12 @@ class CFProfileArea(PyGMT.AutoXY):
 
             data = profile.getProfile2D(time)
             self.image(data,profile.colourmap.cptfile)
-            ihdata = Numeric.array(profile.cffile.getprofile('thk').getProfile(time))
+            ihdata = numpy.array(profile.cffile.getprofile('thk').getProfile(time))
             try:
-                rhdata = Numeric.array(profile.cffile.getprofile('topg').getProfile(time))
+                rhdata = numpy.array(profile.cffile.getprofile('topg').getProfile(time))
                 self.line('-W%s'%pen,profile.cffile.xvalues,rhdata)
             except:
-                rhdata = Numeric.zeros(len(ihdata))
+                rhdata = numpy.zeros(len(ihdata))
             ihdata = rhdata+ihdata
             self.line('-W%s'%pen,profile.cffile.xvalues,ihdata)
         else:
@@ -77,11 +77,11 @@ class CFProfileArea(PyGMT.AutoXY):
             data = profile.getProfile(time,level=level)
             self.line('-W%s'%pen,profile.cffile.xvalues,data)
             if profile.name == 'is':
-                rhdata = Numeric.array(profile.cffile.getprofile('topg').getProfile(time))
+                rhdata = numpy.array(profile.cffile.getprofile('topg').getProfile(time))
                 self.line('-W%s'%pen,profile.cffile.xvalues,rhdata)
             if profile.name in ['btemp','temp']:
                 if not profile.pmt and profile.showpmp:
-                    pmp = Numeric.array(profile.cffile.getprofile('pmp').getProfile(time))
+                    pmp = numpy.array(profile.cffile.getprofile('pmp').getProfile(time))
                     self.line('-W%sta'%pen,profile.cffile.xvalues,pmp)
                 
     def stamp(self,text):

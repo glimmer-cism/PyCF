@@ -20,7 +20,7 @@
 
 """Construct a field based on polygons."""
 
-import PyCF, Numeric, sys, datetime
+import PyCF, numpy, sys, datetime
 from optparse import OptionParser
 
 try:
@@ -36,7 +36,7 @@ def smooth_field(field,num):
     numx = field.shape[1]
     numy = field.shape[0]
 
-    outfield = Numeric.zeros(field.shape,Numeric.Float32)
+    outfield = numpy.zeros(field.shape,'f')
 
     for j in range(0,numy):
         for i in range(0,numx):
@@ -109,7 +109,7 @@ if __name__ == '__main__':
     else:
         outfile.file.variables['time'][0] = 0
     if invar!=None:
-        outvar[0,:,:] = Numeric.transpose(invar[:,:])
+        outvar[0,:,:] = numpy.transpose(invar[:,:])
     else:
         if options.outside!=None:
             outvar[0,:,:] = options.outside

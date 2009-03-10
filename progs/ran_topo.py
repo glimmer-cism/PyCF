@@ -18,7 +18,7 @@
 # along with GLIMMER; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import sys,getopt,PyCF,PyGMT,Numeric,datetime,os, RandomArray
+import sys,getopt,PyCF,PyGMT,numpy,datetime,os, numpy.random
 
 def usage():
     "print short help message"
@@ -133,14 +133,14 @@ if __name__ == '__main__':
     cffile.createDimension('time',None)
     #creating variables
     varx=cffile.createVariable('x0')
-    varx[:] = (delta[0]*Numeric.arange(numx-1)).astype(Numeric.Float32)
+    varx[:] = (delta[0]*numpy.arange(numx-1)).astype('f')
     varx=cffile.createVariable('x1')
-    varx[:] = (delta[0]*Numeric.arange(numx)).astype(Numeric.Float32)
+    varx[:] = (delta[0]*numpy.arange(numx)).astype('f')
 
     vary=cffile.createVariable('y0')
-    vary[:] = (delta[1]*Numeric.arange(numy-1)).astype(Numeric.Float32)
+    vary[:] = (delta[1]*numpy.arange(numy-1)).astype('f')
     vary=cffile.createVariable('y1')
-    vary[:] = (delta[1]*Numeric.arange(numy)).astype(Numeric.Float32)
+    vary[:] = (delta[1]*numpy.arange(numy)).astype('f')
 
     varlevel=cffile.createVariable('level')
     varlevel[0] = 1
@@ -186,7 +186,7 @@ if __name__ == '__main__':
     else:
         vartopg[0,:,:] = 0.
 
-    vartopg[0,:,:] = vartopg[0,:,:] + RandomArray.uniform(0.,amplitude,(numy,numx)).astype(Numeric.Float32)
+    vartopg[0,:,:] = vartopg[0,:,:] + numpy.random.uniform(0.,amplitude,(numy,numx)).astype('f')
 
     
     cffile.close()

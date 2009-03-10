@@ -29,7 +29,7 @@ used.
 
 __all__=['CFRSL']
 
-import sqlite, optparse, sys, Numeric, string
+import sqlite, optparse, sys, numpy, string
 
 sqltables = [
     'CREATE TABLE author ('                         # author table
@@ -198,14 +198,14 @@ class CFRSL(object):
         if time_error!=None:
             if len(time_error) != 2:
                 raise ValueError, 'Need positve and negative error bounds'
-            if type(time_error[0]) in (list, tuple, Numeric.ArrayType):
+            if type(time_error[0]) in (list, tuple, numpy.ndarray):
                 tel = True
                 if (len(time_error[0]) != len(time) or len(time_error[1]) != len(time)):
                     raise ValueError, 'Time erros are not the same length as time measures.'
         if rsl_error!=None:
             if len(rsl_error) != 2:
                 raise ValueError, 'Need positve and negative error bounds'
-            if type(rsl_error[0]) in (list, tuple, Numeric.ArrayType):
+            if type(rsl_error[0]) in (list, tuple, numpy.ndarray):
                 rel = True
                 if (len(rsl_error[0]) != len(rsl) or len(rsl_error[1]) != len(rsl)):
                     raise ValueError, 'RSL erros are not the same length as rsl measures.'
@@ -245,7 +245,7 @@ class CFRSL(object):
 
         cu = self.db.cursor()
         cu.execute('SELECT * FROM location WHERE longitude BETWEEN %f AND %f AND latitude BETWEEN %f AND %f',
-                   (longs[0],longs[1],lats[0],lats[1]))
+                   (float(longs[0]),float(longs[1]),float(lats[0]),float(lats[1])))
         
         return cu.fetchall()
 

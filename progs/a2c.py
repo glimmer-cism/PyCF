@@ -3,7 +3,7 @@
 # Stewart Jamieson (Stewart.Jamieson@ed.ac.uk) and Magnus Hagdorn, 2005 - University of Edinburgh.
 # This script reads ascii spatial data files (e.g. created in ArcGIS) and outputs a netCDF file.
 
-import sys, getopt,Numeric, PyCF, datetime, string, PyCF.CF_proj
+import sys, getopt,numpy, PyCF, datetime, string, PyCF.CF_proj
 
 def usage():
     "print short help message"
@@ -335,17 +335,17 @@ cffile.createDimension('level',1)
 cffile.createDimension('time',None)
 # creating variables
 varx=cffile.createVariable('x0')
-varx[:] = ((delta[0]*Numeric.arange(numx-1)+(delta[0]/2))+origin[0]).astype(Numeric.Float32)
-#varx[:] = (delta[0]*Numeric.arange(numx-1)).astype(Numeric.Float32)
+varx[:] = ((delta[0]*numpy.arange(numx-1)+(delta[0]/2))+origin[0]).astype('f')
+#varx[:] = (delta[0]*numpy.arange(numx-1)).astype('f')
 varx=cffile.createVariable('x1')
-varx[:] = ((delta[0]*Numeric.arange(numx))+origin[0]).astype(Numeric.Float32)
+varx[:] = ((delta[0]*numpy.arange(numx))+origin[0]).astype('f')
 varlist=['varx'] #store information about which variables have already been created
 
 vary=cffile.createVariable('y0')
-vary[:] = ((delta[1]*Numeric.arange(numy-1)+(delta[1]/2))+origin[1]).astype(Numeric.Float32)
-#vary[:] = (delta[1]*Numeric.arange(numy-1)).astype(Numeric.Float32)
+vary[:] = ((delta[1]*numpy.arange(numy-1)+(delta[1]/2))+origin[1]).astype('f')
+#vary[:] = (delta[1]*numpy.arange(numy-1)).astype('f')
 vary=cffile.createVariable('y1')
-vary[:] = ((delta[1]*Numeric.arange(numy))+origin[1]).astype(Numeric.Float32)
+vary[:] = ((delta[1]*numpy.arange(numy))+origin[1]).astype('f')
 varlist.append('vary')
 
 varlevel=cffile.createVariable('level')
@@ -386,12 +386,12 @@ if inProjFile != None:
 
 lats.shape = (numy,numx)
 longs.shape = (numy,numx)
-varlong[0,:,:] = longs[:,:].astype(Numeric.Float32)
-varlat[0,:,:] = lats[:,:].astype(Numeric.Float32)
+varlong[0,:,:] = longs[:,:].astype('f')
+varlat[0,:,:] = lats[:,:].astype('f')
 
 
 #define array for the zData
-zData=Numeric.zeros((numx,numy),Numeric.Float32)
+zData=numpy.zeros((numx,numy),'f')
 
 j=numy-1
 for l in f.readlines():
@@ -404,7 +404,7 @@ for l in f.readlines():
 	i=i+1
     j=j-1
 
-varname[0,:,:] =  Numeric.transpose(zData[:,:]).astype(Numeric.Float32)
+varname[0,:,:] =  numpy.transpose(zData[:,:]).astype('f')
 
 
 #add in any variables that are supposed to show constant values.
@@ -417,12 +417,12 @@ if add != None:
     varlist.append(addvar)
     
     if addvar != 'eus':
-       zData=Numeric.zeros((numx,numy),Numeric.Float32)
+       zData=numpy.zeros((numx,numy),'f')
        for n in range(0,numy):
      	  zData[n,:] = addval
        for n in range(0,numx):
      	  zData[:,n] = addval
-       varnew[0,:,:] =  Numeric.transpose(zData[:,:]).astype(Numeric.Float32)
+       varnew[0,:,:] =  numpy.transpose(zData[:,:]).astype('f')
     
     #eus (sea level change) is a cingle dimension variable, so we only assign a shift in sea level to the cffile.
     if addvar == 'eus':
@@ -466,7 +466,7 @@ if extraFile != None:
 	skip=dataFile.readline()
 
 	#define array for the zData
-	zData=Numeric.zeros((numx,numy),Numeric.Float32)
+	zData=numpy.zeros((numx,numy),'f')
 
 	j=numy-1
 	for l in dataFile.readlines():
@@ -485,7 +485,7 @@ if extraFile != None:
 	varname = 'var' + variable
 	varname=cffile.createVariable(variable)
 	varlist.append(variable)
-	varname[0,:,:] =  Numeric.transpose(zData[:,:]).astype(Numeric.Float32)
+	varname[0,:,:] =  numpy.transpose(zData[:,:]).astype('f')
 	line = extra.readline()
   else:
     print 'all variables parsed'

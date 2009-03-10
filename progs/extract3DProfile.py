@@ -20,7 +20,7 @@
 
 """extract 2D data along profile."""
 
-import PyGMT,PyCF,Numeric,sys
+import PyGMT,PyCF,numpy,sys
 
 # creating option parser
 parser = PyCF.CFOptParser()

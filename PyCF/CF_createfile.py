@@ -20,7 +20,7 @@
 
 __all__=['CFVariableDef','CFcreatefile']
 
-import Numeric, Scientific.IO.NetCDF,ConfigParser,os,re,string, glob
+import numpy, Scientific.IO.NetCDF,ConfigParser,os,re,string, glob
 from CF_file import *
 
 NOATTRIB = ['name','dimensions','data','factor','load','f90file','hot','type','dimlen']
@@ -103,7 +103,7 @@ class CFcreatefile(CFfile):
         if name not in self.vars:
             raise KeyError, 'Cannot find definition for variable %s'%name
         v = self.vars[name]
-        var = self.file.createVariable(name,Numeric.Float32,tuple(string.replace(v['dimensions'],' ','').split(',')))
+        var = self.file.createVariable(name,'f',tuple(string.replace(v['dimensions'],' ','').split(',')))
         for a in v:
             if a not in NOATTRIB:
                 setattr(var,a,v[a])
@@ -146,13 +146,13 @@ if __name__ == '__main__':
     
     # creating variables
     var=cffile.createVariable('x0')
-    var[:]=Numeric.arange(numx-1).astype(Numeric.Float32)
+    var[:]=numpy.arange(numx-1).astype('f')
     var=cffile.createVariable('x1')
-    var[:]=Numeric.arange(numx).astype(Numeric.Float32)
+    var[:]=numpy.arange(numx).astype('f')
     var=cffile.createVariable('y0')
-    var[:]=Numeric.arange(numy-1).astype(Numeric.Float32)
+    var[:]=numpy.arange(numy-1).astype('f')
     var=cffile.createVariable('y1')
-    var[:]=Numeric.arange(numy).astype(Numeric.Float32)
+    var[:]=numpy.arange(numy).astype('f')
     
     for v in cffile.vars:
         if 'spot' not in v and v not in ['VARSET','level','x0','y0','x1','y1']:

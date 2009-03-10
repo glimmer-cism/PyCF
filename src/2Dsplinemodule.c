@@ -4,7 +4,7 @@
    python module doing 2D spline interpolation using gsl splines */
 
 #include <Python.h>
-#include <Numeric/arrayobject.h>
+#include <numpy/arrayobject.h>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_spline.h>
 #include <stdio.h>
@@ -27,17 +27,17 @@ static PyObject * TwoDspline_1Dinterp(PyObject * self, PyObject * args)
   if (!PyArg_ParseTuple(args, "O!O!O!", &PyArray_Type, &Py_x, &PyArray_Type, &Py_y, &PyArray_Type, &Py_loc))
     return NULL;
   /* checking dimensions and type of arrays */
-  if (Py_x->nd != 1 || Py_x->descr->type_num != PyArray_FLOAT)
+  if (Py_x->nd != 1 || Py_x->descr->type_num != NPY_FLOAT)
     {
       PyErr_SetString(PyExc_ValueError,"array x must be 1D and of type float");
       return NULL;
     }
-  if (Py_y->nd != 1 || Py_y->descr->type_num != PyArray_FLOAT)
+  if (Py_y->nd != 1 || Py_y->descr->type_num != NPY_FLOAT)
     {
       PyErr_SetString(PyExc_ValueError,"array y must be 1D and of type float");
       return NULL;
     }
-  if (Py_loc->nd != 1 || Py_loc->descr->type_num != PyArray_FLOAT)
+  if (Py_loc->nd != 1 || Py_loc->descr->type_num != NPY_FLOAT)
     {
       PyErr_SetString(PyExc_ValueError,"array locations must be 1D and of type float");
       return NULL;
@@ -51,7 +51,7 @@ static PyObject * TwoDspline_1Dinterp(PyObject * self, PyObject * args)
 
   /* creating output array */
   num_loc = Py_loc->dimensions[0];
-  Py_interpolated = (PyArrayObject *) PyArray_FromDims(1, &num_loc, PyArray_FLOAT);
+  Py_interpolated = (PyArrayObject *) PyArray_FromDims(1, &num_loc, NPY_FLOAT);
 
   /* extracting data */
   x = (double *) malloc(sizeof(double)*Py_x->dimensions[0]);
@@ -116,17 +116,17 @@ static PyObject * TwoDspline_1Dinterp_deriv(PyObject * self, PyObject * args)
   if (!PyArg_ParseTuple(args, "O!O!O!", &PyArray_Type, &Py_x, &PyArray_Type, &Py_y, &PyArray_Type, &Py_loc))
     return NULL;
   /* checking dimensions and type of arrays */
-  if (Py_x->nd != 1 || Py_x->descr->type_num != PyArray_FLOAT)
+  if (Py_x->nd != 1 || Py_x->descr->type_num != NPY_FLOAT)
     {
       PyErr_SetString(PyExc_ValueError,"array x must be 1D and of type float");
       return NULL;
     }
-  if (Py_y->nd != 1 || Py_y->descr->type_num != PyArray_FLOAT)
+  if (Py_y->nd != 1 || Py_y->descr->type_num != NPY_FLOAT)
     {
       PyErr_SetString(PyExc_ValueError,"array y must be 1D and of type float");
       return NULL;
     }
-  if (Py_loc->nd != 1 || Py_loc->descr->type_num != PyArray_FLOAT)
+  if (Py_loc->nd != 1 || Py_loc->descr->type_num != NPY_FLOAT)
     {
       PyErr_SetString(PyExc_ValueError,"array locations must be 1D and of type float");
       return NULL;
@@ -140,7 +140,7 @@ static PyObject * TwoDspline_1Dinterp_deriv(PyObject * self, PyObject * args)
 
   /* creating output array */
   num_loc = Py_loc->dimensions[0];
-  Py_interpolated = (PyArrayObject *) PyArray_FromDims(1, &num_loc, PyArray_FLOAT);
+  Py_interpolated = (PyArrayObject *) PyArray_FromDims(1, &num_loc, NPY_FLOAT);
 
   /* extracting data */
   x = (double *) malloc(sizeof(double)*Py_x->dimensions[0]);
@@ -209,22 +209,22 @@ static PyObject * TwoDspline_2Dinterp(PyObject * self, PyObject * args)
   if (!PyArg_ParseTuple(args, "O!O!O!O!", &PyArray_Type, &Py_x, &PyArray_Type, &Py_y, &PyArray_Type, &Py_z, &PyArray_Type, &Py_locations))
     return NULL;
   /* checking dimensions and type of arrays */
-  if (Py_x->nd != 1 || Py_x->descr->type_num != PyArray_FLOAT)
+  if (Py_x->nd != 1 || Py_x->descr->type_num != NPY_FLOAT)
     {
       PyErr_SetString(PyExc_ValueError,"array x must be 1D and of type float");
       return NULL;
     }
-  if (Py_y->nd != 1 || Py_y->descr->type_num != PyArray_FLOAT)
+  if (Py_y->nd != 1 || Py_y->descr->type_num != NPY_FLOAT)
     {
       PyErr_SetString(PyExc_ValueError,"array y must be 1D and of type float");
       return NULL;
     }
-  if (Py_z->nd != 2 || Py_z->descr->type_num != PyArray_FLOAT)
+  if (Py_z->nd != 2 || Py_z->descr->type_num != NPY_FLOAT)
     {
       PyErr_SetString(PyExc_ValueError,"array z must be 2D and of type float");
       return NULL;
     }
-  if (Py_locations->nd != 2 || Py_locations->descr->type_num != PyArray_FLOAT)
+  if (Py_locations->nd != 2 || Py_locations->descr->type_num != NPY_FLOAT)
     {
       PyErr_SetString(PyExc_ValueError,"array locations must be 2D and of type float");
       return NULL;
@@ -239,7 +239,7 @@ static PyObject * TwoDspline_2Dinterp(PyObject * self, PyObject * args)
 
   /* creating output array */
   num_loc = Py_locations->dimensions[1];
-  Py_interpolated = (PyArrayObject *) PyArray_FromDims(1, &num_loc, PyArray_FLOAT);
+  Py_interpolated = (PyArrayObject *) PyArray_FromDims(1, &num_loc, NPY_FLOAT);
 
   /* extracting data */
   x = (double *) malloc(sizeof(double)*Py_x->dimensions[0]);

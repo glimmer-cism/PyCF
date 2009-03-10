@@ -20,7 +20,7 @@
 
 """Class for plotting time series."""
 
-import PyGMT,Numeric
+import PyGMT,numpy
 
 __all__ = ['CFAreaTS','CFEISforcing']
 

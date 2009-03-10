@@ -20,7 +20,7 @@
 
 """Plotting a RSL histogram"""
 
-import PyGMT,PyCF,sys, Numeric
+import PyGMT,PyCF,sys, numpy
 
 parser = PyCF.CFOptParser()
 parser.timeint()

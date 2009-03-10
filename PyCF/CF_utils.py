@@ -18,7 +18,7 @@
 
 __all__ = ['CFinterpolate_xy','CFinterpolate_linear','CFstat_names','CFgetstats','CFdatadir']
 
-import math, Numeric,os
+import math, numpy,os
 
 # setting up PyCF data path
 try:
@@ -38,13 +38,13 @@ def CFgetstats(cffile,time, eismint=False):
     time: time slice to be processed
     eismint: set to True if it's an EISMINT 2 test (default: False)
 
-    returns a Numeric array: [volume, area, melt fraction]
+    returns a numpy array: [volume, area, melt fraction]
     if it's an eismint 2 file, then the array contains additionally [...,divide thickness,divide basal temp]"""
 
     if eismint:
-        stats = Numeric.zeros([5],Numeric.Float)
+        stats = numpy.zeros([5],'d')
     else:
-        stats = Numeric.zeros([3],Numeric.Float)
+        stats = numpy.zeros([3],'d')
     stats[0] = cffile.getIceVolume(time=time,scale=1.e-15)
     stats[1] = cffile.getIceArea(time=time,scale=1.e-12)
     stats[2] = cffile.getFracMelt(time=time)
@@ -60,7 +60,7 @@ def CFinterpolate_xy(profile,interval):
     "linearly interpolate profile, return interpolated array and number of points outside region"
 
     data = []
-    p = Numeric.array(profile)
+    p = numpy.array(profile)
     for i in range(0,len(p[0,:])):
         data.append([float(p[0,i]),float(p[1,i])])
     remainder = lr = 0.
@@ -87,7 +87,7 @@ def CFinterpolate_xy(profile,interval):
         lr = remainder
         d0 = d    
     
-    return Numeric.array([ix,iy],Numeric.Float32)
+    return numpy.array([ix,iy],'f')
 
 def CFinterpolate_linear(x,y,pos):
     """Linear interpolation.

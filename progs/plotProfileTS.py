@@ -20,7 +20,7 @@
 
 """A plot of CF profile timeseries."""
 
-import PyGMT,PyCF,Numeric,sys
+import PyGMT,PyCF,numpy,sys
 
 SIZE_Y = 4.
 

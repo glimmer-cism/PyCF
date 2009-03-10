@@ -20,7 +20,7 @@
 
 """A simple plot of CF fields."""
 
-import PyGMT,PyCF,sys,string, Numeric
+import PyGMT,PyCF,sys,string, numpy
 
 def contour(area,data,contours,time):
     """Contour data.
@@ -33,12 +33,12 @@ def contour(area,data,contours,time):
     if contours!=None:
         cntrs=contours.split('/')
         if len(cntrs)==3:
-            c = Numeric.arange(float(cntrs[0]), float(cntrs[1]), float(cntrs[2])).tolist()
+            c = numpy.arange(float(cntrs[0]), float(cntrs[1]), float(cntrs[2])).tolist()
             area.contour(data,c,'-W2/0/0/0',time)
         elif len(cntrs)==4:
-            c = Numeric.arange(float(cntrs[0]), float(cntrs[1]), float(cntrs[2])).tolist()
+            c = numpy.arange(float(cntrs[0]), float(cntrs[1]), float(cntrs[2])).tolist()
             area.contour(data,c,'-W2/0/0/0to',time)
-            c = Numeric.arange(float(cntrs[0]), float(cntrs[1]), float(cntrs[3])).tolist()
+            c = numpy.arange(float(cntrs[0]), float(cntrs[1]), float(cntrs[3])).tolist()
             area.contour(data,c,'-W2/0/0/0 -At',time,cntrtype='a')
         else:
             print 'Warning, cannot parse contour settings, %s.'%contours

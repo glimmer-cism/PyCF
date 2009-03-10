@@ -22,7 +22,7 @@
 
 __all__ = ['CFArea']
 
-import PyGMT,Numeric,math,tempfile, os.path
+import PyGMT,numpy,math,tempfile, os.path
 from PyGMT import gridcommand
 from CF_loadfile import CFvariable
 from CF_colourmap import CFcolours
@@ -127,7 +127,7 @@ class CFArea(PyGMT.AreaXY):
             illu_var = CFvariable(cffile,illuminate)
             illu_grd = illu_var.getGMTgrid(time,velogrid=isvelogrid)
             illu_file = tempfile.NamedTemporaryFile(suffix='.grd')
-            illu_arg = "=1 -G%s -A0 -Ne0.6"%illu_file.name
+            illu_arg = "=bf -G%s -A0 -Ne0.6"%illu_file.name
             gridcommand('grdgradient',illu_arg,illu_grd,verbose=self.verbose)
             args = "%s -I%s"%(args,illu_file.name)
             
@@ -216,7 +216,7 @@ class CFArea(PyGMT.AreaXY):
         cvar_grd = cvar.getGMTgrid(time)
         if illuminate in ['topg','thk','is'] :
             illu_file = tempfile.NamedTemporaryFile(suffix='.grd')
-            illu_arg = "=1 -G%s -A0 -Ne0.6"%(illu_file.name)
+            illu_arg = "=bf -G%s -A0 -Ne0.6"%(illu_file.name)
             gridcommand('grdgradient',illu_arg,cvar_grd,verbose=self.verbose)
             args = "%s -I%s"%(args,illu_file.name)
 

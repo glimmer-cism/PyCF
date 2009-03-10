@@ -20,7 +20,7 @@
 
 """Plotting RSL sea level curves"""
 
-import PyGMT,PyCF,sys,math, Numeric
+import PyGMT,PyCF,sys,math, numpy
 
 
 class plot_locations:

@@ -21,7 +21,7 @@
 */
 
 #include <Python.h>
-#include <Numeric/arrayobject.h>
+#include <numpy/arrayobject.h>
 #include <projects.h>
 #include <stdio.h>
 
@@ -191,11 +191,11 @@ static PyObject *Proj_gridfwd(Proj* self, PyObject * args)
     }
   /* convert tuple to two arrays */
   o = PyTuple_GetItem((PyObject *) input, 0);
-  if ((PyX = (PyArrayObject *) PyArray_CopyFromObject(o, PyArray_DOUBLE, 1, 0)) == NULL)
+  if ((PyX = (PyArrayObject *) PyArray_CopyFromObject(o, NPY_DOUBLE, 1, 0)) == NULL)
     return NULL;
   nx = PyArray_Size((PyObject *) PyX);
   o = PyTuple_GetItem((PyObject *) input, 1);
-  if ((PyY = (PyArrayObject *) PyArray_CopyFromObject(o, PyArray_DOUBLE, 1, 0)) == NULL)
+  if ((PyY = (PyArrayObject *) PyArray_CopyFromObject(o, NPY_DOUBLE, 1, 0)) == NULL)
     return NULL;
   ny = PyArray_Size((PyObject *) PyY);
   /* checking they are the same size */
@@ -239,11 +239,11 @@ static PyObject *Proj_gridinv(Proj* self, PyObject * args)
     }
   /* convert tuple to two arrays */
   o = PyTuple_GetItem((PyObject *) input, 0);
-  if ((PyX = (PyArrayObject *) PyArray_CopyFromObject(o, PyArray_DOUBLE, 1, 0)) == NULL)
+  if ((PyX = (PyArrayObject *) PyArray_CopyFromObject(o, NPY_DOUBLE, 1, 0)) == NULL)
     return NULL;
   nx = PyArray_Size((PyObject *) PyX);
   o = PyTuple_GetItem((PyObject *) input, 1);
-  if ((PyY = (PyArrayObject *) PyArray_CopyFromObject(o, PyArray_DOUBLE, 1, 0)) == NULL)
+  if ((PyY = (PyArrayObject *) PyArray_CopyFromObject(o, NPY_DOUBLE, 1, 0)) == NULL)
     return NULL;
   ny = PyArray_Size((PyObject *) PyY);
   /* checking they are the same size */

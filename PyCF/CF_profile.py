@@ -20,7 +20,7 @@
 
 __all__=['CFprofile','CFloadprofile','CFprofvar']
 
-import Numeric, PyGMT
+import numpy, PyGMT
 from CF_loadfile import *
 from CF_utils import CFinterpolate_xy
 from PyGMT import Grid
@@ -89,7 +89,7 @@ class CFprofile(object):
                 interpy.append(self.interpolated[1,i])
                 xvalues.append(self.xvalues[i])
         self.xvalues = xvalues
-        self.interpolated = Numeric.array([interpx,interpy],Numeric.Float32)
+        self.interpolated = numpy.array([interpx,interpy],'f')
 
     def coords_file(self,fname,projected=True):
         """Read control points from file.
@@ -236,7 +236,7 @@ class CFprofvar(CFvariable):
         y.reverse()
 
         # load data
-        data = Numeric.zeros([len(self.file.variables['lithoz']), len(self.cffile.xvalues)], Numeric.Float32)
+        data = numpy.zeros([len(self.file.variables['lithoz']), len(self.cffile.xvalues)], 'f')
         for i in range(0,len(self.file.variables['lithoz'])):
             prof = self.getProfile(time,level=len(self.file.variables['lithoz'])-i-1)
             data[i,:] = prof
@@ -246,10 +246,10 @@ class CFprofvar(CFvariable):
         grid.x_minmax = [0,self.cffile.xvalues[-1]]
         grid.y_minmax = [ymin,ymax]
         numy=int((ymax-ymin)/yres)+1
-        grid.data = Numeric.zeros([len(self.cffile.xvalues),numy], Numeric.Float32)
+        grid.data = numpy.zeros([len(self.cffile.xvalues),numy], 'f')
 
         # interpolate
-        pos = (Numeric.arange(numy)-numy+1)*yres
+        pos = (numpy.arange(numy)-numy+1)*yres
         for j in range(0,len(self.cffile.xvalues)):
             interpolated = CFinterpolate_linear(y,data[:,j],pos)
             grid.data[j,:] = interpolated
@@ -268,17 +268,17 @@ class CFprofvar(CFvariable):
 
         if time not in self.__data2d:
             # load ice thickness and bedrock profiles
-            ihprof = Numeric.array(CFprofvar(self.cffile,'thk').getProfile(time))
+            ihprof = numpy.array(CFprofvar(self.cffile,'thk').getProfile(time))
             try:
-                rhprof = Numeric.array(CFprofvar(self.cffile,'topg').getProfile(time))
+                rhprof = numpy.array(CFprofvar(self.cffile,'topg').getProfile(time))
             except:
-                rhprof = Numeric.zeros(len(ihprof))
+                rhprof = numpy.zeros(len(ihprof))
             ymin=min(rhprof)
             ymax=max(rhprof+ihprof)
             numy=int((ymax-ymin)/self.yres)+1
 
             # load data
-            data = Numeric.zeros([len(self.file.variables['level']), len(self.cffile.xvalues)], Numeric.Float32)
+            data = numpy.zeros([len(self.file.variables['level']), len(self.cffile.xvalues)], 'f')
             for i in range(0,len(self.file.variables['level'])):
                 prof = self.getProfile(time,level=len(self.file.variables['level'])-i-1)
                 data[i,:] = prof
@@ -287,7 +287,7 @@ class CFprofvar(CFvariable):
             grid = Grid()
             grid.x_minmax = [0,self.cffile.xvalues[-1]]
             grid.y_minmax = [ymin,ymax]
-            grid.data = Numeric.zeros([len(self.cffile.xvalues),numy], Numeric.Float32)
+            grid.data = numpy.zeros([len(self.cffile.xvalues),numy], 'f')
             grid.data[:,:] = -100000000.
             # interpolate
             rhprof = rhprof-ymin
@@ -295,7 +295,7 @@ class CFprofvar(CFvariable):
                 if ihprof[j]>0.:
                     start = int(rhprof[j]/self.yres)
                     end   = int((rhprof[j]+ihprof[j])/self.yres)+1
-                    pos = Numeric.arange(start*self.yres,end*self.yres,self.yres)
+                    pos = numpy.arange(start*self.yres,end*self.yres,self.yres)
                     interpolated = CFinterpolate_linear(rhprof[j]+ihprof[j]*self.file.variables['level'][:],
                                                         data[:,j],
                                                         pos)
@@ -322,7 +322,7 @@ class CFprofvar(CFvariable):
             grid = PyGMT.Grid()
             grid.x_minmax = [0,self.cffile.xvalues[-1]]
             grid.y_minmax = [self.cffile.time(t[0]),self.cffile.time(t[1])]
-            grid.data = Numeric.transpose(Numeric.array(data))
+            grid.data = numpy.transpose(numpy.array(data))
             return grid
         else:
             return self.getProfile(t,level=level)

@@ -20,7 +20,7 @@
 
 "plot stream locations"
 
-import PyGMT,PyCF,sys, Numeric, tempfile
+import PyGMT,PyCF,sys, numpy, tempfile
 
 # creating option parser
 deltat = 1000.
@@ -100,7 +100,7 @@ for i in range(0,numplots):
     except:
         bvel = infile.getvar('bvel')
     
-    data = Numeric.zeros((len(bvel.xdim), len(bvel.ydim)),Numeric.Float32)
+    data = numpy.zeros((len(bvel.xdim), len(bvel.ydim)),'f')
 
     # loop over time slices
     for t in range(time_start,time_end+1):
@@ -109,7 +109,7 @@ for i in range(0,numplots):
         if opts.options.velocity:
             data = data + vgrid
         else:
-            data = data + Numeric.where(vgrid>0., 1,0)
+            data = data + numpy.where(vgrid>0., 1,0)
     streams = bvel.getGMTgrid(time)
     streams.data = data/(time_end+1-time_start)
     

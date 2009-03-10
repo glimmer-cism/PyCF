@@ -22,7 +22,7 @@
 
 __all__ = ['CFRSLArea','CFRSLlocs','CFRSLAreaHist1D','CFRSLAreaHistT']
 
-import PyGMT,Numeric, tempfile
+import PyGMT,numpy, tempfile
 from CF_IOrsl import *
 
 CFRSLlocs = {'fenscan' : [74,70,103,105,95,214,219,107,89,77],
@@ -115,9 +115,9 @@ class CFRSLAreaHist1D(PyGMT.AutoXY):
 
         colourmap: if not None, use colourmap to indicate residuals"""
 
-        counts = Numeric.sum(self.__rsldata.data,0)
+        counts = numpy.sum(self.__rsldata.data,0)
         dx = (self.__rsldata.y_minmax[1]-self.__rsldata.y_minmax[0])/(len(counts)-1)
-        bins = Numeric.arange(self.__rsldata.y_minmax[0],self.__rsldata.y_minmax[1]+dx,dx)
+        bins = numpy.arange(self.__rsldata.y_minmax[0],self.__rsldata.y_minmax[1]+dx,dx)
         if colourmap==None:
             self.steps('-W1',bins,counts)
         else:
@@ -179,7 +179,7 @@ class CFRSLAreaHistT(PyGMT.AreaXY):
         else:
             v0 = vmin
         if vmax==None:
-            v1 = max(Numeric.ravel((self.__rsldata.data)))
+            v1 = max(numpy.ravel((self.__rsldata.data)))
         else:
             v1 = vmax
 
@@ -219,9 +219,9 @@ class CFRSLAreaHistT(PyGMT.AreaXY):
             self.area2d.image(self.__rsldata,self.__cmap.name)
 
         if self.plot_1dhist:
-            counts = Numeric.sum(self.__rsldata.data,0)
+            counts = numpy.sum(self.__rsldata.data,0)
             dx = (self.__rsldata.y_minmax[1]-self.__rsldata.y_minmax[0])/(len(counts)-1)
-            bins = Numeric.arange(self.__rsldata.y_minmax[0],self.__rsldata.y_minmax[1]+dx,dx)
+            bins = numpy.arange(self.__rsldata.y_minmax[0],self.__rsldata.y_minmax[1]+dx,dx)
 
             if self.plot_2dhist:
                 self.area1d.steps('-W1',counts,bins)

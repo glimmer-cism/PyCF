@@ -20,7 +20,7 @@
 
 """Plot multiple 3D profiles"""
 
-import PyGMT,PyCF,Numeric,sys
+import PyGMT,PyCF,numpy,sys
 
 # creating option parser
 parser = PyCF.CFOptParser()

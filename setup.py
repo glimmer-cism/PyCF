@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 
 from distutils.core import setup, Extension
-import os, sys
+import os, sys,os.path
+import numpy
+
+if not hasattr(sys, 'version_info') or sys.version_info < (2,3,0,'alpha',0):
+    raise SystemExit, "Python 2.3 or later required to build Numeric."
 
 def check_lib(libname,prefix_var,header):
     """Check if we can find header either in the directory where the environment
@@ -30,22 +34,26 @@ def check_lib(libname,prefix_var,header):
 (proj_include, proj_lib) = check_lib('proj4','PROJ_PREFIX','projects.h')
 (gsl_include, gsl_lib)   = check_lib('GSL', 'GSL_PREFIX', 'gsl/gsl_errno.h')
 
+# get path to numpy includes
+numpy_inc = os.path.join(sys.modules['numpy'].__path__[0],'core','include')
+
 print
 print 'Configuration'
 print '-------------'
 print 'proj4: %s, %s'%(proj_include, proj_lib)
 print 'GSL:   %s, %s'%(gsl_include, gsl_lib)
+print 'numpy include : %s'%numpy_inc
 print
 
 ext_modules = [
     Extension('PyCF.proj',
               ['src/projmodule.c'],
-              include_dirs=[proj_include],
+              include_dirs=[proj_include,numpy_inc],
               library_dirs=[proj_lib],
               libraries = ['proj']),
     Extension('PyCF.TwoDspline',
               ['src/2Dsplinemodule.c'],
-              include_dirs=[gsl_include],
+              include_dirs=[gsl_include,numpy_inc],
               library_dirs=[gsl_lib],
               libraries = ['gsl','gslcblas']),
     ]

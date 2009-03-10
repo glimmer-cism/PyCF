@@ -20,7 +20,7 @@
 
 __all__=['CFdiff']
 
-import PyGMT,sys, Numeric, tempfile
+import PyGMT,sys, numpy, tempfile
 import Scientific.Statistics.Histogram
 from CF_loadfile import CFchecklist
 from CF_timeseries import CFAreaTS
@@ -147,23 +147,23 @@ class CFdiff_base(PyGMT.AutoXY):
             diff = v1.get2Dfield(self.t1[0]+t,level=level) - v2.get2Dfield(self.t1[0]+t,level=level)
             if cv1 != None:
                 cvar = cv1.get2Dfield(self.t1[0]+t,level=level) + cv2.get2Dfield(self.t1[0]+t,level=level)
-                maxv = max(maxv, max(Numeric.ravel( Numeric.where(cvar > 0. , diff, -1000000.))))
-                minv = min(minv, min(Numeric.ravel( Numeric.where(cvar > 0. , diff, 1000000.))))
+                maxv = max(maxv, max(numpy.ravel( numpy.where(cvar > 0. , diff, -1000000.))))
+                minv = min(minv, min(numpy.ravel( numpy.where(cvar > 0. , diff, 1000000.))))
             else:
-                maxv = max(maxv, max(Numeric.ravel(diff)))
-                minv = min(minv, min(Numeric.ravel(diff)))
+                maxv = max(maxv, max(numpy.ravel(diff)))
+                minv = min(minv, min(numpy.ravel(diff)))
 
         # get data
-        hist_grid = Numeric.zeros([self.t1[1]-self.t1[0],self.bins],Numeric.Float)
+        hist_grid = numpy.zeros([self.t1[1]-self.t1[0],self.bins],'d')
         for t in range(0,self.t1[1]-self.t1[0]):
             diff = v1.get2Dfield(self.t1[0]+t,level=level) - v2.get2Dfield(self.t1[0]+t,level=level)
             if cv1 != None:
                 cvar = cv1.get2Dfield(self.t1[0]+t,level=level) + cv2.get2Dfield(self.t1[0]+t,level=level)
-                count = sum(Numeric.where(cvar > 0. , 1., 0.).flat)
-                diff = Numeric.where(cvar > 0. , diff, -1000000.)
+                count = sum(numpy.where(cvar > 0. , 1., 0.).flat)
+                diff = numpy.where(cvar > 0. , diff, -1000000.)
             else:
                 count = diff.flat.shape[0]
-            hist = Scientific.Statistics.Histogram.Histogram(Numeric.ravel(diff),self.bins,[minv,maxv])
+            hist = Scientific.Statistics.Histogram.Histogram(numpy.ravel(diff),self.bins,[minv,maxv])
             if count>0:
                 hist_grid[t,:] = hist.array[:,1]/count
 
@@ -171,11 +171,11 @@ class CFdiff_base(PyGMT.AutoXY):
         grid = PyGMT.Grid()
         grid.x_minmax = [self.cffile1.time(self.t1[0]),self.cffile1.time(self.t1[1])]
         grid.y_minmax = [minv,maxv]
-        grid.data = Numeric.where(hist_grid>0.,hist_grid,-10)
+        grid.data = numpy.where(hist_grid>0.,hist_grid,-10)
 
         # creating a colourmap
-        min_h = PyGMT.round_down(min(Numeric.ravel(hist_grid)))
-        max_h = PyGMT.round_up(max(Numeric.ravel(hist_grid)))
+        min_h = PyGMT.round_down(min(numpy.ravel(hist_grid)))
+        max_h = PyGMT.round_up(max(numpy.ravel(hist_grid)))
         self.colourmap = tempfile.NamedTemporaryFile(suffix='.cpt')
         PyGMT.command('makecpt','-Crainbow -Z -T%f/%f/%f > %s'%(min_h,max_h,(max_h-min_h)/10.,self.colourmap.name))
         self.colourmap.seek(0,2)
@@ -192,7 +192,7 @@ class CFdiff_base(PyGMT.AutoXY):
         """Plot difference between Ice Areas."""
         area1 = self.cffile1.getIceArea(time=self.t1)
         area2 = self.cffile2.getIceArea(time=self.t1)
-        diff = Numeric.array(area1)-Numeric.array(area2)
+        diff = numpy.array(area1)-numpy.array(area2)
 
         self.ylabel = 'ice area'
 
@@ -202,7 +202,7 @@ class CFdiff_base(PyGMT.AutoXY):
         """Plot difference between Ice Volumes."""
         vol1 = self.cffile1.getIceVolume(time=self.t1)
         vol2 = self.cffile2.getIceVolume(time=self.t1)
-        diff = Numeric.array(vol1)-Numeric.array(vol2)
+        diff = numpy.array(vol1)-numpy.array(vol2)
 
         self.ylabel = 'ice volume'
 
@@ -212,7 +212,7 @@ class CFdiff_base(PyGMT.AutoXY):
         """Plot difference between melt areas."""
         melt1 = self.cffile1.getFracMelt(time=self.t1)
         melt2 = self.cffile2.getFracMelt(time=self.t1)
-        diff = Numeric.array(melt1)-Numeric.array(melt2)
+        diff = numpy.array(melt1)-numpy.array(melt2)
 
         self.ylabel = 'melt fraction'
 

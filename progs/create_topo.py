@@ -18,7 +18,7 @@
 # along with GLIMMER; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import sys,getopt,PyCF,PyGMT,Numeric,datetime,os, tempfile
+import sys,getopt,PyCF,PyGMT,numpy,datetime,os, tempfile
 
 def usage():
     "print short help message"
@@ -136,7 +136,7 @@ if __name__ == '__main__':
         delta[0],delta[1])
 
     projfile = tempfile.NamedTemporaryFile(suffix='.bin')
-    PyGMT.command('grdproject','%s -G%s=1 %s'%(inname,projfile.name,proj_gmt))
+    PyGMT.command('grdproject','%s -G%s=bf %s'%(inname,projfile.name,proj_gmt))
 
     projtopo = PyGMT.read_grid(projfile.file)
     projfile.close()
@@ -170,14 +170,14 @@ if __name__ == '__main__':
     cffile.createDimension('time',None)
     #creating variables
     varx=cffile.createVariable('x0')
-    varx[:] = (delta[0]/2.+delta[0]*Numeric.arange(numx-1)).astype(Numeric.Float32)
+    varx[:] = (delta[0]/2.+delta[0]*numpy.arange(numx-1)).astype('f')
     varx=cffile.createVariable('x1')
-    varx[:] = (delta[0]*Numeric.arange(numx)).astype(Numeric.Float32)
+    varx[:] = (delta[0]*numpy.arange(numx)).astype('f')
 
     vary=cffile.createVariable('y0')
-    vary[:] = (delta[1]/2.+delta[1]*Numeric.arange(numy-1)).astype(Numeric.Float32)
+    vary[:] = (delta[1]/2.+delta[1]*numpy.arange(numy-1)).astype('f')
     vary=cffile.createVariable('y1')
-    vary[:] = (delta[1]*Numeric.arange(numy)).astype(Numeric.Float32)
+    vary[:] = (delta[1]*numpy.arange(numy)).astype('f')
 
     varlevel=cffile.createVariable('level')
     varlevel[0] = 1
@@ -207,9 +207,9 @@ if __name__ == '__main__':
     (longs,lats) = projection.gridinv((longs,lats))
     lats.shape = (numy,numx)
     longs.shape = (numy,numx)
-    varlong[0,:,:] = longs[:,:].astype(Numeric.Float32)
-    varlat[0,:,:] = lats[:,:].astype(Numeric.Float32)
+    varlong[0,:,:] = longs[:,:].astype('f')
+    varlat[0,:,:] = lats[:,:].astype('f')
 
-    vartopg[0,:,:] =  Numeric.transpose(projtopo.data[:,:]).astype(Numeric.Float32)
+    vartopg[0,:,:] =  numpy.transpose(projtopo.data[:,:]).astype('f')
 
     cffile.close()

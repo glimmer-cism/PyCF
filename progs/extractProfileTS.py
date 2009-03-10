@@ -20,7 +20,7 @@
 
 """extract data along profile for a time interval."""
 
-import PyGMT,PyCF,Numeric,sys
+import PyGMT,PyCF,numpy,sys
 
 # creating option parser
 parser = PyCF.CFOptParser()

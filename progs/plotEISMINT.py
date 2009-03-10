@@ -25,7 +25,7 @@ Width=18.
 ProfileHeight=2.5
 SpotHeight=3.5
 
-import PyGMT,PyCF,sys, Numeric
+import PyGMT,PyCF,sys, numpy
 
 parser = PyCF.CFOptParser()
 parser.profile(vars=False)
@@ -141,7 +141,7 @@ area.axis='wESn'
 for i in range(0,len(spots)):
     d1 = uvel.getSpotIJ(spots[i],time,level=None)
     d2 = uvel.getSpotIJ([spots[i][0]-1,spots[i][1]],time,level=None)
-    data = (Numeric.array(d1)+Numeric.array(d2))/2.
+    data = (numpy.array(d1)+numpy.array(d2))/2.
     area.line('-W1/%s'%PyCF.CFcolours[i],data,(1-infile.file.variables['level'][:]))
 area.xlabel = '%s [%s]'%(uvel.long_name,uvel.units)
 area.finalise(expandx=True)

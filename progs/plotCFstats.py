@@ -20,7 +20,7 @@
 
 """plot statistics of an ice sheet."""
 
-import PyGMT,PyCF,sys, Numeric
+import PyGMT,PyCF,sys, numpy
 
 # creating option parser
 parser = PyCF.CFOptParser()

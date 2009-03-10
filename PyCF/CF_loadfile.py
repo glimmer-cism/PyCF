@@ -20,7 +20,7 @@
 
 __all__=['CFloadfile','CFvariable','CFchecklist']
 
-import Numeric, PyGMT, Scientific.IO.NetCDF,os
+import numpy, PyGMT, Scientific.IO.NetCDF,os
 from pygsl import spline, histogram
 from PyGMT.PyGMTgrid import Grid
 from CF_proj import *
@@ -40,7 +40,7 @@ def CFchecklist(section,variable):
 
     if section is None:
         return (True, [0,len(variable)-1])
-    elif type(section) == list or type(section) == tuple or type(section) == Numeric.ArrayType:
+    elif type(section) == list or type(section) == tuple or type(section) == numpy.ndarray:
         return (True, [section[0],section[1]])
     else:
         return (False,section)
@@ -139,10 +139,10 @@ class CFloadfile(CFfile):
         fact = self.deltax*self.deltay*scale
         if tarray:
             for i in range(t[0],t[1]+1):
-                ih = Numeric.where(self.file.variables['thk'][i,:,:]>0.,1,0).flat
+                ih = numpy.where(self.file.variables['thk'][i,:,:]>0.,1,0).flat
                 values.append(sum(ih)*fact)
             return values
-        ih = Numeric.where(self.file.variables['thk'][t,:,:]>0.,1,0).flat
+        ih = numpy.where(self.file.variables['thk'][t,:,:]>0.,1,0).flat
         return sum(ih)*fact
 
     def getIceVolume(self,time=None,scale=1.):
@@ -157,7 +157,7 @@ class CFloadfile(CFfile):
         fact = self.deltax*self.deltay*scale
         if tarray:
             for i in range(t[0],t[1]+1):
-                ih = Numeric.where(self.file.variables['thk'][i,:,:]>0.,self.file.variables['thk'][i,:,:],0.).flat
+                ih = numpy.where(self.file.variables['thk'][i,:,:]>0.,self.file.variables['thk'][i,:,:],0.).flat
                 values.append(sum(ih)*fact)
             return values
         ih = self.file.variables['thk'][t,:,:].flat
@@ -177,14 +177,14 @@ class CFloadfile(CFfile):
             for i in range(t[0],t[1]+1):
                 ih = self.getIceArea(time=i,scale=scale)
                 if ih>0:
-                    mlt = Numeric.where(self.file.variables['bmlt'][i,:,:]>0.,1,0).flat
+                    mlt = numpy.where(self.file.variables['bmlt'][i,:,:]>0.,1,0).flat
                     values.append(sum(mlt)*fact/ih)
                 else:
                     values.append(0.)
             return values
         ih = self.getIceArea(time=t,scale=scale)
         if ih>0:
-            mlt = Numeric.where(self.file.variables['bmlt'][t,:,:]>0.,1,0).flat
+            mlt = numpy.where(self.file.variables['bmlt'][t,:,:]>0.,1,0).flat
             return sum(mlt)*fact/ih
         else:
             return 0.
@@ -260,7 +260,7 @@ class CFloadfile(CFfile):
         grid = PyGMT.Grid()
         grid.x_minmax = [times[0],times[-1]]
         grid.y_minmax = [PyGMT.round_down(min(residuals)),PyGMT.round_up(max(residuals))]
-        grid.data=Numeric.zeros([hnx,hny],Numeric.Float32)
+        grid.data=numpy.zeros([hnx,hny],'f')
         for j in range(0,hny):
             for i in range(0,hnx):
                 grid.data[i,j] = hist[i,j]
@@ -495,31 +495,31 @@ class CFvariable(object):
 
         elif self.name == 'pmp':
             if self.__varcache == None:
-                ih = Numeric.transpose(self.file.variables['thk'][time,:,:])
+                ih = numpy.transpose(self.file.variables['thk'][time,:,:])
                 self.__varcache = calc_pmp(ih)
             return self.__varcache
 
         elif self.name == 'vel':
             if self.__varcache == None:
-                self.__varcache = Numeric.sqrt(self.file.variables['uvel'][:,:,:,:]*self.file.variables['uvel'][:,:,:,:] +
+                self.__varcache = numpy.sqrt(self.file.variables['uvel'][:,:,:,:]*self.file.variables['uvel'][:,:,:,:] +
                                                self.file.variables['vvel'][:,:,:,:]*self.file.variables['vvel'][:,:,:,:])
             return self.__varcache
 
         elif self.name == 'bvel':
             if self.__varcache == None:
-                self.__varcache = Numeric.sqrt(self.file.variables['ubas'][:,:,:]*self.file.variables['ubas'][:,:,:]+
+                self.__varcache = numpy.sqrt(self.file.variables['ubas'][:,:,:]*self.file.variables['ubas'][:,:,:]+
                                                self.file.variables['vbas'][:,:,:]*self.file.variables['vbas'][:,:,:])
             return self.__varcache
 
         elif self.name == 'bvel_tavg':
             if self.__varcache == None:
-                self.__varcache = Numeric.sqrt(self.file.variables['ubas_tavg'][:,:,:]*self.file.variables['ubas_tavg'][:,:,:]+
+                self.__varcache = numpy.sqrt(self.file.variables['ubas_tavg'][:,:,:]*self.file.variables['ubas_tavg'][:,:,:]+
                                                self.file.variables['vbas_tavg'][:,:,:]*self.file.variables['vbas_tavg'][:,:,:])
             return self.__varcache
 
         elif self.name == 'tau':
             if self.__varcache == None:
-                self.__varcache = Numeric.sqrt(self.file.variables['taux'][:,:,:]*self.file.variables['taux'][:,:,:]+
+                self.__varcache = numpy.sqrt(self.file.variables['taux'][:,:,:]*self.file.variables['taux'][:,:,:]+
                                                self.file.variables['tauy'][:,:,:]*self.file.variables['tauy'][:,:,:])
             return self.__varcache
         
@@ -542,7 +542,7 @@ class CFvariable(object):
             if not self.is3d:
                 raise RuntimeError, 'Variable %s is not 3D.'%self.name
             # integrate
-            grid = Numeric.zeros((len(self.xdim),len(self.ydim)),Numeric.Float32)
+            grid = numpy.zeros((len(self.xdim),len(self.ydim)),'f')
 
             sigma = self.file.variables['level']
             sliceup = self.__get2Dfield(time,level=-1,velogrid=velogrid)
@@ -565,33 +565,33 @@ class CFvariable(object):
 
         if self.is3d:
             if self.name == 'vel':
-                grid = Numeric.transpose(Numeric.sqrt(
+                grid = numpy.transpose(numpy.sqrt(
                     self.file.variables['uvel'][time,level,:,:]*self.file.variables['uvel'][time,level,:,:]+
                     self.file.variables['vvel'][time,level,:,:]*self.file.variables['vvel'][time,level,:,:]))
             else:
-                grid = Numeric.transpose(self.file.variables[self.name][time,level,:,:])
+                grid = numpy.transpose(self.file.variables[self.name][time,level,:,:])
         else:
             if self.name == 'is':
-                grid = Numeric.transpose(self.file.variables['topg'][time,:,:] + self.file.variables['thk'][time,:,:])
+                grid = numpy.transpose(self.file.variables['topg'][time,:,:] + self.file.variables['thk'][time,:,:])
             elif self.name=='isobase':
-                grid = Numeric.transpose(self.file.variables['slc'][time,:,:])
+                grid = numpy.transpose(self.file.variables['slc'][time,:,:])
             elif self.name == 'pmp':
-                ih = Numeric.transpose(self.file.variables['thk'][time,:,:])
-                grid = Numeric.transpose(calc_pmp(ih))
+                ih = numpy.transpose(self.file.variables['thk'][time,:,:])
+                grid = numpy.transpose(calc_pmp(ih))
             elif self.name == 'bvel':
-                grid = Numeric.transpose(Numeric.sqrt(
+                grid = numpy.transpose(numpy.sqrt(
                     self.file.variables['ubas'][time,:,:]*self.file.variables['ubas'][time,:,:]+
                     self.file.variables['vbas'][time,:,:]*self.file.variables['vbas'][time,:,:]))
             elif self.name == 'bvel_tavg':
-                grid = Numeric.transpose(Numeric.sqrt(
+                grid = numpy.transpose(numpy.sqrt(
                     self.file.variables['ubas_tavg'][time,:,:]*self.file.variables['ubas_tavg'][time,:,:]+
                     self.file.variables['vbas_tavg'][time,:,:]*self.file.variables['vbas_tavg'][time,:,:]))
             elif self.name == 'tau':
-                grid = Numeric.transpose(Numeric.sqrt(
+                grid = numpy.transpose(numpy.sqrt(
                     self.file.variables['taux'][time,:,:]*self.file.variables['taux'][time,:,:]+
                     self.file.variables['tauy'][time,:,:]*self.file.variables['tauy'][time,:,:]))
             else:
-                grid = Numeric.transpose(self.file.variables[self.name][time,:,:])
+                grid = numpy.transpose(self.file.variables[self.name][time,:,:])
         if self.name in ['topg','is']:
             if 'eus' in self.file.variables.keys():
                 grid = grid - self.file.variables['eus'][time]
@@ -604,7 +604,7 @@ class CFvariable(object):
                 if 'thk' not in self.file.variables.keys():
                     print 'Warning, cannot correct for pmt because ice thicknesses are not in file'
                 else:
-                    ih = Numeric.transpose(self.file.variables['thk'][time,:,:])
+                    ih = numpy.transpose(self.file.variables['thk'][time,:,:])
                     if self.name == 'btemp':
                         fact = 1.
                     else:
@@ -625,7 +625,7 @@ class CFvariable(object):
         level: horizontal slice."""
 
         data = self.get2Dfield(time,level=level)
-        loc = Numeric.zeros((2,1),Numeric.Float32)
+        loc = numpy.zeros((2,1),'f')
         loc[0,0] = pos[0]
         loc[1,0] = pos[1]
         res = TwoDspline(self.xdim[:],self.ydim[:],data,loc)
